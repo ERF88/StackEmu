@@ -1,0 +1,25 @@
+# Testing strategy / Estratégia de testes
+
+## Test pyramid / Pirâmide
+
+| Layer | Planned tool | Scope |
+|---|---|---|
+| Domain | JUnit 5 | Value objects and rules |
+| Application | JUnit 5 with fake ports | Use cases, errors, limits |
+| AWS adapter | Integration tests | Real emulator operations |
+| Web | `@QuarkusTest` + REST Assured | Status, HTML, fragments, CSRF |
+| Architecture | ArchUnit | Forbidden dependency direction |
+| E2E | Playwright | Essential user flow |
+| Accessibility | Automated tool + keyboard | Detectable issues plus manual navigation |
+| Container | Smoke test | Startup, non-root user, port, health |
+| Compatibility | Progressive matrix | Differences by emulator/resource |
+
+Tool versions and commands are unverified pending Phase 0.
+
+## Critical cases / Casos críticos
+
+Test correct host/Compose endpoints; unavailable emulator during navigation; empty bucket/absent tags; nested prefixes and pagination; limit/over-limit uploads; large download without full in-memory read; special spaces/Unicode/slashes; rejected CSRF; HTML-like payload displayed inertly; redacted secret logs; >1,000 objects; streaming-start failures; missing i18n keys; and a slow counter that does not break dashboard rendering.
+
+## Evidence discipline / Disciplina de evidência
+
+Pin emulator versions. Record test environment, operations, skipped tests with reason, and limitations in the compatibility matrix. A passing connection test is not an emulator certification. Automated accessibility checks complement rather than replace manual keyboard/focus review.

@@ -1,0 +1,28 @@
+# Security design / Projeto de segurança
+
+## Trust boundary / Limite de confiança
+
+The GUI has network access to the configured endpoint and can alter emulator data. Anyone who can access it can therefore affect development data. The MVP is for a trusted local environment, not multi-user or internet exposure.
+
+## Required controls / Controles obrigatórios
+
+- Reference Compose mapping: `127.0.0.1:8080:8080`.
+- No Docker socket mount, arbitrary shell, or root runtime user.
+- Appropriate HTTP methods and CSRF protection for every mutation.
+- Default Qute escaping; never render emulator-controlled data unescaped.
+- Validate/encode route/query parameters and filenames.
+- Never place credentials in logs, HTML, error messages, or CLI examples.
+- Generate/clean temporary upload files safely.
+- Stream downloads as attachments with `X-Content-Type-Options: nosniff`; do not render uploaded HTML.
+- Apply body-size, timeout, and resource limits.
+- Publish SBOM and vulnerability scan results as release artifacts.
+
+These are planned acceptance criteria, not verified implementation controls.
+
+## SSRF risk / Risco SSRF
+
+An unrestricted endpoint can reach internal services or cloud metadata if StackEmu is exposed/misconfigured. In MVP, configuration comes from environment and cannot be changed per request. A future dynamic endpoint must have an allow-destination policy, reject unexpected schemes, and not rely on textual URL validation alone.
+
+## Credentials and emulator semantics / Credenciais
+
+Example `test` credentials are development placeholders. Any lack of SigV4 validation by an emulator must never be described as secure authentication. IAM/isolation claims require version-specific evidence.
