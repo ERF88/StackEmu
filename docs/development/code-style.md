@@ -18,7 +18,7 @@ These are the StackEmu defaults. They use established language tools while prese
 | Editor/Git files       | EditorConfig and Git attributes: UTF-8, LF, final newline, spaces, no trailing whitespace                                                                                |
 | Third-party JavaScript | Vendored htmx is excluded from formatting; keep upstream contents and notices intact                                                                                     |
 
-No first-party JavaScript exists yet. If introduced, use Prettier and add ESLint with a pinned configuration before merging substantial JS; avoid inline event handlers and translate user-facing strings. These are future conventions, not an existing ESLint check.
+First-party JavaScript currently exists only in browser-test tooling (`.mjs`), with pinned ESLint recommended rules and Prettier. Runtime UI still uses Qute/CSS and vendored htmx. Avoid inline event handlers and translate any future runtime user-facing strings.
 
 ## Java and architecture review
 
@@ -80,7 +80,7 @@ Generated output, `node_modules`, build directories and vendor assets are exclud
 
 Java segue Google Java Style, com Spotless/google-java-format e imports explícitos. XML Maven segue SortPom. CSS, YAML, JSON e Markdown usam Prettier; CSS recebe Stylelint e Markdown recebe markdownlint. Workflows são verificados por actionlint, Compose por sua validação nativa e Dockerfile por Hadolint. PowerShell usa PSScriptAnalyzer, com quatro espaços. Todos os arquivos próprios usam UTF-8/LF.
 
-Templates Qute exigem HTML semântico, indentação de dois espaços e blocos legíveis; recebem checagem básica de espaços e validação no build. Não são tratados como HTML comum por Prettier. O htmx externo permanece intacto. Não há código JavaScript próprio neste momento; ESLint será adicionado quando houver esse código.
+Templates Qute exigem HTML semântico, indentação de dois espaços e blocos legíveis; recebem checagem básica de espaços e validação no build. Não são tratados como HTML comum por Prettier. O htmx externo permanece intacto. O JavaScript próprio é restrito às ferramentas de teste `.mjs`, com ESLint fixado e Prettier; não adiciona runtime JS próprio.
 
 O CI verifica as regras e não reescreve arquivos. Execute os comandos acima antes de contribuir. Formatação não substitui revisão de nomes, limites de camada, erros, segurança, acessibilidade e comportamento. Node é usado somente pelas ferramentas de desenvolvimento; executar/compilar o produto segue o fluxo Maven/Java/Compose.
 

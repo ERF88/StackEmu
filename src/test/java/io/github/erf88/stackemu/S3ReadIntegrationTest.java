@@ -79,6 +79,28 @@ class S3ReadIntegrationTest {
   }
 
   @Test
+  void moreThanOneThousandObjectsArePagedWithoutDuplicatesOrUnboundedPages() {
+    for (int index = 0; index < 1005; index++) {
+      put("large/file-" + index + ".txt", "fixture", "text/plain");
+    }
+    Set<String> seen = new HashSet<>();
+    String token = null;
+    int pages = 0;
+    do {
+      var page = reader.listObjects(bucket, "large/", token, 200);
+      assertTrue(page.objects().size() <= 200);
+      for (var object : page.objects()) {
+        assertTrue(seen.add(object.key()), "An object must not repeat across pages");
+      }
+      token = page.nextToken();
+      pages++;
+      assertTrue(pages <= 6, "Continuation must terminate for this fixture");
+    } while (token != null);
+    assertEquals(1005, seen.size());
+    assertEquals(6, pages);
+  }
+
+  @Test
   void emptyBucketAndAbsentTagsAreReadable() {
     given()
         .queryParam("bucket", bucket)

@@ -8,6 +8,8 @@ A Fase 3 implementa leitura e escritas limitadas contra MiniStack 1.5.25. Exclus
 
 ## MVP exclusions / Exclusões do MVP
 
+Phase 4 adds a Chromium/axe automated baseline and REST browser policy, not full WCAG/security certification. Human assistive-technology/zoom review and cross-browser checks remain pending. See [evidence](spikes/phase-4-results.md) and [review](security-review.md). / A Fase 4 adiciona baseline automático, não certificação; revisão humana e outros browsers seguem pendentes.
+
 Phase 3 adds bucket creation, bounded single-file upload and markers; see [guide](development/phase-3.md). Write targets use a conservative name policy. Authentication, signed-CSRF policy, crash recovery, concurrency stress, versions and resumability remain unverified/deferred. / A Fase 3 adiciona escritas limitadas; autenticação, assinatura CSRF, crashes, concorrência, versões e retomada continuam pendentes.
 
 - AWS account administration, real-AWS console replacement, multitenancy, and internet exposure.

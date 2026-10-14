@@ -8,6 +8,9 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- Ferramentas Chromium/axe da Fase 4, navegação bilíngue/temas/móvel e fluxo S3 isolado na GUI.
+- Cabeçalhos de segurança REST e erros associados aos campos; ESLint fixado para JavaScript de testes.
+
 - Fase 3: criação de buckets, upload individual, marcadores de pasta, validação por campo e confirmação.
 - Formulários CSRF, limites de arquivo/requisição, limpeza e comandos POSIX ilustrativos.
 - Port/adapter de escrita separado e testes do fluxo completo/segurança.

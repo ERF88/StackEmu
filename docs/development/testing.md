@@ -16,7 +16,7 @@ Phase 2 coverage/commands: [guide](phase-2.md), [evidence](../spikes/phase-2-res
 | Container     | Smoke test                    | Startup, non-root user, port, health     |
 | Compatibility | Progressive matrix            | Differences by emulator/resource         |
 
-Tool versions and commands are unverified pending Phase 0.
+Implemented commands/evidence are recorded in the phase guides; browser tooling and current limits: [Phase 4](phase-4.md). JUnit/REST Assured/ArchUnit and MiniStack are established; browser/axe checks do not replace manual accessibility review. / Comandos e evidências nos guias; testes de navegador não substituem revisão manual.
 
 ## Critical cases / Casos críticos
 

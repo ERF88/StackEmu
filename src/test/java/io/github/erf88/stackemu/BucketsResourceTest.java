@@ -28,6 +28,20 @@ class BucketsResourceTest {
   }
 
   @Test
+  void pagesApplyBrowserSecurityPolicyWithoutInlineScriptPermissions() {
+    given()
+        .get("/")
+        .then()
+        .header("X-Content-Type-Options", "nosniff")
+        .header("Referrer-Policy", "no-referrer")
+        .header("X-Frame-Options", "DENY")
+        .header("Content-Security-Policy", containsString("form-action 'self'"))
+        .header("Content-Security-Policy", not(containsString("unsafe-inline")))
+        .header("Content-Security-Policy", not(containsString("unsafe-eval")))
+        .body(containsString("allowEval"));
+  }
+
+  @Test
   void unavailableIsAnUnderstandablePage() {
     given()
         .get("/")

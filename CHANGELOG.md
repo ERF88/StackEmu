@@ -6,6 +6,9 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Phase 4 Chromium/axe browser tooling, bilingual/theme/mobile navigation checks and isolated S3 UI flow.
+- REST browser security headers and accessible field-error associations; pinned ESLint for test JavaScript.
+
 - Phase 3 bucket creation, single-file upload, folder markers, per-field validation and explicit confirmation.
 - Quarkus CSRF forms, upload/request limits, temporary cleanup and illustrative POSIX CLI equivalents.
 - Separate mutation port/adapter and automated end-to-end mutation/security cases.

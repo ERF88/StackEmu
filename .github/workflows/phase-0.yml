@@ -32,6 +32,7 @@ jobs:
         run: ./scripts/smoke.ps1
       - shell: pwsh
         run: ./scripts/verify-writes.ps1
+      - run: docker run --rm --ipc=host --network host -v "$PWD:/repo" -w /repo mcr.microsoft.com/playwright:v1.64.1-noble bash -lc "npm ci --ignore-scripts --no-audit --no-fund && npm run test:browser"
       - run: docker compose -f compose.yaml -f compose.streaming-test.yaml up -d --no-deps gui
       - shell: pwsh
         run: ./scripts/verify-streaming.ps1
