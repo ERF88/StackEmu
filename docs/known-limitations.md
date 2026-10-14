@@ -2,11 +2,13 @@
 
 ## Baseline status / Status do baseline
 
-Phase 2 implements bucket/object reading, pagination, prefixes, metadata and streaming downloads against MiniStack 1.5.25. See [evidence](spikes/phase-2-results.md). GUI writes, range/resume and version selection are not implemented; full compatibility remains unverified.
+Phase 3 implements the read/write S3 slice against MiniStack 1.5.25. See [evidence](spikes/phase-3-results.md). Deletion, overwrite, range/resume and version selection are not implemented in the GUI; full compatibility remains unverified.
 
-A Fase 2 implementa leitura/paginação/prefixos/metadados/download contra MiniStack 1.5.25. Escritas, retomada e versões ainda não existem; compatibilidade completa permanece não verificada.
+A Fase 3 implementa leitura e escritas limitadas contra MiniStack 1.5.25. Exclusão, sobrescrita, retomada e versões não existem na GUI; compatibilidade completa permanece não verificada.
 
 ## MVP exclusions / Exclusões do MVP
+
+Phase 3 adds bucket creation, bounded single-file upload and markers; see [guide](development/phase-3.md). Write targets use a conservative name policy. Authentication, signed-CSRF policy, crash recovery, concurrency stress, versions and resumability remain unverified/deferred. / A Fase 3 adiciona escritas limitadas; autenticação, assinatura CSRF, crashes, concorrência, versões e retomada continuam pendentes.
 
 - AWS account administration, real-AWS console replacement, multitenancy, and internet exposure.
 - Other service modules, persistent editable connection profiles, arbitrary terminal/shell, and native image as a release requirement.

@@ -33,7 +33,9 @@ public final class S3ViewMapper {
       List<ObjectRow> objects,
       String nextHref,
       String rootHref,
-      int pageSize) {}
+      int pageSize,
+      String uploadHref,
+      String folderHref) {}
 
   public record ObjectPageView(
       String key,
@@ -121,7 +123,19 @@ public final class S3ViewMapper {
             ? ""
             : bucketPath(details.name(), prefix, listing.nextToken()) + "&" + ui.query(),
         bucketPath(details.name(), prefix, null) + "&" + ui.query(),
-        pageSize);
+        pageSize,
+        "/s3/write?action=upload&bucket="
+            + encode(details.name())
+            + "&prefix="
+            + encode(prefix)
+            + "&"
+            + ui.query(),
+        "/s3/write?action=folder&bucket="
+            + encode(details.name())
+            + "&prefix="
+            + encode(prefix)
+            + "&"
+            + ui.query());
   }
 
   public static ObjectPageView toObjectPage(

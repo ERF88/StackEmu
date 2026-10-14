@@ -1,0 +1,11 @@
+{#include layout}
+  {#content}
+    <h1>{ui.text('writeCompleted')}</h1>
+    <p>{ui.text('targetBucket')}: <code>{view.bucket}</code></p>
+    {#if !view.createBucket}<p>{ui.text('targetKey')}: <code>{view.key}</code></p>{/if}
+    <a class="button" href="{destination}">{ui.text('openResource')}</a>
+    <h2>{ui.text('cliEquivalent')}</h2>
+    <p>{ui.text('cliHelp')}</p>
+    <textarea readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
+  {/content}
+{/include}

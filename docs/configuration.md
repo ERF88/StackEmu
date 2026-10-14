@@ -2,15 +2,19 @@
 
 ## Source of truth / Fonte de verdade
 
-Phase 1 implements the effective connection view. Phase 2 adds `STACKEMU_PAGE_SIZE` mapped to `stackemu.page-size`: default 50, clamped to 1–1000. Upload/preview remain planned. See [Phase 1](development/phase-1.md) and [Phase 2](development/phase-2.md).
+Phase 3 implements `STACKEMU_MAX_UPLOAD` (positive bytes, default 10485760) and `STACKEMU_HTTP_MAX_BODY` (Quarkus size syntax, default 11M). Both limits apply independently; allow multipart overhead. Preview remains planned. See [Phase 3](development/phase-3.md).
 
-A Fase 1 mostra configuração efetiva; a Fase 2 implementa paginação, padrão 50 e limite defensivo 1–1000. Upload/preview continuam planejados. A tabela abaixo mantém variáveis futuras; não é contrato integral do runtime.
+A Fase 3 implementa limites de arquivo e corpo HTTP independentes; ajuste ambos com margem para multipart. Preview continua planejado.
+
+Phase 1 implements the effective connection view. Phase 2 adds `STACKEMU_PAGE_SIZE` mapped to `stackemu.page-size`: default 50, clamped to 1–1000. Preview remains planned. See [Phase 1](development/phase-1.md) and [Phase 2](development/phase-2.md).
+
+A Fase 1 mostra configuração efetiva; a Fase 2 implementa paginação, padrão 50 e limite defensivo 1–1000. Preview continua planejado. A tabela distingue configurações atuais de planejamento futuro.
 
 For the MVP, environment variables are the only persistent connection configuration. The UI should display the effective endpoint and region, mask secrets, and test a safe read operation. It must not imply that edits persist across restart. A temporary session-only override is deferred unless a real need is demonstrated.
 
 No MVP, variáveis de ambiente são a única configuração persistente. A UI deve mostrar endpoint/região efetivos, mascarar segredos e testar uma operação segura de leitura. Não deve sugerir que edições persistem após reinício.
 
-## Planned variables / Variáveis planejadas
+## Variables and status / Variáveis e status
 
 | Variable                     | Proposed default        | Rule/status                                                      |
 | ---------------------------- | ----------------------- | ---------------------------------------------------------------- |
@@ -19,7 +23,8 @@ No MVP, variáveis de ambiente são a única configuração persistente. A UI de
 | `STACKEMU_ACCESS_KEY`        | `test`                  | Development value only; not security                             |
 | `STACKEMU_SECRET_KEY`        | `test`                  | Never log or display                                             |
 | `STACKEMU_EMULATOR`          | `auto`                  | `ministack`, `localstack`, `moto`, or `generic`                  |
-| `STACKEMU_MAX_UPLOAD`        | Conservative value TBD  | Must match effective HTTP/application limits                     |
+| `STACKEMU_MAX_UPLOAD`        | `10485760`              | Implemented file-byte limit; positive integer                    |
+| `STACKEMU_HTTP_MAX_BODY`     | `11M`                   | Implemented whole-request limit; include multipart overhead      |
 | `STACKEMU_PREVIEW_MAX_BYTES` | `1048576`               | 1 MiB preview cap                                                |
 | `STACKEMU_PAGE_SIZE`         | `50`                    | Configurable with defensive maximum                              |
 

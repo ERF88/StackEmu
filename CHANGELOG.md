@@ -6,6 +6,10 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Phase 3 bucket creation, single-file upload, folder markers, per-field validation and explicit confirmation.
+- Quarkus CSRF forms, upload/request limits, temporary cleanup and illustrative POSIX CLI equivalents.
+- Separate mutation port/adapter and automated end-to-end mutation/security cases.
+
 - Naming/responsibility baseline, bilingual guide, class inventory, ADR-0006 and contributor/agent instructions.
 - Stronger architecture rules for roles, identifiers, constructor injection and AWS/web isolation.
 
@@ -32,4 +36,4 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Not yet released or verified
 
-- GUI bucket creation/upload, full compatibility, benchmarks, arm64 and mutation security remain pending.
+- Full compatibility, benchmarks, arm64 and broader security review remain pending.

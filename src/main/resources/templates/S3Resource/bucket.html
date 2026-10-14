@@ -1,6 +1,8 @@
 {#include layout}
   {#content}
     <h1>{view.name}</h1>
+    <a class="button" href="{view.uploadHref}">{ui.text('uploadObject')}</a>
+    <a class="button" href="{view.folderHref}">{ui.text('createFolder')}</a>
     <nav aria-label="{ui.text('breadcrumb')}">
       <ol class="breadcrumbs">
         {#for crumb in view.breadcrumbs}

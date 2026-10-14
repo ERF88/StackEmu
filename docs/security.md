@@ -17,7 +17,9 @@ The GUI has network access to the configured endpoint and can alter emulator dat
 - Apply body-size, timeout, and resource limits.
 - Publish SBOM and vulnerability scan results as release artifacts.
 
-These are planned acceptance criteria, not verified implementation controls.
+The list mixes implemented controls and remaining release criteria. Phase 3 introduces CSRF forms, application/HTTP limits and temporary-file cleanup; consult [executed evidence](spikes/phase-3-results.md). SBOM/scanning, signed-token policy and broader threat review are not certified by these tests.
+
+A lista reúne controles atuais e critérios futuros. A Fase 3 adiciona formulários CSRF, limites e limpeza; evidências devem ser consultadas separadamente. Os testes não certificam segurança completa.
 
 ## SSRF risk / Risco SSRF
 

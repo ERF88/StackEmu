@@ -8,6 +8,10 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- Fase 3: criação de buckets, upload individual, marcadores de pasta, validação por campo e confirmação.
+- Formulários CSRF, limites de arquivo/requisição, limpeza e comandos POSIX ilustrativos.
+- Port/adapter de escrita separado e testes do fluxo completo/segurança.
+
 - Diretrizes de nomenclatura/responsabilidade, inventário de classes, ADR-0006 e instruções para colaboradores/agentes.
 - Testes de papéis, identificadores, injeção e isolamento AWS/web.
 
@@ -34,4 +38,4 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Ainda não lançado ou verificado
 
-- Criação/upload pela GUI, compatibilidade completa, benchmarks, arm64 e segurança de mutações continuam pendentes.
+- Compatibilidade completa, benchmarks, arm64 e revisão ampla de segurança continuam pendentes.

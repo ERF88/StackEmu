@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Phase 2: S3 reading.** StackEmu provides bucket details, paginated objects, prefixes/breadcrumbs, metadata and streaming downloads, with English/pt-BR and light/dark themes. The MVP is still in development.
+> **Phase 3: S3 read/write slice.** StackEmu provides bucket creation, uploads, folder markers, paginated navigation, metadata and streaming downloads, with English/pt-BR and light/dark themes. The MVP is still in development.
 
 [Português (Brasil)](README.pt-BR.md)
 
@@ -8,7 +8,7 @@
 
 The product name was selected on 13 October 2026, but legal/name validation is **pending**. The project repository is [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Before a public release, validate package registries, Docker Hub, domain availability, and INPI records. StackEmu is not affiliated with AWS, MiniStack, LocalStack, or Moto.
 
-Phase 2 reads and downloads objects against MiniStack 1.5.25. GUI bucket creation/upload remain pending. See the [Phase 2 guide](docs/development/phase-2.md) and [executed evidence](docs/spikes/phase-2-results.md).
+Phase 3 adds confirmed CSRF-protected forms and bounded uploads against MiniStack 1.5.25. See the [Phase 3 guide](docs/development/phase-3.md) and [executed evidence](docs/spikes/phase-3-results.md). There is no deletion, overwrite or resumable-upload UI; use only in trusted local development.
 
 ## Planned stack
 
