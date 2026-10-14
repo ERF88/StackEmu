@@ -22,7 +22,7 @@ Requires Docker Compose v2. The GUI connects to MiniStack through `http://minist
 docker compose up --build -d
 ```
 
-Open http://127.0.0.1:8080/. See [Phase 0 commands and tests](docs/development/phase-0.md) and [executed evidence and limitations](docs/spikes/phase-0-results.md). Stop using `docker compose down`; named volumes are retained.
+Open <http://127.0.0.1:8080/>. See [Phase 0 commands and tests](docs/development/phase-0.md) and [executed evidence and limitations](docs/spikes/phase-0-results.md). Stop using `docker compose down`; named volumes are retained.
 
 ## Documentation
 

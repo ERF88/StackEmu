@@ -1,7 +1,16 @@
 {#include layout}
-{#content}
-<h1>{ui.text('dashboard')}</h1><p>{ui.text('scope')}</p>
-<a class="button" href="/?{ui.query}" hx-get="/buckets?{ui.query}" hx-target="#bucket-panel" hx-swap="outerHTML" hx-indicator="#loading">{ui.text('refresh')}</a><span id="loading" class="htmx-indicator" aria-hidden="true">…</span>
-{#include BucketsResource/buckets /}
-{/content}
+  {#content}
+    <h1>{ui.text('dashboard')}</h1>
+    <p>{ui.text('scope')}</p>
+    <a
+      class="button"
+      href="/?{ui.query}"
+      hx-get="/buckets?{ui.query}"
+      hx-target="#bucket-panel"
+      hx-swap="outerHTML"
+      hx-indicator="#loading"
+    >{ui.text('refresh')}</a>
+    <span id="loading" class="htmx-indicator" aria-hidden="true">…</span>
+    {#include BucketsResource/buckets /}
+  {/content}
 {/include}

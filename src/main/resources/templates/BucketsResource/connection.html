@@ -1,8 +1,24 @@
 {#include layout}
-{#content}
-<h1>{ui.text('connection')}</h1>
-<section><dl><dt>{ui.text('endpoint')}</dt><dd><code>{configuration.endpoint}</code></dd><dt>{ui.text('region')}</dt><dd>{configuration.region}</dd><dt>{ui.text('credentials')}</dt><dd>•••••••• — {ui.text('masked')}</dd></dl><p>{ui.text('source')}</p></section>
-<a class="button" href="/connection?{ui.query}" hx-get="/buckets?{ui.query}" hx-target="#bucket-panel" hx-swap="outerHTML">{ui.text('refresh')}</a>
-{#include BucketsResource/buckets /}
-{/content}
+  {#content}
+    <h1>{ui.text('connection')}</h1>
+    <section>
+      <dl>
+        <dt>{ui.text('endpoint')}</dt>
+        <dd><code>{configuration.endpoint}</code></dd>
+        <dt>{ui.text('region')}</dt>
+        <dd>{configuration.region}</dd>
+        <dt>{ui.text('credentials')}</dt>
+        <dd>•••••••• — {ui.text('masked')}</dd>
+      </dl>
+      <p>{ui.text('source')}</p>
+    </section>
+    <a
+      class="button"
+      href="/connection?{ui.query}"
+      hx-get="/buckets?{ui.query}"
+      hx-target="#bucket-panel"
+      hx-swap="outerHTML"
+    >{ui.text('refresh')}</a>
+    {#include BucketsResource/buckets /}
+  {/content}
 {/include}

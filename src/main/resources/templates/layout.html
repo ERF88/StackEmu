@@ -1,6 +1,32 @@
 <!doctype html>
 <html lang="{ui.language}" data-theme="{ui.theme}">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>StackEmu · S3</title><link rel="stylesheet" href="/app.css?v=phase1"><script src="/vendor/htmx.min.js" defer></script></head>
-<body><a class="skip" href="#content">{ui.text('skip')}</a><main><header><a class="brand" href="/?{ui.query}">StackEmu <small>S3</small></a><div class="preferences"><a href="{ui.english}" lang="en">English</a><a href="{ui.portuguese}" lang="pt-BR">Português</a><a href="{ui.toggleTheme}">{ui.text('theme')}</a></div></header>
-<nav aria-label="{ui.text('navigation')}"><a href="/?{ui.query}">{ui.text('dashboard')}</a><a href="/connection?{ui.query}">{ui.text('connection')}</a><a href="/components?{ui.query}">{ui.text('components')}</a></nav>
-<div id="content" tabindex="-1">{#insert content /}</div><footer>{ui.text('local')}</footer></main></body></html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>StackEmu · S3</title>
+    <link rel="stylesheet" href="/app.css?v=phase1">
+    <script src="/vendor/htmx.min.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#content">{ui.text('skip')}</a>
+    <main>
+      <header>
+        <a class="brand" href="/?{ui.query}">StackEmu <small>S3</small></a>
+        <div class="preferences">
+          <a href="{ui.english}" lang="en">English</a>
+          <a href="{ui.portuguese}" lang="pt-BR">Português</a>
+          <a href="{ui.toggleTheme}">{ui.text('theme')}</a>
+        </div>
+      </header>
+      <nav aria-label="{ui.text('navigation')}">
+        <a href="/?{ui.query}">{ui.text('dashboard')}</a>
+        <a href="/connection?{ui.query}">{ui.text('connection')}</a>
+        <a href="/components?{ui.query}">{ui.text('components')}</a>
+      </nav>
+      <div id="content" tabindex="-1">
+        {#insert content /}
+      </div>
+      <footer>{ui.text('local')}</footer>
+    </main>
+  </body>
+</html>

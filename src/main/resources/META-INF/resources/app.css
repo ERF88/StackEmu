@@ -1,3 +1,183 @@
-:root{color-scheme:dark;--canvas:#081225;--surface:#13213b;--text:#edf2ff;--muted:#c4cce0;--accent:#b6b3ff;--border:#50617e;--success:#82eac1;--danger:#ffb5b5;--focus:#dedcff;--space:1rem;--radius:.8rem}
-[data-theme=light]{color-scheme:light;--canvas:#f2f5fb;--surface:#fff;--text:#17243c;--muted:#455470;--accent:#4436ab;--border:#b9c3d3;--success:#126045;--danger:#a41e32;--focus:#4436ab}
-*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--text);font:16px/1.6 system-ui,sans-serif}main{max-width:960px;margin:2rem auto;padding:1.5rem}header,.preferences,nav{display:flex;align-items:center;gap:var(--space);flex-wrap:wrap}header{justify-content:space-between}nav{padding:1rem 0;border-bottom:1px solid var(--border);margin-bottom:2rem}.brand{font-size:1.8rem;font-weight:700;text-decoration:none;color:var(--text)}small{font-size:.9rem;color:var(--muted)}a{color:var(--accent);padding:.15rem}a:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:4px}.button{display:inline-block;padding:.65rem 1rem;border:1px solid var(--accent);border-radius:var(--radius);margin-top:1rem}section{margin:1.5rem 0;padding:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;border-bottom:1px solid var(--border);padding:.75rem;overflow-wrap:anywhere}.status{color:var(--success)}.error{color:var(--danger)}dt{font-weight:700}dd{margin:0 0 1rem;overflow-wrap:anywhere}footer{color:var(--muted);margin-top:3rem}.skip{position:absolute;left:1rem;top:-5rem;background:var(--surface);padding:1rem}.skip:focus{top:1rem}.htmx-indicator{visibility:hidden}.htmx-request.htmx-indicator{visibility:visible}@media(max-width:480px){main{padding:1rem;margin:0}section{padding:1rem}.preferences{gap:.6rem}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+:root {
+  color-scheme: dark;
+
+  --canvas: #081225;
+  --surface: #13213b;
+  --text: #edf2ff;
+  --muted: #c4cce0;
+  --accent: #b6b3ff;
+  --border: #50617e;
+  --success: #82eac1;
+  --danger: #ffb5b5;
+  --focus: #dedcff;
+  --space: 1rem;
+  --radius: 0.8rem;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --canvas: #f2f5fb;
+  --surface: #fff;
+  --text: #17243c;
+  --muted: #455470;
+  --accent: #4436ab;
+  --border: #b9c3d3;
+  --success: #126045;
+  --danger: #a41e32;
+  --focus: #4436ab;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font:
+    16px/1.6 system-ui,
+    sans-serif;
+}
+
+main {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+}
+
+header,
+.preferences,
+nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  flex-wrap: wrap;
+}
+
+header {
+  justify-content: space-between;
+}
+
+nav {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.brand {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text);
+}
+
+small {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+a {
+  color: var(--accent);
+  padding: 0.15rem;
+}
+
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  margin-top: 1rem;
+}
+
+section {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  color: var(--success);
+}
+
+.error {
+  color: var(--danger);
+}
+
+dt {
+  font-weight: 700;
+}
+
+dd {
+  margin: 0 0 1rem;
+  overflow-wrap: anywhere;
+}
+
+footer {
+  color: var(--muted);
+  margin-top: 3rem;
+}
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -5rem;
+  background: var(--surface);
+  padding: 1rem;
+}
+
+.skip:focus {
+  top: 1rem;
+}
+
+.htmx-indicator {
+  visibility: hidden;
+}
+
+.htmx-request.htmx-indicator {
+  visibility: visible;
+}
+
+@media (width <= 480px) {
+  main {
+    padding: 1rem;
+    margin: 0;
+  }
+
+  section {
+    padding: 1rem;
+  }
+
+  .preferences {
+    gap: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}

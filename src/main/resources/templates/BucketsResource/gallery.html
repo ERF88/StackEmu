@@ -1,7 +1,25 @@
 {#include layout}
-{#content}
-<h1>{ui.text('gallery')}</h1><p>{ui.text('galleryHelp')}</p>
-<section><h2>{ui.text('status')}</h2><p class="status">● {ui.text('connected')}</p><p class="error">! {ui.text('unavailable')}</p><p>{ui.text('diagnostic')}</p><a class="button" href="/connection?{ui.query}">{ui.text('connection')}</a></section>
-<section><h2>Buckets</h2><table><thead><tr><th scope="col">{ui.text('name')}</th></tr></thead><tbody><tr><td>{ui.text('sample')}</td></tr></tbody></table><p>{ui.text('empty')}</p></section>
-{/content}
+  {#content}
+    <h1>{ui.text('gallery')}</h1>
+    <p>{ui.text('galleryHelp')}</p>
+    <section>
+      <h2>{ui.text('status')}</h2>
+      <p class="status">● {ui.text('connected')}</p>
+      <p class="error">! {ui.text('unavailable')}</p>
+      <p>{ui.text('diagnostic')}</p>
+      <a class="button" href="/connection?{ui.query}">{ui.text('connection')}</a>
+    </section>
+    <section>
+      <h2>Buckets</h2>
+      <table>
+        <thead>
+          <tr><th scope="col">{ui.text('name')}</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>{ui.text('sample')}</td></tr>
+        </tbody>
+      </table>
+      <p>{ui.text('empty')}</p>
+    </section>
+  {/content}
 {/include}

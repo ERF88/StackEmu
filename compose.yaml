@@ -11,7 +11,13 @@ services:
       - ministack-state:/tmp/ministack-state
       - ministack-s3:/tmp/ministack-data/s3
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4566/_ministack/health')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:4566/_ministack/health')",
+        ]
       interval: 5s
       timeout: 3s
       retries: 20

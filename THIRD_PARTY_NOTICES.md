@@ -1,7 +1,7 @@
 # Third-party assets
 
 `src/main/resources/META-INF/resources/vendor/htmx.min.js` is htmx 2.0.8,
-downloaded from https://unpkg.com/htmx.org@2.0.8/dist/htmx.min.js.
+downloaded from <https://unpkg.com/htmx.org@2.0.8/dist/htmx.min.js>.
 Copyright (c) 2020 Big Sky Software. Licensed under the Zero-Clause BSD license:
 
 Permission to use, copy, modify, and/or distribute this software for any

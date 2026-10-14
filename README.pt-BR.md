@@ -22,7 +22,7 @@ A GUI conecta ao MiniStack em `http://ministack:4566`, publicada somente em `127
 docker compose up --build -d
 ```
 
-Abra http://127.0.0.1:8080/?lang=pt-BR. Consulte o [guia da Fase 0](docs/development/phase-0.md) e as [evidências/limitações](docs/spikes/phase-0-results.md). Para parar, use `docker compose down`; os volumes são preservados. A GUI ainda não cria buckets nem envia/baixa objetos.
+Abra <http://127.0.0.1:8080/?lang=pt-BR>. Consulte o [guia da Fase 0](docs/development/phase-0.md) e as [evidências/limitações](docs/spikes/phase-0-results.md). Para parar, use `docker compose down`; os volumes são preservados. A GUI ainda não cria buckets nem envia/baixa objetos.
 
 ## Documentação
 
