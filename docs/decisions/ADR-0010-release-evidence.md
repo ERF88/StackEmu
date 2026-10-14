@@ -2,6 +2,8 @@
 
 Status: Accepted / Aceita
 
+Current runtime and scan gate follow [ADR-0011](ADR-0011-minimal-runtime-remediation.md); this document records the original Phase 5 baseline. / Runtime e gate atuais seguem ADR-0011; baseline histórico preservado.
+
 ## Decision / Decisão
 
 Keep Java 25 JVM delivery, UID 10001 and local-only Compose. Pin build/runtime base-image digests, include MIT/notices and add read-only root, dropped capabilities, no-new-privileges, 512 MiB memory, 256 PIDs and a 64 MiB writable `/tmp` tmpfs. These are reference-development limits to verify, not throughput promises. MiniStack's persistent volumes remain unchanged.

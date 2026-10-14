@@ -13,11 +13,12 @@ docker compose up --build -d --wait
 ./scripts/verify-writes.ps1
 ./scripts/scan-image.ps1
 ./scripts/scan-image.ps1 -Enforce
+./scripts/scan-image.ps1 -RequireClean
 ```
 
-The last command is intentionally strict and may fail if the current vulnerability database reports HIGH/CRITICAL findings. Report-only scanning retains every severity and never uses `ignore-unfixed` or an ignore list. Scanner errors fail rather than pretending the scan is clean. JSON reports/archive live in ignored `work/release`, database cache in `work/trivy-cache`; image export can consume substantial disk space. These are generated files, not release artifacts published to GHCR. No secrets/source/home/socket are mounted into the scanner.
+`-RequireClean` blocks every reported finding and requires detected OS/Java package inventories; CI uses this gate. `-Enforce` retains the older HIGH/CRITICAL-only policy. Neither mode hides severities/unfixed findings or uses an ignore list. Scanner errors fail rather than pretending the scan is clean. JSON reports/archive live in ignored `work/release`, database cache in `work/trivy-cache`; image export can consume substantial disk space. These are generated files, not release artifacts published to GHCR. No secrets/source/home/socket are mounted into the scanner.
 
-O último comando pode falhar por HIGH/CRITICAL. Scan de relatório não oculta severidades/sem-correção nem usa ignore list. Erro do scanner não é resultado limpo. Artefatos locais em `work/release`, cache em `work/trivy-cache`; exportar imagem consome disco. Sem mount de socket, credenciais, home ou fontes no scanner.
+`-RequireClean` bloqueia qualquer achado e exige inventários OS/Java; é o gate do CI. `-Enforce` mantém a política anterior HIGH/CRITICAL. Nenhum modo oculta achados sem correção. Erro não é resultado limpo. Artefatos locais em `work/release`, cache em `work/trivy-cache`; exportar imagem consome disco. Sem mount de socket, credenciais, home ou fontes no scanner.
 
 ## Reference container / Container de referência
 

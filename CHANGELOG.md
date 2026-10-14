@@ -6,6 +6,8 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Complete runtime package/CVE inventory and all-severity clean-image CI gate with OS/Java inventory checks.
+
 - Phase 5 Maven CycloneDX SBOM, isolated archive-based Trivy scan and retained CI reports.
 - Hardened local Compose, pinned build/runtime digests, container policy checks and packaged license/notices.
 
@@ -37,6 +39,8 @@ All notable changes will be documented in this file. This project intends to fol
 - Initial architecture, scope, security, configuration, testing, release, and ADR records.
 
 ### Changed
+
+- Adopt official Temurin 25/Alpine runtime with pinned corrected libpng/zlib packages, without vulnerability suppression.
 
 - Upload keys now use the current prefix and original filename automatically; valid MIME metadata and download filename/extension are retained, with safe fallbacks.
 

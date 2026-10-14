@@ -8,6 +8,8 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- Inventário completo pacote/CVE e gate CI para qualquer severidade, com checagem de inventários OS/Java.
+
 - SBOM Maven CycloneDX, scan Trivy isolado da imagem exportada e relatórios retidos no CI.
 - Compose reforçado, digests de build/runtime fixados, checks do container e licença/notices empacotados.
 
@@ -39,6 +41,8 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 - Registros iniciais de arquitetura, escopo, segurança, configuração, testes, release e ADRs.
 
 ### Alterado
+
+- Runtime Temurin 25/Alpine com PNG/zlib corrigidas fixadas, sem supressão de vulnerabilidades.
 
 - Upload usa prefixo e nome original automaticamente; MIME válido e nome/extensão no download são preservados, com fallbacks seguros.
 

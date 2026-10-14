@@ -12,7 +12,7 @@ A Fase 5 prepara container JVM, SBOM e scan no CI. Não publica imagem, tag ou G
 - [ ] Complete the human accessibility checklist in [security review](../security-review.md). / Concluir revisão humana.
 - [ ] Have a person without prior project context follow both documented quick-start paths and record issues. / Registrar início rápido por pessoa sem contexto.
 - [ ] Run clean Java 25/real MiniStack, browser and container verification for the candidate commit. / Validar candidato em ambiente limpo.
-- [ ] Review current SBOM and image scan; run `scan-image.ps1 -Enforce` and resolve HIGH/CRITICAL findings before publication. / Revisar SBOM/scan e resolver bloqueadores.
+- [ ] Review current SBOM and image scan; run `scan-image.ps1 -RequireClean` and resolve all reported findings before publication. / Revisar SBOM/scan e resolver achados de qualquer severidade.
 - [ ] Synchronize bilingual changelog, limitations, tested versions and release notes. / Sincronizar documentos.
 - [ ] Explicitly approve version and publication destination. / Aprovar versão e destino.
 

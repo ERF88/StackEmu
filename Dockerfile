@@ -3,10 +3,9 @@ WORKDIR /build
 COPY pom.xml .
 COPY src ./src
 RUN mvn -B -ntp package -DskipTests
-FROM eclipse-temurin:25-jre@sha256:fd4b1c02c64eef378212e23656fc0b0caa41a357876fa0b60e51ceda94a3db64
-# StackEmu starts Java directly; the inherited Pebble supervisor is unused.
-# Remove the exact inherited binary rather than suppressing its Go CVE findings.
-RUN rm /usr/bin/pebble
+FROM eclipse-temurin:25-jre-alpine@sha256:3c0a9084927a221ccd1d007fcaf614465672c0af37aaa834c5184483afe56d61
+# Official musl JRE; Ubuntu runtime packages are replaced, not hidden from scanning.
+RUN apk add --no-cache libpng=1.6.59-r0 zlib=1.3.2-r1
 LABEL org.opencontainers.image.title="StackEmu" \
       org.opencontainers.image.source="https://github.com/ERF88/StackEmu" \
       org.opencontainers.image.licenses="MIT"
