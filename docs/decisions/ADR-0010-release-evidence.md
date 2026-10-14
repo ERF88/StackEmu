@@ -12,6 +12,8 @@ Manter JVM/UID/Compose local, fixar digests e incluir licença/notices. Root som
 
 ## Consequences / Consequências
 
+The initial scan found three HIGH Go stdlib findings in inherited `/usr/bin/pebble`. StackEmu's explicit Java entrypoint and application do not use that supervisor. Remove that exact binary from the runtime filesystem and rescan/retest; do not suppress CVEs or assert exploitability. Supervisor/custom-entrypoint use is not supported by this derived image. / Remover o supervisor herdado não utilizado e repetir scan/testes, sem ocultar CVEs ou afirmar explorabilidade; uso de supervisor não é suportado nesta imagem.
+
 No tag, GitHub Release or GHCR publication is created until legal-name validation, human accessibility and clean-user quick-start review are complete and vulnerability findings are resolved/reviewed. ARM64, provenance/signing and pull/run of a published GHCR image remain unverified; do not advertise them. SBOM describes Maven dependencies, not every vendored asset or OS package; image scan and third-party notices complement it. Database age/coverage affects scan results. Digest updates require fresh verification and scanning.
 
 Sem tag/release/GHCR até concluir nome legal, revisão humana de acessibilidade, início rápido por novo usuário e achados de vulnerabilidade. ARM64, assinatura/proveniência e execução de imagem publicada seguem não verificados. SBOM Maven não cobre todo vendor/OS; scan/notices complementam. Atualizar digests exige nova validação e scan.

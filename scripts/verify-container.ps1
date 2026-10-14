@@ -24,6 +24,6 @@ foreach ($bindings in $container.NetworkSettings.Ports.PSObject.Properties.Value
 }
 $userId = docker compose exec -T gui id -u
 if ($LASTEXITCODE -ne 0 -or $userId -ne '10001') { throw 'Runtime UID mismatch' }
-docker compose exec -T gui sh -c 'test ! -w /app && test -w /tmp && test -r /licenses/StackEmu-LICENSE'
+docker compose exec -T gui sh -c 'test ! -w /app && test -w /tmp && test -r /licenses/StackEmu-LICENSE && test ! -e /usr/bin/pebble'
 if ($LASTEXITCODE -ne 0) { throw 'Runtime filesystem/license check failed' }
 Write-Output 'PASS: non-root, read-only root, bounded temp/memory/PIDs, dropped capabilities, loopback and licenses'

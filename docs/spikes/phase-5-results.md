@@ -18,6 +18,10 @@ Primeiro scan falhou por falta de espaço no scratch do scanner; não é resulta
 
 ## Release status / Status de release
 
+The initial completed scan reported 62 findings, including three HIGH Go stdlib findings (`CVE-2026-78667`, `CVE-2026-78669`, `CVE-2026-97031`) in `/usr/bin/pebble`, built with Go 1.26.7. StackEmu's explicit Java entrypoint does not use this inherited supervisor; its exact runtime binary was removed, not ignored. The rebuilt image passed container/smoke/write checks and `scan-image.ps1 -Enforce`: 49 remaining findings, zero HIGH/CRITICAL. No finding is suppressed; remaining severities still need review. The vulnerability DB used was updated at 2026-10-14T13:10:32Z. Scanner results are time-/database-specific, not proof that the image is vulnerability-free. Existing legacy scanner-generated cache/report ownership was migrated locally to the new scanner UID; no user resources were removed.
+
+Scan inicial completo: 62 achados e três HIGH na stdlib Go do supervisor herdado. O binário sem uso foi removido da imagem, sem ignore list. Imagem reconstruída passou em container/smoke/escritas e no modo estrito: 49 achados restantes, zero HIGH/CRITICAL. Achados remanescentes exigem revisão. Base atualizada em 2026-10-14T13:10:32Z; resultado depende da data/base e não prova ausência de vulnerabilidades. A propriedade do cache/relatório legado gerado foi migrada localmente; nenhum recurso do usuário foi removido.
+
 The first Linux CI scan failed on cache permissions after capabilities were dropped. The scanner now uses the host UID/GID on POSIX hosts (UID/GID 10001 on Windows bind mounts), without broad chmod or restored capabilities. That failed invocation is not vulnerability evidence. The hardened local 128 MiB streaming check separately passed with a 64 MiB Java heap and identical SHA-256.
 
 O primeiro scan Linux falhou por permissões no cache após remover capabilities. O scanner agora usa UID/GID do host POSIX (10001 no bind Windows), sem chmod amplo ou restaurar privilégios. Falha não é evidência de vulnerabilidades. Streaming local de 128 MiB com heap de 64 MiB passou com SHA-256 idêntico.
