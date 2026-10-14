@@ -8,6 +8,9 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- SBOM Maven CycloneDX, scan Trivy isolado da imagem exportada e relatórios retidos no CI.
+- Compose reforçado, digests de build/runtime fixados, checks do container e licença/notices empacotados.
+
 - Ferramentas Chromium/axe da Fase 4, navegação bilíngue/temas/móvel e fluxo S3 isolado na GUI.
 - Cabeçalhos de segurança REST e erros associados aos campos; ESLint fixado para JavaScript de testes.
 

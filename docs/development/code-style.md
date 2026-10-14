@@ -74,7 +74,7 @@ docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:1.7.7
 docker compose config --quiet
 ```
 
-Generated output, `node_modules`, build directories and vendor assets are excluded. Never run tools against credentials or unrelated directories. GitHub actions are pinned to verified release commit SHAs. Tool images use fixed version tags; moving them to immutable image digests remains a separate dependency update.
+Generated output, `node_modules`, build directories and vendor assets are excluded. Never run tools against credentials or unrelated directories. GitHub actions are pinned to verified release commit SHAs. Build/runtime bases and the Phase 5 scanner use verified digests; other tool images retain fixed version tags. Digest updates require verification and scanning. / Bases e scanner usam digests; demais ferramentas mantêm tags fixadas, sem promessa de imutabilidade integral.
 
 ## Convenções em português
 

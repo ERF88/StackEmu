@@ -3,3 +3,9 @@ target
 outputs
 work
 node_modules
+.env
+.env.*
+.aws
+.codex
+*.pem
+*.key

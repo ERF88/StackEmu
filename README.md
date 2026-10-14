@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Phase 3: S3 read/write slice.** StackEmu provides bucket creation, uploads, folder markers, paginated navigation, metadata and streaming downloads, with English/pt-BR and light/dark themes. The MVP is still in development.
+> **Phase 5: delivery preparation.** StackEmu provides the S3 read/write slice, browser quality checks, a hardened local JVM container and SBOM/scan tooling. Public release remains gated; the MVP is still in development.
 
 [Português (Brasil)](README.pt-BR.md)
 
@@ -10,21 +10,24 @@ The product name was selected on 13 October 2026, but legal/name validation is *
 
 Phase 3 adds confirmed CSRF-protected forms and bounded uploads against MiniStack 1.5.25. See the [Phase 3 guide](docs/development/phase-3.md) and [executed evidence](docs/spikes/phase-3-results.md). There is no deletion, overwrite or resumable-upload UI; use only in trusted local development.
 
-## Planned stack
+## Implemented stack
 
-Java 25 LTS (Java 21 considered as an alternative), Quarkus 3.40 LTS, Qute, htmx, CSS, Maven, and AWS SDK for Java 2.x. Exact extension, BOM, JDK, and emulator versions require an implementation spike and official-source validation.
+Java 25, Quarkus 3.40.1, Qute, local htmx, CSS, Maven and AWS SDK for Java 2.x via the platform BOM. MiniStack 1.5.25 on amd64 is the tested baseline; other platforms/emulators are not certified.
 
-## Quick start — Phase 0
+## Quick start — local development
 
 Requires Docker Compose v2. The GUI connects to MiniStack through `http://ministack:4566`, published only at `127.0.0.1:8080`. The following was executed locally on Windows/amd64:
 
 ```sh
-docker compose up --build -d
+docker compose up --build -d --wait
 ```
 
 Open <http://127.0.0.1:8080/>. See [Phase 0 commands and tests](docs/development/phase-0.md) and [executed evidence and limitations](docs/spikes/phase-0-results.md). Stop using `docker compose down`; named volumes are retained.
 
 ## Documentation
+
+- [Phase 4 quality evidence](docs/spikes/phase-4-results.md) and [human review checklist](docs/security-review.md)
+- [Phase 5 container/SBOM/scan](docs/development/phase-5.md) and [release gates](docs/development/release.md)
 
 - [Naming and responsibility guidelines](docs/development/naming-and-responsibilities.md) and [class review](docs/architecture/naming-review.md)
 
@@ -43,4 +46,4 @@ The planned MVP has no user authentication and is intended only for a trusted lo
 
 ## Contributing and license
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [LICENSE](LICENSE). The planned license is MIT.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [LICENSE](LICENSE). The license is MIT; dependency licenses remain separate.

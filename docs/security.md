@@ -23,6 +23,8 @@ A lista reúne controles atuais e critérios futuros. A Fase 3 adiciona formulá
 
 ## Browser policy / Política de navegador
 
+Phase 5 adds verified container policy, Maven SBOM and image scanning/report retention; [release approval remains separate](development/release.md). Report-only CI does not approve vulnerabilities. / Fase 5 adiciona política do container, SBOM e scan; CI de relatório não aprova vulnerabilidades nem release.
+
 Phase 4 adds a REST response CSP without inline/eval permissions, frame denial, no-referrer and nosniff. htmx uses local assets, with eval/injected styles disabled. This policy does not cover every static/management endpoint and does not add authentication or signed CSRF. See [ADR-0009](decisions/ADR-0009-browser-quality-security.md) and [quality guide](development/phase-4.md).
 
 A Fase 4 adiciona CSP REST sem inline/eval, bloqueio de frames, no-referrer e nosniff, com htmx local sem eval/estilos injetados. Não cobre todos os endpoints estáticos/de gerenciamento nem adiciona autenticação ou assinatura CSRF.

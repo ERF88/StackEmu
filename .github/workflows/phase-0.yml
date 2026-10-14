@@ -29,6 +29,8 @@ jobs:
       - run: docker run --rm --network host -v "$PWD:/build" -w /build -e STACKEMU_INTEGRATION=true maven:3.9.11-eclipse-temurin-25 mvn -B -ntp clean verify
       - run: docker compose up --build -d --wait
       - shell: pwsh
+        run: ./scripts/verify-container.ps1
+      - shell: pwsh
         run: ./scripts/smoke.ps1
       - shell: pwsh
         run: ./scripts/verify-writes.ps1
@@ -36,5 +38,19 @@ jobs:
       - run: docker compose -f compose.yaml -f compose.streaming-test.yaml up -d --no-deps gui
       - shell: pwsh
         run: ./scripts/verify-streaming.ps1
+      - shell: pwsh
+        run: ./scripts/scan-image.ps1
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        if: always()
+        with:
+          name: stackemu-verification-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            target/bom.json
+            target/bom.xml
+            work/release/vulnerabilities.json
+            work/release/scan-summary.json
+            work/browser-report.json
       - if: always()
         run: docker compose logs && docker compose down

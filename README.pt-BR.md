@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Fase 3: leitura e escrita S3.** StackEmu oferece criação de buckets, upload, marcadores de pasta, navegação paginada, metadados e streaming, em português/inglês e temas claro/escuro. O MVP continua em desenvolvimento.
+> **Fase 5: preparação de entrega.** StackEmu oferece leitura/escrita S3, testes de navegador, container JVM local reforçado e ferramentas SBOM/scan. Release público continua condicionado aos gates; MVP em desenvolvimento.
 
 [English](README.md)
 
@@ -10,21 +10,24 @@ O nome do produto foi escolhido em 13 de outubro de 2026, mas a validação jur�
 
 A Fase 3 adiciona formulários com confirmação/CSRF e upload limitado contra MiniStack 1.5.25. Consulte o [guia da Fase 3](docs/development/phase-3.md) e as [evidências](docs/spikes/phase-3-results.md). Não há UI de exclusão, sobrescrita ou retomada; use apenas em desenvolvimento local confiável.
 
-## Stack planejada
+## Stack implementada
 
-Java 25 LTS (Java 21 avaliado como alternativa), Quarkus 3.40 LTS, Qute, htmx, CSS, Maven e AWS SDK for Java 2.x. Versões exatas de extensões, BOM, JDK e emulador exigem spike de implementação e validação em fontes oficiais.
+Java 25, Quarkus 3.40.1, Qute, htmx local, CSS, Maven e AWS SDK for Java 2.x via BOM da plataforma. MiniStack 1.5.25 em amd64 é o baseline testado; outras plataformas/emuladores não são certificados.
 
-## Início rápido — Fase 0
+## Início rápido — desenvolvimento local
 
 A GUI conecta ao MiniStack em `http://ministack:4566`, publicada somente em `127.0.0.1:8080`. Requer Docker Compose v2. O comando foi executado localmente em Windows/amd64:
 
 ```sh
-docker compose up --build -d
+docker compose up --build -d --wait
 ```
 
 Abra <http://127.0.0.1:8080/?lang=pt-BR>. Para parar, use `docker compose down`; os volumes são preservados. A GUI permite criação, upload, navegação e download.
 
 ## Documentação
+
+- [Evidências da Fase 4](docs/spikes/phase-4-results.md) e [checklist humano](docs/security-review.md)
+- [Container/SBOM/scan da Fase 5](docs/development/phase-5.md) e [gates de release](docs/development/release.md)
 
 - [Diretrizes de nomenclatura e responsabilidades](docs/development/naming-and-responsibilities.md) e [revisão das classes](docs/architecture/naming-review.md)
 
@@ -43,4 +46,4 @@ O MVP planejado não tem autenticação de usuários e destina-se apenas a ambie
 
 ## Contribuição e licença
 
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) e [LICENSE](LICENSE). A licença planejada é MIT.
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) e [LICENSE](LICENSE). A licença é MIT; licenças de dependências são separadas.

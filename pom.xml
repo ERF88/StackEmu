@@ -4,6 +4,15 @@
   <groupId>io.github.erf88</groupId>
   <artifactId>stackemu</artifactId>
   <version>0.1.0-SNAPSHOT</version>
+  <name>StackEmu</name>
+  <description>Local emulator S3 workspace</description>
+  <url>https://github.com/ERF88/StackEmu</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/license/mit/</url>
+    </license>
+  </licenses>
   <properties>
     <maven.compiler.release>25</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -67,6 +76,25 @@
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+        <version>2.9.3</version>
+        <configuration>
+          <projectType>application</projectType>
+          <schemaVersion>1.6</schemaVersion>
+          <includeTestScope>false</includeTestScope>
+          <outputFormat>all</outputFormat>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>makeAggregateBom</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>

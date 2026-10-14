@@ -2,6 +2,8 @@
 
 ## Source of truth / Fonte de verdade
 
+Phase 5's reference GUI container has a read-only root, a 64 MiB `/tmp` tmpfs, 512 MiB memory and 256 PIDs. These Compose controls are not `STACKEMU_` variables and do not automatically apply to standalone host execution. See [container guide](development/phase-5.md). / Limites do Compose não são variáveis `STACKEMU_` nem se aplicam automaticamente ao host.
+
 Phase 3 implements `STACKEMU_MAX_UPLOAD` (positive bytes, default 10485760) and `STACKEMU_HTTP_MAX_BODY` (Quarkus size syntax, default 11M). Both limits apply independently; allow multipart overhead. Preview remains planned. See [Phase 3](development/phase-3.md).
 
 A Fase 3 implementa limites de arquivo e corpo HTTP independentes; ajuste ambos com margem para multipart. Preview continua planejado.

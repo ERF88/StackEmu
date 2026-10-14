@@ -6,6 +6,9 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Phase 5 Maven CycloneDX SBOM, isolated archive-based Trivy scan and retained CI reports.
+- Hardened local Compose, pinned build/runtime digests, container policy checks and packaged license/notices.
+
 - Phase 4 Chromium/axe browser tooling, bilingual/theme/mobile navigation checks and isolated S3 UI flow.
 - REST browser security headers and accessible field-error associations; pinned ESLint for test JavaScript.
 
