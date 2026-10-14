@@ -1,8 +1,12 @@
 {#include layout}
   {#content}
-    <h1>{view.name}</h1>
-    <a class="button" href="{view.uploadHref}">{ui.text('uploadObject')}</a>
+    <div class="page-heading">
+    <div><p class="eyebrow">S3 · Bucket</p><h1>{view.name}</h1></div>
+    <div class="page-actions">
+    <a class="button primary" href="{view.uploadHref}">{ui.text('uploadObject')}</a>
     <a class="button" href="{view.folderHref}">{ui.text('createFolder')}</a>
+    </div>
+    </div>
     <nav aria-label="{ui.text('breadcrumb')}">
       <ol class="breadcrumbs">
         {#for crumb in view.breadcrumbs}
@@ -10,6 +14,8 @@
         {/for}
       </ol>
     </nav>
+    <details class="bucket-metadata">
+      <summary>{ui.text('bucketDetails')}</summary>
     <section>
       <h2>{ui.text('bucketDetails')}</h2>
       <dl>
@@ -33,6 +39,7 @@
         </table>
       {/if}
     </section>
+    </details>
     <section>
       <h2>{ui.text('objects')}</h2>
       <p>{ui.text('prefix')}: <code>{view.prefix}</code></p>

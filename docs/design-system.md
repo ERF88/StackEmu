@@ -4,13 +4,19 @@
 
 The visual mood of [Wassim Nasr’s portfolio](https://wassimnasr.com/) is an approved inspiration: a dark, cinematic workspace; deep blue surfaces; restrained luminous blue-violet accents; rounded, layered panels; compact navigation; and guided, conversational prompts. It is a reference for atmosphere and interaction rhythm only.
 
-StackEmu must not copy that site’s artwork, character/illustration, text, layout, brand assets, or distinctive portfolio experience. It is an operational console, so data clarity, safe actions, speed, responsive behavior, and accessibility take priority over spectacle. This direction is unimplemented and should be validated with prototypes.
+StackEmu must not copy that site’s artwork, character/illustration, text, layout, brand assets, or distinctive portfolio experience. It is an operational console, so data clarity, safe actions, speed, responsive behavior, and accessibility take priority over spectacle. The first implementation uses a shared responsive workspace shell; further visual and accessibility validation remains necessary.
 
 O clima visual do [portfólio de Wassim Nasr](https://wassimnasr.com/) é uma inspiração aprovada: workspace escuro e cinematográfico; superfícies azul-profundo; acentos azul-violeta luminosos e contidos; painéis arredondados em camadas; navegação compacta; e sugestões guiadas. É referência de atmosfera e ritmo de interação, não de cópia.
 
 StackEmu não deve copiar ilustrações/personagem, textos, layout, ativos de marca nem a experiência de portfólio do site. Trata-se de um console operacional: clareza de dados, ações seguras, velocidade, responsividade e acessibilidade têm prioridade.
 
 ## Design principles / Princípios
+
+### Operational workspace / Workspace operacional
+
+Modernize is a layout reference, not a runtime dependency or imported template. The implementation retains Qute, htmx, local CSS and both themes. A desktop sidebar becomes wrapping navigation on smaller screens; the shared header holds locale/theme preferences. Bucket actions remain next to the page heading, connection results stay in the refreshable bucket panel, and bucket metadata is available in a native disclosure so objects remain the main focus. No analytics, invented metrics, user accounts or inactive future services are added. Template routes, upload/download contracts and the self-only CSP remain unchanged.
+
+Modernize é referência de organização, não dependência nem template importado. A implementação preserva Qute, htmx, CSS local e os dois temas. A sidebar vira navegação com quebra de linha em telas menores; o cabeçalho reúne idioma e tema. Ações ficam junto ao título, o resultado da conexão continua no painel atualizável e os metadados do bucket ficam em um painel nativo recolhível, priorizando os objetos. Não foram adicionados gráficos, métricas fictícias, contas ou serviços futuros inativos. Rotas, contratos de upload/download e CSP permanecem preservados. A implementação inicial não equivale à aprovação final de acessibilidade ou da marca.
 
 1. **Quiet confidence / Confiança silenciosa.** Use a calm dark workspace and a small accent palette; reserve glow for focus, primary action, and live connection status.
 2. **Operational clarity / Clareza operacional.** Tables, paths, metadata, and errors remain denser and more legible than decorative content.

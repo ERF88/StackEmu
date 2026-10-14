@@ -40,6 +40,9 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Changed
 
+- Responsive operational workspace with sidebar, shared preference header, grouped S3 actions and collapsible bucket metadata; existing routes and runtime stack retained.
+- Workspace operacional responsivo com sidebar, preferências compartilhadas, ações S3 agrupadas e metadados recolhíveis; rotas e stack preservados.
+
 - Adopt official Temurin 25/Alpine runtime with pinned corrected libpng/zlib packages, without vulnerability suppression.
 
 - Upload keys now use the current prefix and original filename automatically; valid MIME metadata and download filename/extension are retained, with safe fallbacks.

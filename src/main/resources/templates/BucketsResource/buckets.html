@@ -1,7 +1,9 @@
 <section id="bucket-panel" aria-live="polite" aria-atomic="true">
   {#if connected}
-    <p class="status">● {ui.text('connected')}</p>
+    <div class="section-heading">
     <h2>Buckets</h2>
+    <p class="status">● {ui.text('connected')}</p>
+    </div>
     {#if buckets.isEmpty}
       <p>{ui.text('empty')}</p>
     {#else}

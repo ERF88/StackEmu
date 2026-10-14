@@ -1,8 +1,9 @@
 {#include layout}
   {#content}
-    <h1>{ui.text('dashboard')}</h1>
-    <p>{ui.text('scope')}</p>
-    <a class="button" href="/s3/write?action=bucket&amp;{ui.query}">{ui.text('createBucket')}</a>
+    <div class="page-heading">
+      <div><p class="eyebrow">S3 · {ui.text('workspace')}</p><h1>{ui.text('dashboard')}</h1><p>{ui.text('scope')}</p></div>
+      <div class="page-actions">
+    <a class="button primary" href="/s3/write?action=bucket&amp;{ui.query}">{ui.text('createBucket')}</a>
     <a
       class="button"
       href="/?{ui.query}"
@@ -12,6 +13,8 @@
       hx-indicator="#loading"
     >{ui.text('refresh')}</a>
     <span id="loading" class="htmx-indicator" aria-hidden="true">…</span>
+      </div>
+    </div>
     {#include BucketsResource/buckets /}
   {/content}
 {/include}
