@@ -1,5 +1,12 @@
 $ErrorActionPreference = 'Stop'
-$page = Invoke-WebRequest 'http://127.0.0.1:8080/'
+$page = $null
+for ($attempt = 0; $attempt -lt 30; $attempt++) {
+    try {
+        $page = Invoke-WebRequest 'http://127.0.0.1:8080/' -TimeoutSec 5
+        if ($page.Content -match 'Connected') { break }
+    } catch { }
+    Start-Sleep -Seconds 1
+}
 if ($page.StatusCode -ne 200 -or $page.Content -notmatch 'Connected') {
     throw 'GUI is not connected to the emulator'
 }

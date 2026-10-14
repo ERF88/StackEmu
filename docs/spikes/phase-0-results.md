@@ -1,6 +1,6 @@
 # Phase 0 results / Resultados da Fase 0
 
-Date: 2026-10-13 (America/Sao_Paulo). Environment: Windows, Docker Desktop Linux/WSL2, amd64. These are locally executed results; CI and arm64 are not yet confirmed.
+Date: 2026-10-13 (America/Sao_Paulo). Environment: Windows, Docker Desktop Linux/WSL2, amd64. These are locally executed results; CI and arm64 are not yet confirmed. The first GitHub run failed resolving Maven dependencies before tests; CI was aligned to the same Maven 3.9.11/Java 25 container that built successfully locally.
 
 ## Pinned and resolved versions
 
