@@ -8,13 +8,13 @@ O plano exige pelo menos três conversas com pessoas que usam emuladores ou ferr
 
 ## Hypotheses to test / Hipóteses a testar
 
-| ID | Hypothesis | Evidence needed |
-|---|---|---|
-| H-01 | Developers struggle to inspect/manipulate local S3 resources efficiently | Recent task walkthroughs from 3–5 participants |
-| H-02 | A server-rendered JVM GUI reduces friction for a meaningful audience | Compare setup/task experience with current tools |
-| H-03 | Bucket/object browse, upload, and download are the highest-value initial tasks | Rank recent tasks and blockers |
-| H-04 | CLI equivalents add learning/debugging value | Observe whether commands are copied or understood |
-| H-05 | Multiple connection profiles are needed soon | Ask about environments and restart/configuration pain |
+| ID   | Hypothesis                                                                     | Evidence needed                                       |
+| ---- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| H-01 | Developers struggle to inspect/manipulate local S3 resources efficiently       | Recent task walkthroughs from 3–5 participants        |
+| H-02 | A server-rendered JVM GUI reduces friction for a meaningful audience           | Compare setup/task experience with current tools      |
+| H-03 | Bucket/object browse, upload, and download are the highest-value initial tasks | Rank recent tasks and blockers                        |
+| H-04 | CLI equivalents add learning/debugging value                                   | Observe whether commands are copied or understood     |
+| H-05 | Multiple connection profiles are needed soon                                   | Ask about environments and restart/configuration pain |
 
 ## Research protocol / Protocolo
 
@@ -22,6 +22,6 @@ Recruit 3–5 developers who recently used a local AWS emulator or equivalent to
 
 ## Interview log / Registro de entrevistas
 
-| Date | Participant/context | Tasks described | Evidence | Implications |
-|---|---|---|---|---|
-| _Pending_ | _Pending_ | _Pending_ | No evidence yet | Do not infer |
+| Date      | Participant/context | Tasks described | Evidence        | Implications |
+| --------- | ------------------- | --------------- | --------------- | ------------ |
+| _Pending_ | _Pending_           | _Pending_       | No evidence yet | Do not infer |

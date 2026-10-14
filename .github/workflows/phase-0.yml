@@ -3,10 +3,28 @@ on: [push, pull_request]
 permissions:
   contents: read
 jobs:
-  verify:
+  style:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.10.0"
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run check
+      - run: docker run --rm -v "$PWD:/repo" -w /repo hadolint/hadolint:v2.12.0 hadolint Dockerfile
+      - run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7
+      - run: docker compose config --quiet
+      - shell: pwsh
+        run: |
+          Save-Module -Name PSScriptAnalyzer -RequiredVersion 1.24.0 -Path work/modules -Force
+          ./scripts/check-style.ps1
+  verify:
+    needs: style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker compose up -d ministack --wait
       - run: docker run --rm --network host -v "$PWD:/build" -w /build -e STACKEMU_INTEGRATION=true maven:3.9.11-eclipse-temurin-25 mvn -B -ntp clean verify
       - run: docker compose up --build -d --wait

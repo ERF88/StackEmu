@@ -1,0 +1,8 @@
+target/
+outputs/
+work/
+node_modules/
+package-lock.json
+src/main/resources/META-INF/resources/vendor/
+# Qute directives are not HTML syntax; whitespace checks and checked templates apply.
+src/main/resources/templates/

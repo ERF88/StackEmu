@@ -8,6 +8,9 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- Convenções por tipo de arquivo, EditorConfig, atributos Git LF, checagem de formatação Maven e validadores de desenvolvimento.
+- CI para Markdown, CSS, PowerShell, Dockerfile, workflows e Compose; Java/XML são verificados no validate Maven.
+
 - Tela de conexão efetiva da Fase 1, layout/navegação Qute compartilhados, tokens claro/escuro e galeria de componentes.
 - Negociação de idioma, catálogos en/pt-BR, verificação de chaves e limites de arquitetura com ArchUnit.
 

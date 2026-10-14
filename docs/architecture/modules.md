@@ -2,13 +2,13 @@
 
 ## Proposed boundaries / Limites propostos
 
-| Boundary | Responsibility | Notes |
-|---|---|---|
-| `core` | Pure shared contracts/models | No framework or SDK dependencies |
-| `aws-connection` | Effective config, client factory, capability probes | Environment is source of truth in MVP |
-| `module-s3` | S3 domain, use cases, web and AWS adapters | Initial real vertical slice |
-| `app` | Quarkus bootstrap, composition, dashboard, packaging | Owns runtime wiring |
-| `ui-kit` | Shared layout/components/CSS | May start in `app`; extract only when justified |
+| Boundary         | Responsibility                                       | Notes                                           |
+| ---------------- | ---------------------------------------------------- | ----------------------------------------------- |
+| `core`           | Pure shared contracts/models                         | No framework or SDK dependencies                |
+| `aws-connection` | Effective config, client factory, capability probes  | Environment is source of truth in MVP           |
+| `module-s3`      | S3 domain, use cases, web and AWS adapters           | Initial real vertical slice                     |
+| `app`            | Quarkus bootstrap, composition, dashboard, packaging | Owns runtime wiring                             |
+| `ui-kit`         | Shared layout/components/CSS                         | May start in `app`; extract only when justified |
 
 This five-boundary shape is conditional. Start with the smallest number of Maven modules that preserves meaningful boundaries; do not build an empty generic platform.
 

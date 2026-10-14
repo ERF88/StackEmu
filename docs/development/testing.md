@@ -2,17 +2,17 @@
 
 ## Test pyramid / Pirâmide
 
-| Layer | Planned tool | Scope |
-|---|---|---|
-| Domain | JUnit 5 | Value objects and rules |
-| Application | JUnit 5 with fake ports | Use cases, errors, limits |
-| AWS adapter | Integration tests | Real emulator operations |
-| Web | `@QuarkusTest` + REST Assured | Status, HTML, fragments, CSRF |
-| Architecture | ArchUnit | Forbidden dependency direction |
-| E2E | Playwright | Essential user flow |
-| Accessibility | Automated tool + keyboard | Detectable issues plus manual navigation |
-| Container | Smoke test | Startup, non-root user, port, health |
-| Compatibility | Progressive matrix | Differences by emulator/resource |
+| Layer         | Planned tool                  | Scope                                    |
+| ------------- | ----------------------------- | ---------------------------------------- |
+| Domain        | JUnit 5                       | Value objects and rules                  |
+| Application   | JUnit 5 with fake ports       | Use cases, errors, limits                |
+| AWS adapter   | Integration tests             | Real emulator operations                 |
+| Web           | `@QuarkusTest` + REST Assured | Status, HTML, fragments, CSRF            |
+| Architecture  | ArchUnit                      | Forbidden dependency direction           |
+| E2E           | Playwright                    | Essential user flow                      |
+| Accessibility | Automated tool + keyboard     | Detectable issues plus manual navigation |
+| Container     | Smoke test                    | Startup, non-root user, port, health     |
+| Compatibility | Progressive matrix            | Differences by emulator/resource         |
 
 Tool versions and commands are unverified pending Phase 0.
 

@@ -14,17 +14,17 @@ O MVP é um vertical slice S3 utilizável com dashboard de conexão, listar/cria
 
 ## Phases and gates / Fases e gates
 
-| Phase | Focus | Gate |
-|---|---|---|
-| 0 | Discovery: toolchain, S3 endpoint override, Compose hostname, Qute error state, htmx/CSRF/assets, emulator image | A real screen connects to a real emulator with reproducible build and one automated test |
-| 1 | Skeleton and first connection screen | A person understands connection status and next action |
-| 2 | Read-only S3 | Real MiniStack reading flow is automated |
-| 3 | MVP S3 writes | Create/upload/navigate/download works end to end |
-| 4 | Quality and security | E2E, accessibility, limits, review, and measurements are complete |
-| 5 | Container/release | Non-root image, verified Compose, CI, SBOM/scan/changelog, bilingual docs |
-| 6 | MVP+ S3 | Safe deletion/versioning/preview only with dedicated behavior and tests |
-| 7 | Compatibility/differentiation | Reproducible matrix, LocalStack/Moto evidence, first verified lab |
-| 8 | Growth | Consider SQS/DynamoDB, native image, profiles, documentation site only when justified |
+| Phase | Focus                                                                                                            | Gate                                                                                     |
+| ----- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 0     | Discovery: toolchain, S3 endpoint override, Compose hostname, Qute error state, htmx/CSRF/assets, emulator image | A real screen connects to a real emulator with reproducible build and one automated test |
+| 1     | Skeleton and first connection screen                                                                             | A person understands connection status and next action                                   |
+| 2     | Read-only S3                                                                                                     | Real MiniStack reading flow is automated                                                 |
+| 3     | MVP S3 writes                                                                                                    | Create/upload/navigate/download works end to end                                         |
+| 4     | Quality and security                                                                                             | E2E, accessibility, limits, review, and measurements are complete                        |
+| 5     | Container/release                                                                                                | Non-root image, verified Compose, CI, SBOM/scan/changelog, bilingual docs                |
+| 6     | MVP+ S3                                                                                                          | Safe deletion/versioning/preview only with dedicated behavior and tests                  |
+| 7     | Compatibility/differentiation                                                                                    | Reproducible matrix, LocalStack/Moto evidence, first verified lab                        |
+| 8     | Growth                                                                                                           | Consider SQS/DynamoDB, native image, profiles, documentation site only when justified    |
 
 No phase is evidence of completion merely because its document exists. Gates require implementation and reproducible test evidence.
 

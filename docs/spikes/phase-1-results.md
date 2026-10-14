@@ -4,15 +4,15 @@ Date: 2026-10-13 (America/Sao_Paulo). Windows + Docker Desktop/WSL2, amd64. Java
 
 ## Acceptance evidence / Evidências
 
-| Item | Result |
-|---|---|
-| F1.1 Minimal layers | One Maven module with pure application contracts and separate AWS/web adapters; clean build passed |
+| Item                         | Result                                                                                                                                                            |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1.1 Minimal layers          | One Maven module with pure application contracts and separate AWS/web adapters; clean build passed                                                                |
 | F1.2 Effective client config | SDK client uses the configured endpoint in integration tests; test verifies overridden SDK region and view region; extension manages credentials/client lifecycle |
-| F1.3 Shared Qute layout | Dashboard, connection and gallery share navigation/layout; gallery renders with unavailable emulator |
-| F1.4 Tokens/themes/focus | Semantic CSS tokens, light/dark query preference, wrapping layout and visible focus/skip link |
-| F1.5 Connection/error state | Read operation produces connected/unavailable view; diagnostics and next step rendered without SDK exception details |
-| F1.6 i18n | English/pt-BR catalogs, Accept-Language negotiation, explicit override, theme/locale retention across navigation; key parity test |
-| F1.7 Architecture | ArchUnit prohibits framework/SDK/adapters in application contracts and AWS SDK/adapters in web layer |
+| F1.3 Shared Qute layout      | Dashboard, connection and gallery share navigation/layout; gallery renders with unavailable emulator                                                              |
+| F1.4 Tokens/themes/focus     | Semantic CSS tokens, light/dark query preference, wrapping layout and visible focus/skip link                                                                     |
+| F1.5 Connection/error state  | Read operation produces connected/unavailable view; diagnostics and next step rendered without SDK exception details                                              |
+| F1.6 i18n                    | English/pt-BR catalogs, Accept-Language negotiation, explicit override, theme/locale retention across navigation; key parity test                                 |
+| F1.7 Architecture            | ArchUnit prohibits framework/SDK/adapters in application contracts and AWS SDK/adapters in web layer                                                              |
 
 `STACKEMU_INTEGRATION=true mvn -B -ntp clean verify`: **11 tests, 0 failures, 0 errors, 0 skips**. Docker GUI build succeeded. Expanded smoke test verified connection configuration, light-theme attribute, Portuguese gallery and original Phase 0 checks. [GitHub CI run 38491580441](https://github.com/ERF88/StackEmu/actions/runs/38491580441) passed the clean build, tests, Linux/amd64 Compose build and expanded smoke test.
 

@@ -8,7 +8,7 @@ Requires Docker Compose v2. For a local Maven build, select JDK 25 in `JAVA_HOME
 docker compose up --build -d
 ```
 
-Open http://127.0.0.1:8080/ (English) or http://127.0.0.1:8080/?lang=pt-BR.
+Open <http://127.0.0.1:8080/> (English) or <http://127.0.0.1:8080/?lang=pt-BR>.
 The Phase 0 GUI lists buckets only. It does not create buckets or upload/download objects yet.
 
 To create a bucket using an installed AWS CLI (development credentials only):

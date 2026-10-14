@@ -6,6 +6,9 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Per-file coding conventions, EditorConfig, LF Git attributes, Maven formatting checks and development lint tools.
+- CI checks for Markdown, CSS, PowerShell, Dockerfile, workflows and Compose; Java/XML style is checked during Maven validate.
+
 - Phase 1 effective connection view, shared Qute layout/navigation, light/dark semantic tokens and component gallery.
 - Locale negotiation and English/pt-BR catalogs, translation parity and ArchUnit boundary checks.
 

@@ -1,0 +1,17 @@
+{
+  "name": "stackemu-development-tools",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:markdown": "markdownlint-cli2",
+    "lint:css": "stylelint src/main/resources/META-INF/resources/app.css",
+    "check": "npm run format:check && npm run lint:markdown && npm run lint:css"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "markdownlint-cli2": "0.18.1",
+    "stylelint": "16.25.0",
+    "stylelint-config-standard": "39.0.1"
+  }
+}

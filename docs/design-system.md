@@ -23,30 +23,30 @@ StackEmu não deve copiar ilustrações/personagem, textos, layout, ativos de ma
 
 These values are starting points for prototyping, not final brand specifications. Contrast must be checked with real text sizes and states.
 
-| Token family | Dark candidate | Light candidate | Intended use |
-|---|---|---|---|
-| Canvas | midnight navy/blue-black | cool off-white | App background |
-| Surface | layered navy | white/slate | cards, navigation, dialogs |
-| Border | low-contrast blue-gray | cool gray | boundaries without visual clutter |
-| Primary | electric indigo/violet | deep indigo | primary action, focus, selected state |
-| Success | accessible teal/green | accessible teal/green | connection/operation success, always with text |
-| Warning/error | accessible amber/red | accessible amber/red | risk and failures, always with text |
-| Typography | near-white + muted blue-gray | near-black + muted slate | readable hierarchy |
+| Token family  | Dark candidate               | Light candidate          | Intended use                                   |
+| ------------- | ---------------------------- | ------------------------ | ---------------------------------------------- |
+| Canvas        | midnight navy/blue-black     | cool off-white           | App background                                 |
+| Surface       | layered navy                 | white/slate              | cards, navigation, dialogs                     |
+| Border        | low-contrast blue-gray       | cool gray                | boundaries without visual clutter              |
+| Primary       | electric indigo/violet       | deep indigo              | primary action, focus, selected state          |
+| Success       | accessible teal/green        | accessible teal/green    | connection/operation success, always with text |
+| Warning/error | accessible amber/red         | accessible amber/red     | risk and failures, always with text            |
+| Typography    | near-white + muted blue-gray | near-black + muted slate | readable hierarchy                             |
 
 Use semantic tokens such as `--color-canvas`, `--color-surface`, `--color-primary`, `--color-focus`, `--color-danger`, `--space-*`, `--radius-*`, and `--shadow-*`, rather than hard-coding palette values in components.
 
 ## Component language / Linguagem de componentes
 
-| Component | Direction |
-|---|---|
-| App shell | Compact header/sidebar with the active service, effective endpoint status, language switcher, and theme control |
-| Connection card | Endpoint/region summary, masked credential status, explicit connection state, and a “Test connection” action |
-| Action buttons | Rounded but not pill-heavy; one unmistakable primary action per region; destructive actions never share the primary visual treatment |
-| Data table | Strong row/column alignment, sticky context where useful, keyboard focus, horizontal scrolling on narrow screens |
-| Path/breadcrumb | Clearly show bucket and prefix; preserve user-provided keys verbatim and do not translate them |
-| Empty/error state | Short explanation, state icon, next safe action; no stack trace or secret |
-| Guided prompts | Optional concise chips for safe onboarding actions, e.g. “Test connection”, “Create a bucket”, “Upload a file”; never an arbitrary-command interface |
-| Dialogs | Exact target for destructive confirmations, managed focus, Escape when safe, and focus return to the trigger |
+| Component         | Direction                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App shell         | Compact header/sidebar with the active service, effective endpoint status, language switcher, and theme control                                      |
+| Connection card   | Endpoint/region summary, masked credential status, explicit connection state, and a “Test connection” action                                         |
+| Action buttons    | Rounded but not pill-heavy; one unmistakable primary action per region; destructive actions never share the primary visual treatment                 |
+| Data table        | Strong row/column alignment, sticky context where useful, keyboard focus, horizontal scrolling on narrow screens                                     |
+| Path/breadcrumb   | Clearly show bucket and prefix; preserve user-provided keys verbatim and do not translate them                                                       |
+| Empty/error state | Short explanation, state icon, next safe action; no stack trace or secret                                                                            |
+| Guided prompts    | Optional concise chips for safe onboarding actions, e.g. “Test connection”, “Create a bucket”, “Upload a file”; never an arbitrary-command interface |
+| Dialogs           | Exact target for destructive confirmations, managed focus, Escape when safe, and focus return to the trigger                                         |
 
 ## Motion and imagery / Movimento e imagens
 
