@@ -22,6 +22,10 @@ Cinco navegações sequenciais aquecidas: resposta entre 33,3 e 49,9 ms; DOMCont
 
 ## Gate / Gate
 
+Published commit `d12974e` passed [Linux/amd64 GitHub CI run 38576851505](https://github.com/ERF88/StackEmu/actions/runs/38576851505): style, Java/MiniStack verification, packaged GUI smoke/write flow, Chromium/axe and 128 MiB streaming with a 64 MiB heap. This records executed checks, not a performance/security/accessibility certification.
+
+O commit `d12974e` passou no CI Linux/amd64 acima: estilo, Java/MiniStack, GUI empacotada/escritas, Chromium/axe e streaming de 128 MiB com heap de 64 MiB. São verificações executadas, não certificação de desempenho, segurança ou acessibilidade.
+
 The automated baseline is not full Phase 4 gate completion. Human keyboard/screen-reader/zoom review remains pending in [the security and accessibility review](../security-review.md). Legal-name validation is still pending; no public release or production-safety claim is made.
 
 O baseline automático não conclui o gate integral da Fase 4. Revisão humana de teclado/leitor/zoom segue pendente no checklist. Validação legal do nome permanece pendente; sem release público ou certificação para produção.
