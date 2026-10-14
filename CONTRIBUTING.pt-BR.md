@@ -2,6 +2,8 @@
 
 [English](CONTRIBUTING.md)
 
+Antes de alterar código, siga o [guia de nomenclatura e responsabilidades](docs/development/naming-and-responsibilities.md) e seu checklist de revisão. O baseline atual inclui a leitura da Fase 2.
+
 O StackEmu tem a fundação da Fase 1. Consulte as evidências registradas antes de afirmar implementação ou compatibilidade.
 
 1. Leia o [roadmap](docs/product/roadmap.md), os [ADRs](docs/decisions/) aplicáveis e o [Código de Conduta](CODE_OF_CONDUCT.md).

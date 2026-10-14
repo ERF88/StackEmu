@@ -1,9 +1,8 @@
 package io.github.erf88.stackemu.adapter.aws;
 
-import io.github.erf88.stackemu.application.ReadFailure;
+import io.github.erf88.stackemu.application.S3ReadException;
 import io.github.erf88.stackemu.application.S3ReadPort;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -15,10 +14,14 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @ApplicationScoped
 public class AwsS3ReadAdapter implements S3ReadPort {
-  @Inject S3Client client;
+  private final S3Client client;
+
+  public AwsS3ReadAdapter(S3Client client) {
+    this.client = client;
+  }
 
   @Override
-  public BucketDetails bucketDetails(String bucket) {
+  public BucketDetails getBucketDetails(String bucket) {
     try {
       client.headBucket(request -> request.bucket(bucket));
     } catch (SdkException failure) {
@@ -65,7 +68,7 @@ public class AwsS3ReadAdapter implements S3ReadPort {
       if (Boolean.TRUE.equals(response.isTruncated())
           && (response.nextContinuationToken() == null
               || response.nextContinuationToken().isEmpty())) {
-        throw new ReadFailure(ReadFailure.Kind.FAILED);
+        throw new S3ReadException(S3ReadException.Kind.FAILED);
       }
       return new ObjectPage(
           response.commonPrefixes().stream().map(p -> p.prefix()).toList(),
@@ -82,7 +85,7 @@ public class AwsS3ReadAdapter implements S3ReadPort {
   }
 
   @Override
-  public ObjectDetails objectDetails(String bucket, String key) {
+  public ObjectDetails getObjectDetails(String bucket, String key) {
     try {
       var response = client.headObject(request -> request.bucket(bucket).key(key));
       return new ObjectDetails(
@@ -117,18 +120,19 @@ public class AwsS3ReadAdapter implements S3ReadPort {
     }
   }
 
-  private static ReadFailure translate(SdkException failure) {
-    if (failure instanceof SdkClientException) return new ReadFailure(ReadFailure.Kind.UNAVAILABLE);
+  private static S3ReadException translate(SdkException failure) {
+    if (failure instanceof SdkClientException)
+      return new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
     if (failure instanceof S3Exception response) {
-      return new ReadFailure(
+      return new S3ReadException(
           switch (response.statusCode()) {
-            case 404 -> ReadFailure.Kind.NOT_FOUND;
-            case 403 -> ReadFailure.Kind.FORBIDDEN;
-            case 400 -> ReadFailure.Kind.INVALID;
-            case 501 -> ReadFailure.Kind.UNSUPPORTED;
-            default -> ReadFailure.Kind.FAILED;
+            case 404 -> S3ReadException.Kind.NOT_FOUND;
+            case 403 -> S3ReadException.Kind.FORBIDDEN;
+            case 400 -> S3ReadException.Kind.INVALID;
+            case 501 -> S3ReadException.Kind.UNSUPPORTED;
+            default -> S3ReadException.Kind.FAILED;
           });
     }
-    return new ReadFailure(ReadFailure.Kind.FAILED);
+    return new S3ReadException(S3ReadException.Kind.FAILED);
   }
 }

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.erf88.stackemu.application.S3ReadPort;
-import io.github.erf88.stackemu.application.StreamCopy;
 import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,10 +44,9 @@ class S3DownloadTest {
   }
 
   private static S3Resource resource(GeneratedInput input) {
-    var resource = new S3Resource();
-    resource.reader =
+    var reader =
         new S3ReadPort() {
-          public BucketDetails bucketDetails(String bucket) {
+          public BucketDetails getBucketDetails(String bucket) {
             throw new UnsupportedOperationException();
           }
 
@@ -56,7 +54,7 @@ class S3DownloadTest {
             throw new UnsupportedOperationException();
           }
 
-          public ObjectDetails objectDetails(String bucket, String key) {
+          public ObjectDetails getObjectDetails(String bucket, String key) {
             throw new UnsupportedOperationException();
           }
 
@@ -64,25 +62,25 @@ class S3DownloadTest {
             return new Download(input, input.remaining);
           }
         };
-    return resource;
+    return new S3Resource(reader, null);
   }
 
   @Test
   void largeResponseIsLazyAndUsesABoundedBuffer() throws Exception {
     var input = new GeneratedInput();
-    var response = resource(input).download("bucket", "file.bin", "en", null);
+    var response = resource(input).downloadObject("bucket", "file.bin", "en", null);
     assertEquals(0, input.consumed);
     assertFalse(input.closed);
     ((StreamingOutput) response.getEntity()).write(OutputStream.nullOutputStream());
     assertEquals(128L * 1024 * 1024, input.consumed);
-    assertTrue(input.largestRead <= StreamCopy.BUFFER_BYTES);
+    assertTrue(input.largestRead <= DownloadStreamCopier.BUFFER_BYTES);
     assertTrue(input.closed);
   }
 
   @Test
   void cancelledClientClosesTheSdkStream() {
     var input = new GeneratedInput();
-    var response = resource(input).download("bucket", "file.bin", "en", null);
+    var response = resource(input).downloadObject("bucket", "file.bin", "en", null);
     var failure =
         assertThrows(
             IOException.class,
@@ -103,12 +101,12 @@ class S3DownloadTest {
                         }));
     assertEquals("Object transfer interrupted", failure.getMessage());
     assertTrue(input.closed);
-    assertTrue(input.consumed <= StreamCopy.BUFFER_BYTES);
+    assertTrue(input.consumed <= DownloadStreamCopier.BUFFER_BYTES);
   }
 
   @Test
   void filenamesCannotInjectHeaders() {
-    String header = S3Views.disposition("prefix/a\r\nü +*.txt");
+    String header = DownloadHeaders.attachmentDisposition("prefix/a\r\nü +*.txt");
     assertTrue(header.startsWith("attachment;"));
     assertFalse(header.contains("\r"));
     assertFalse(header.contains("\n"));

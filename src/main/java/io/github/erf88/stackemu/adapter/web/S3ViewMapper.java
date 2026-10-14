@@ -13,8 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public final class S3Views {
-  private S3Views() {}
+public final class S3ViewMapper {
+  private S3ViewMapper() {}
 
   public record Link(String label, String href) {}
 
@@ -22,7 +22,7 @@ public final class S3Views {
 
   public record ObjectRow(String key, String size, String modified, String href) {}
 
-  public record BucketPage(
+  public record BucketPageView(
       String name,
       String region,
       List<Tag> tags,
@@ -35,7 +35,7 @@ public final class S3Views {
       String rootHref,
       int pageSize) {}
 
-  public record ObjectPage(
+  public record ObjectPageView(
       String key,
       String size,
       String contentType,
@@ -62,12 +62,12 @@ public final class S3Views {
     return "/s3/download?bucket=" + encode(bucket) + "&key=" + encode(key);
   }
 
-  public static BucketPage bucket(
+  public static BucketPageView toBucketPage(
       S3ReadPort.BucketDetails details,
       S3ReadPort.ObjectPage listing,
       String prefix,
       int pageSize,
-      Ui ui) {
+      UiContext ui) {
     List<Link> breadcrumbs = new ArrayList<>();
     breadcrumbs.add(
         new Link(details.name(), bucketPath(details.name(), "", null) + "&" + ui.query()));
@@ -95,7 +95,7 @@ public final class S3Views {
           case EMPTY -> ui.text("noTags");
           case UNKNOWN -> ui.text("unknownTags");
         };
-    return new BucketPage(
+    return new BucketPageView(
         details.name(),
         optional(details.reportedRegion()),
         details.tags().entrySet().stream()
@@ -124,10 +124,11 @@ public final class S3Views {
         pageSize);
   }
 
-  public static ObjectPage object(String bucket, S3ReadPort.ObjectDetails object, Ui ui) {
+  public static ObjectPageView toObjectPage(
+      String bucket, S3ReadPort.ObjectDetails object, UiContext ui) {
     int slash = object.key().lastIndexOf('/');
     String prefix = slash < 0 ? "" : object.key().substring(0, slash + 1);
-    return new ObjectPage(
+    return new ObjectPageView(
         object.key(),
         bytes(object.size(), ui),
         optional(object.contentType()),
@@ -138,26 +139,17 @@ public final class S3Views {
         bucket);
   }
 
-  public static String disposition(String key) {
-    String name = key.substring(key.lastIndexOf('/') + 1).replaceAll("[\\p{Cntrl}]", "_");
-    if (name.isEmpty()) name = "object";
-    int[] codePoints = name.codePoints().limit(120).toArray();
-    name = new String(codePoints, 0, codePoints.length);
-    return "attachment; filename=\"download\"; filename*=UTF-8''"
-        + encode(name).replace("*", "%2A");
-  }
-
   private static String optional(String value) {
     return value == null || value.isEmpty() ? "—" : value;
   }
 
-  private static String bytes(long size, Ui ui) {
+  private static String bytes(long size, UiContext ui) {
     if (size < 0) return "—";
     return NumberFormat.getIntegerInstance(Locale.forLanguageTag(ui.language())).format(size)
         + " B";
   }
 
-  private static String date(Instant instant, Ui ui) {
+  private static String date(Instant instant, UiContext ui) {
     return instant == null
         ? "—"
         : DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)

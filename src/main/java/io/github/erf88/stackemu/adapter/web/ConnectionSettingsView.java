@@ -5,12 +5,16 @@ import java.net.URI;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
-public class ConnectionView {
-  @ConfigProperty(name = "quarkus.s3.endpoint-override")
-  URI endpoint;
+public class ConnectionSettingsView {
+  private final URI endpoint;
+  private final String region;
 
-  @ConfigProperty(name = "quarkus.s3.aws.region")
-  String region;
+  public ConnectionSettingsView(
+      @ConfigProperty(name = "quarkus.s3.endpoint-override") URI endpoint,
+      @ConfigProperty(name = "quarkus.s3.aws.region") String region) {
+    this.endpoint = endpoint;
+    this.region = region;
+  }
 
   public String endpoint() {
     // Hide credentials, query tokens and fragments embedded in the configured URL.

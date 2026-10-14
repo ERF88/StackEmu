@@ -6,6 +6,9 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Naming/responsibility baseline, bilingual guide, class inventory, ADR-0006 and contributor/agent instructions.
+- Stronger architecture rules for roles, identifiers, constructor injection and AWS/web isolation.
+
 - Phase 2 bucket details/tags, paginated objects/common prefixes, breadcrumbs, metadata and streaming downloads.
 - MiniStack integration coverage, stream cancellation/closure tests and a 128 MiB download proof with a 64 MiB Java heap.
 - Fase 2: leitura/paginação/metadados/download; guias/evidências bilíngues e ADR de streaming.
@@ -22,6 +25,10 @@ All notable changes will be documented in this file. This project intends to fol
 
 - Foundational planning documentation in English and Brazilian Portuguese.
 - Initial architecture, scope, security, configuration, testing, release, and ADR records.
+
+### Changed
+
+- Purpose-revealing port/adapter/view/exception names; separate connection/component resources and download helpers. HTTP routes remain unchanged.
 
 ### Not yet released or verified
 

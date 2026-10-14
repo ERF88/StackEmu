@@ -1,12 +1,10 @@
 package io.github.erf88.stackemu.adapter.web;
 
-import io.github.erf88.stackemu.application.ReadFailure;
+import io.github.erf88.stackemu.application.S3ReadException;
 import io.github.erf88.stackemu.application.S3ReadPort;
-import io.github.erf88.stackemu.application.StreamCopy;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.smallrye.common.annotation.Blocking;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
@@ -24,8 +22,13 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Blocking
 @Produces(MediaType.TEXT_HTML)
 public class S3Resource {
-  @Inject S3ReadPort reader;
-  @Inject ConnectionView configuration;
+  private final S3ReadPort reader;
+  private final ConnectionSettingsView configuration;
+
+  public S3Resource(S3ReadPort reader, ConnectionSettingsView configuration) {
+    this.reader = reader;
+    this.configuration = configuration;
+  }
 
   @ConfigProperty(name = "stackemu.page-size", defaultValue = "50")
   int configuredPageSize;
@@ -33,16 +36,16 @@ public class S3Resource {
   @CheckedTemplate
   public static class Templates {
     public static native TemplateInstance bucket(
-        S3Views.BucketPage view, Ui ui, ConnectionView configuration);
+        S3ViewMapper.BucketPageView view, UiContext ui, ConnectionSettingsView configuration);
 
-    public static native TemplateInstance object(S3Views.ObjectPage view, Ui ui);
+    public static native TemplateInstance object(S3ViewMapper.ObjectPageView view, UiContext ui);
 
-    public static native TemplateInstance error(String message, Ui ui);
+    public static native TemplateInstance error(String message, UiContext ui);
   }
 
   @GET
   @Path("bucket")
-  public TemplateInstance bucket(
+  public TemplateInstance showBucket(
       @QueryParam("bucket") String bucket,
       @QueryParam("prefix") String requestedPrefix,
       @QueryParam("token") String token,
@@ -50,39 +53,41 @@ public class S3Resource {
       @QueryParam("theme") String theme,
       @HeaderParam("Accept-Language") String accept) {
     String prefix = requestedPrefix == null ? "" : requestedPrefix;
-    Ui ui = Ui.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
     try {
       validateBucket(bucket);
       validateKey(prefix, true);
-      if (token != null && token.length() > 8192) throw new ReadFailure(ReadFailure.Kind.INVALID);
-      ui = Ui.resolve(lang, accept, theme, S3Views.bucketPath(bucket, prefix, token));
+      if (token != null && token.length() > 8192)
+        throw new S3ReadException(S3ReadException.Kind.INVALID);
+      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.bucketPath(bucket, prefix, token));
       int pageSize = Math.max(1, Math.min(1000, configuredPageSize));
-      var details = reader.bucketDetails(bucket);
+      var details = reader.getBucketDetails(bucket);
       var listing =
           reader.listObjects(
               bucket, prefix, token == null || token.isEmpty() ? null : token, pageSize);
       return Templates.bucket(
-          S3Views.bucket(details, listing, prefix, pageSize, ui), ui, configuration);
-    } catch (ReadFailure failure) {
+          S3ViewMapper.toBucketPage(details, listing, prefix, pageSize, ui), ui, configuration);
+    } catch (S3ReadException failure) {
       throw pageError(failure, ui);
     }
   }
 
   @GET
   @Path("object")
-  public TemplateInstance object(
+  public TemplateInstance showObject(
       @QueryParam("bucket") String bucket,
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
       @HeaderParam("Accept-Language") String accept) {
-    Ui ui = Ui.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
     try {
       validateBucket(bucket);
       validateKey(key, false);
-      ui = Ui.resolve(lang, accept, theme, S3Views.objectPath(bucket, key));
-      return Templates.object(S3Views.object(bucket, reader.objectDetails(bucket, key), ui), ui);
-    } catch (ReadFailure failure) {
+      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.objectPath(bucket, key));
+      return Templates.object(
+          S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui), ui);
+    } catch (S3ReadException failure) {
       throw pageError(failure, ui);
     }
   }
@@ -90,12 +95,12 @@ public class S3Resource {
   @GET
   @Path("download")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  public Response download(
+  public Response downloadObject(
       @QueryParam("bucket") String bucket,
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @HeaderParam("Accept-Language") String accept) {
-    Ui ui = Ui.resolve(lang, accept, null, "/");
+    UiContext ui = UiContext.resolve(lang, accept, null, "/");
     try {
       validateBucket(bucket);
       validateKey(key, false);
@@ -103,7 +108,7 @@ public class S3Resource {
       StreamingOutput body =
           output -> {
             try (download) {
-              StreamCopy.copy(download.body(), output);
+              DownloadStreamCopier.copy(download.body(), output);
             } catch (IOException | RuntimeException failure) {
               // Headers may already be committed. Terminate the transfer, never append HTML/error
               // details.
@@ -112,12 +117,12 @@ public class S3Resource {
           };
       var response =
           Response.ok(body, MediaType.APPLICATION_OCTET_STREAM)
-              .header("Content-Disposition", S3Views.disposition(key))
+              .header("Content-Disposition", DownloadHeaders.attachmentDisposition(key))
               .header("X-Content-Type-Options", "nosniff")
               .header("Cache-Control", "no-store");
       if (download.size() >= 0) response.header("Content-Length", download.size());
       return response.build();
-    } catch (ReadFailure failure) {
+    } catch (S3ReadException failure) {
       return Response.status(status(failure.kind()))
           .type(MediaType.TEXT_PLAIN_TYPE)
           .entity(ui.text(message(failure.kind())))
@@ -132,7 +137,7 @@ public class S3Resource {
         || bucket.isEmpty()
         || bucket.length() > 255
         || !bucket.matches("[A-Za-z0-9][A-Za-z0-9.-]*")) {
-      throw new ReadFailure(ReadFailure.Kind.INVALID);
+      throw new S3ReadException(S3ReadException.Kind.INVALID);
     }
   }
 
@@ -140,11 +145,11 @@ public class S3Resource {
     if (key == null
         || (!allowEmpty && key.isEmpty())
         || key.getBytes(StandardCharsets.UTF_8).length > 1024) {
-      throw new ReadFailure(ReadFailure.Kind.INVALID);
+      throw new S3ReadException(S3ReadException.Kind.INVALID);
     }
   }
 
-  private static WebApplicationException pageError(ReadFailure failure, Ui ui) {
+  private static WebApplicationException pageError(S3ReadException failure, UiContext ui) {
     return new WebApplicationException(
         Response.status(status(failure.kind()))
             .type(MediaType.TEXT_HTML_TYPE)
@@ -152,7 +157,7 @@ public class S3Resource {
             .build());
   }
 
-  private static int status(ReadFailure.Kind kind) {
+  private static int status(S3ReadException.Kind kind) {
     return switch (kind) {
       case NOT_FOUND -> 404;
       case FORBIDDEN -> 403;
@@ -163,7 +168,7 @@ public class S3Resource {
     };
   }
 
-  private static String message(ReadFailure.Kind kind) {
+  private static String message(S3ReadException.Kind kind) {
     return switch (kind) {
       case NOT_FOUND -> "resourceNotFound";
       case FORBIDDEN -> "accessDenied";

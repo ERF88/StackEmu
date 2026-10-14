@@ -8,6 +8,9 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- Diretrizes de nomenclatura/responsabilidade, inventário de classes, ADR-0006 e instruções para colaboradores/agentes.
+- Testes de papéis, identificadores, injeção e isolamento AWS/web.
+
 - Fase 2: detalhes/tags de buckets, objetos paginados, prefixos/breadcrumbs, metadados e downloads seguros por streaming.
 - Testes reais MiniStack, fechamento/cancelamento de streams e prova de download de 128 MiB com heap Java de 64 MiB.
 - Guia, evidências e ADR de streaming bilíngues.
@@ -24,6 +27,10 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 - Documentação fundamental de planejamento em inglês e português do Brasil.
 - Registros iniciais de arquitetura, escopo, segurança, configuração, testes, release e ADRs.
+
+### Alterado
+
+- Nomes explícitos por papel, recursos de conexão/componentes separados e helpers de download na camada web. Rotas HTTP preservadas.
 
 ### Ainda não lançado ou verificado
 

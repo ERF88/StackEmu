@@ -22,11 +22,13 @@ No first-party JavaScript exists yet. If introduced, use Prettier and add ESLint
 
 ## Java and architecture review
 
+Detailed naming/role rules and review checklist: [naming and responsibilities](naming-and-responsibilities.md). / Regras detalhadas de nomenclatura, papéis e revisão no guia vinculado.
+
 - Use two-space indentation and the formatter's 100-column layout. Imports are explicit, sorted and separated from the package declaration.
 - Name classes with UpperCamelCase, methods/fields with lowerCamelCase and constants with UPPER_SNAKE_CASE; use names that reveal intent.
 - Prefer immutable records/value objects for results and small interfaces for real boundaries. Do not introduce an abstraction without a consumer.
 - Keep application contracts independent of Quarkus, Qute, Jakarta and AWS SDK; ArchUnit enforces the existing boundaries.
-- Prefer constructor injection for ordinary service dependencies when introducing new services; current Quarkus-managed injection points may use field injection. Avoid global mutable state.
+- Require constructor injection for service collaborators; configuration-property field injection is the documented exception. Avoid global mutable state.
 - Catch expected failures at an adapter boundary and translate them into stable results. Do not swallow unexpected exceptions. If an expected exception is intentionally ignored, explain why; never expose SDK details or credentials in UI/logs.
 - Tests describe observable behavior, include meaningful error cases and isolate cleanup to resources created by that test.
 

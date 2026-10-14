@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public record Ui(String language, String theme, String page, Map<String, String> labels) {
-  public static Ui resolve(String lang, String accept, String theme, String page) {
+public record UiContext(String language, String theme, String page, Map<String, String> labels) {
+  public static UiContext resolve(String lang, String accept, String theme, String page) {
     String language = "en";
     if ("pt-BR".equals(lang)) language = "pt-BR";
     else if (lang == null && accept != null) {
@@ -17,10 +17,11 @@ public record Ui(String language, String theme, String page, Map<String, String>
                 java.util.List.of(Locale.ENGLISH, Locale.forLanguageTag("pt-BR")));
         if (selected != null && selected.getLanguage().equals("pt")) language = "pt-BR";
       } catch (IllegalArgumentException ignored) {
+        // A malformed language header retains the safe default; it is not a page error.
       }
     }
     ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.forLanguageTag(language));
-    return new Ui(
+    return new UiContext(
         language,
         "light".equals(theme) ? "light" : "dark",
         page,
@@ -54,7 +55,7 @@ public record Ui(String language, String theme, String page, Map<String, String>
   }
 
   public String bucketLink(String bucket) {
-    return S3Views.bucketPath(bucket, "", null) + "&" + query();
+    return S3ViewMapper.bucketPath(bucket, "", null) + "&" + query();
   }
 
   private String separator() {

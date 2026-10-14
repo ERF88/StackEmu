@@ -2,7 +2,7 @@
 
 [Português (Brasil)](CONTRIBUTING.pt-BR.md)
 
-StackEmu has a Phase 1 foundation. Consult the recorded validation before making implementation or compatibility claims.
+StackEmu has completed Phase 2 reading. Consult recorded evidence before making compatibility claims. Follow the [naming and responsibility guide](docs/development/naming-and-responsibilities.md) and its review checklist.
 
 1. Read the [roadmap](docs/product/roadmap.md), applicable [ADRs](docs/decisions/), and [Code of Conduct](CODE_OF_CONDUCT.md).
 2. Open an issue or discussion for material design changes before implementing them.

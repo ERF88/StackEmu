@@ -3,7 +3,7 @@ package io.github.erf88.stackemu.adapter.aws;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import io.github.erf88.stackemu.application.ReadFailure;
+import io.github.erf88.stackemu.application.S3ReadException;
 import io.github.erf88.stackemu.application.S3ReadPort;
 import java.lang.reflect.Proxy;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 class AwsS3ReadAdapterTest {
   @Test
   void absentTagsAndUnsupportedOptionalRegionDoNotFailBucket() {
-    var adapter = new AwsS3ReadAdapter();
-    adapter.client =
+    var client =
         fake(
             (proxy, method, args) ->
                 switch (method.getName()) {
@@ -31,29 +30,30 @@ class AwsS3ReadAdapterTest {
                           .build();
                   default -> throw new UnsupportedOperationException(method.getName());
                 });
-    assertEquals(S3ReadPort.TagsState.EMPTY, adapter.bucketDetails("bucket").tagsState());
+    var adapter = new AwsS3ReadAdapter(client);
+    assertEquals(S3ReadPort.TagsState.EMPTY, adapter.getBucketDetails("bucket").tagsState());
   }
 
   @Test
   void missingContinuationTokenCannotSilentlyHideMoreResults() {
-    var adapter = new AwsS3ReadAdapter();
-    adapter.client =
+    var client =
         fake((proxy, method, args) -> ListObjectsV2Response.builder().isTruncated(true).build());
+    var adapter = new AwsS3ReadAdapter(client);
     var failure =
-        assertThrows(ReadFailure.class, () -> adapter.listObjects("bucket", "", null, 50));
-    assertEquals(ReadFailure.Kind.FAILED, failure.kind());
+        assertThrows(S3ReadException.class, () -> adapter.listObjects("bucket", "", null, 50));
+    assertEquals(S3ReadException.Kind.FAILED, failure.kind());
   }
 
   @Test
   void deniedAndMissingRequiredResourcesAreTranslated() {
-    var adapter = new AwsS3ReadAdapter();
-    adapter.client =
+    var client =
         fake(
             (proxy, method, args) -> {
               throw S3Exception.builder().statusCode(403).message("internal").build();
             });
-    var failure = assertThrows(ReadFailure.class, () -> adapter.bucketDetails("bucket"));
-    assertEquals(ReadFailure.Kind.FORBIDDEN, failure.kind());
+    var adapter = new AwsS3ReadAdapter(client);
+    var failure = assertThrows(S3ReadException.class, () -> adapter.getBucketDetails("bucket"));
+    assertEquals(S3ReadException.Kind.FORBIDDEN, failure.kind());
     assertEquals("FORBIDDEN", failure.getMessage());
   }
 

@@ -8,12 +8,21 @@ import java.util.Map;
 
 /** Read-only S3 boundary; optional metadata may be absent. */
 public interface S3ReadPort {
-  BucketDetails bucketDetails(String bucket);
+  /**
+   * Reads a required bucket; optional region/tags may be unknown. Throws S3ReadException on
+   * failure.
+   */
+  BucketDetails getBucketDetails(String bucket);
 
+  /** Reads one remote page, never the complete listing. Throws S3ReadException on failure. */
   ObjectPage listObjects(String bucket, String prefix, String continuationToken, int pageSize);
 
-  ObjectDetails objectDetails(String bucket, String key);
+  /** Reads remote metadata; missing size is -1. Throws S3ReadException on failure. */
+  ObjectDetails getObjectDetails(String bucket, String key);
 
+  /**
+   * Opens a remote stream owned by the caller. The caller must close it even after cancellation.
+   */
   Download openDownload(String bucket, String key);
 
   enum TagsState {

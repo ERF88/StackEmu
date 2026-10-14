@@ -26,6 +26,8 @@ Open <http://127.0.0.1:8080/>. See [Phase 0 commands and tests](docs/development
 
 ## Documentation
 
+- [Naming and responsibility guidelines](docs/development/naming-and-responsibilities.md) and [class review](docs/architecture/naming-review.md)
+
 - [Phase 1 guide](docs/development/phase-1.md) and [validation](docs/spikes/phase-1-results.md)
 
 - [Documentation inventory](docs/DOCUMENTATION_INVENTORY.md)

@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.github.erf88.stackemu.adapter.web.S3Views;
+import io.github.erf88.stackemu.adapter.web.S3ViewMapper;
 import io.github.erf88.stackemu.application.S3ReadPort;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
@@ -115,7 +115,7 @@ class S3ReadIntegrationTest {
   void continuationLinksRetrieveEveryObjectWithoutDuplicates() {
     for (int index = 0; index < 5; index++)
       put("page/file-" + index + ".txt", "data", "text/plain");
-    String url = S3Views.bucketPath(bucket, "page/", null) + "&lang=en";
+    String url = S3ViewMapper.bucketPath(bucket, "page/", null) + "&lang=en";
     Set<String> seen = new HashSet<>();
     int pages = 0;
     while (url != null) {
@@ -176,7 +176,7 @@ class S3ReadIntegrationTest {
     assertTrue(html.contains("prefix=level1%2F"));
     assertTrue(html.contains("prefix=level1%2Flevel2%2F"));
     assertTrue(html.contains("prefix=level1%2Flevel2%2Flevel3%2F"));
-    String objectUrl = S3Views.objectPath(bucket, key);
+    String objectUrl = S3ViewMapper.objectPath(bucket, key);
     given()
         .urlEncodingEnabled(false)
         .get(objectUrl)
@@ -199,13 +199,13 @@ class S3ReadIntegrationTest {
         .body(containsString("&lt;img"), not(containsString("<img")));
     given()
         .urlEncodingEnabled(false)
-        .get(S3Views.objectPath(bucket, key))
+        .get(S3ViewMapper.objectPath(bucket, key))
         .then()
         .statusCode(200)
         .body(containsString("&lt;img"), containsString("text/html"), not(containsString("<img")));
     given()
         .urlEncodingEnabled(false)
-        .get(S3Views.downloadPath(bucket, key))
+        .get(S3ViewMapper.downloadPath(bucket, key))
         .then()
         .statusCode(200)
         .contentType("application/octet-stream")
@@ -263,7 +263,7 @@ class S3ReadIntegrationTest {
           URI.create(
               "http://127.0.0.1:"
                   + io.restassured.RestAssured.port
-                  + S3Views.downloadPath(bucket, key));
+                  + S3ViewMapper.downloadPath(bucket, key));
       var response =
           HttpClient.newHttpClient()
               .send(

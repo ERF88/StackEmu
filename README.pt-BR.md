@@ -26,6 +26,8 @@ Abra <http://127.0.0.1:8080/?lang=pt-BR>. Para parar, use `docker compose down`;
 
 ## Documentação
 
+- [Diretrizes de nomenclatura e responsabilidades](docs/development/naming-and-responsibilities.md) e [revisão das classes](docs/architecture/naming-review.md)
+
 - [Guia da Fase 1](docs/development/phase-1.md) e [validação](docs/spikes/phase-1-results.md)
 
 - [Inventário](docs/DOCUMENTATION_INVENTORY.md)
