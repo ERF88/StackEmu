@@ -40,7 +40,13 @@ Scope: production Java types and their tests/templates after Phase 2. No public 
 
 Esses limites mantêm contratos puros, isolam SDK/HTTP e tornam dependências explícitas. Mappers não fazem I/O; recursos coordenam entrega; adapters traduzem operações. O caller encerra streams. Os nomes foram atualizados também nos testes e templates associados.
 
-## Follow-up boundaries / Limites para a sequência
+## Validation / Validação
+
+Commit `fe2199d` passed [CI run 38500469406](https://github.com/ERF88/StackEmu/actions/runs/38500469406). Local Java 25 verification passed 31 tests with zero failures/errors/skips; formatting and Markdown/CSS/PowerShell checks passed. The rebuilt local GUI passed smoke checks for dashboard, localized fragment, connection and gallery, plus the existing bucket/prefix route. CI also passed integration, Compose smoke and the 128 MiB transfer with a 64 MiB Java heap. These results preserve the narrow Phase 2 evidence; they do not certify cohesion or full emulator compatibility.
+
+O commit passou no CI vinculado. Os 31 testes locais passaram sem falhas/erros/ignorados; estilo, GUI reconstruída e rotas existentes foram verificados. O CI repetiu integração, smoke e transferência de 128 MiB com heap de 64 MiB. Isso não certifica coesão nem compatibilidade completa. A Fase 3 não foi iniciada.
+
+## Next-phase boundaries / Limites da próxima fase
 
 Retain one read adapter while operations share SDK translation/lifecycle; split only when a new responsibility warrants it. Introduce real mutation ports/use cases for Phase 3, not methods on read ports. Shared URL construction remains within the web adapter; extract a dedicated link type if routes gain independent consumers/policy. Add a domain model when actual cross-route business invariants appear. No count/size threshold mechanically forces a class split.
 
