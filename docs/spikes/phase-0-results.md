@@ -1,6 +1,6 @@
 # Phase 0 results / Resultados da Fase 0
 
-Date: 2026-10-13 (America/Sao_Paulo). Environment: Windows, Docker Desktop Linux/WSL2, amd64. These are locally executed results; CI and arm64 are not yet confirmed. The first GitHub run failed resolving Maven dependencies before tests; CI was aligned to the same Maven 3.9.11/Java 25 container that built successfully locally.
+Date: 2026-10-13 (America/Sao_Paulo). Environment: Windows, Docker Desktop Linux/WSL2, amd64. Local checks and [GitHub CI run 38489404176](https://github.com/ERF88/StackEmu/actions/runs/38489404176) passed, including four tests, Linux container build, Compose and smoke test. Arm64 is not yet confirmed. The first GitHub run failed resolving Maven dependencies before tests; CI was aligned to the same Maven 3.9.11/Java 25 container that built successfully locally.
 
 ## Pinned and resolved versions
 

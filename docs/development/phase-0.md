@@ -13,6 +13,15 @@ The Phase 0 GUI lists buckets only. It does not create buckets or upload/downloa
 
 To create a bucket using an installed AWS CLI (development credentials only):
 
+Alternatively use the AWS CLI included in the tested MiniStack image, without installing it on the host:
+
+```sh
+docker compose exec -T -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test ministack aws --endpoint-url http://localhost:4566 --region us-east-1 s3api create-bucket --bucket stackemu-demo
+docker compose exec -T -e AWS_ACCESS_KEY_ID=test -e AWS_SECRET_ACCESS_KEY=test ministack aws --endpoint-url http://localhost:4566 --region us-east-1 s3api list-buckets
+```
+
+Host CLI alternative:
+
 ```sh
 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url http://localhost:4566 --region us-east-1 s3api create-bucket --bucket stackemu-demo
 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws --endpoint-url http://localhost:4566 --region us-east-1 s3api list-buckets
