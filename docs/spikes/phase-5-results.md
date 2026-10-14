@@ -18,6 +18,10 @@ Primeiro scan falhou por falta de espaço no scratch do scanner; não é resulta
 
 ## Release status / Status de release
 
+The first Linux CI scan failed on cache permissions after capabilities were dropped. The scanner now uses the host UID/GID on POSIX hosts (UID/GID 10001 on Windows bind mounts), without broad chmod or restored capabilities. That failed invocation is not vulnerability evidence. The hardened local 128 MiB streaming check separately passed with a 64 MiB Java heap and identical SHA-256.
+
+O primeiro scan Linux falhou por permissões no cache após remover capabilities. O scanner agora usa UID/GID do host POSIX (10001 no bind Windows), sem chmod amplo ou restaurar privilégios. Falha não é evidência de vulnerabilidades. Streaming local de 128 MiB com heap de 64 MiB passou com SHA-256 idêntico.
+
 No tag, GitHub Release or GHCR image is published by this phase. Legal-name validation, human accessibility/clean-user review, vulnerability approval, ARM64 and published-image pull/run remain pending. See [release gates](../development/release.md).
 
 Sem tag/release/imagem GHCR publicada. Nome legal, revisão humana/início rápido, aprovação de vulnerabilidades, ARM64 e execução de imagem publicada continuam pendentes.

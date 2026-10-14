@@ -6,11 +6,18 @@ $releaseDirectory = Join-Path $projectDirectory 'work/release'
 $cacheDirectory = Join-Path $projectDirectory 'work/trivy-cache'
 New-Item -ItemType Directory -Path $releaseDirectory, $cacheDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $cacheDirectory 'tmp') -Force | Out-Null
+$scannerIdentity = '10001:10001'
+if (-not $IsWindows) {
+    $scannerUserId = & id -u
+    $scannerGroupId = & id -g
+    if ($LASTEXITCODE -ne 0) { throw 'Scanner host identity could not be determined' }
+    $scannerIdentity = "${scannerUserId}:${scannerGroupId}"
+}
 $archive = Join-Path $releaseDirectory 'image.tar'
 docker image save --output $archive $Image
 if ($LASTEXITCODE -ne 0) { throw 'Image export failed' }
 # No Docker socket, credentials, home directory or source tree is mounted into the scanner.
-docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs '/tmp:rw,nosuid,size=64m' `
+docker run --rm --user $scannerIdentity --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs '/tmp:rw,nosuid,size=64m' `
     -e TMPDIR=/cache/tmp `
     -v "${releaseDirectory}:/scan" -v "${cacheDirectory}:/cache" aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222 image `
     --cache-dir /cache --input /scan/image.tar --scanners vuln --format json --output /scan/vulnerabilities.json --timeout 15m --no-progress --exit-code 0
