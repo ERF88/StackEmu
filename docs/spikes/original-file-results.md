@@ -7,3 +7,9 @@ Verificação local aprovada: 49 testes sem falhas/erros/ignorados. Cobertura de
 Existing objects are not migrated. MIME is metadata, not detection of actual content or malware. Other clients/encodings, operating-system filename restrictions, LocalStack and Moto are not comprehensively verified. See [ADR-0008](../decisions/ADR-0008-original-file-metadata.md).
 
 Objetos existentes não são migrados. MIME não valida conteúdo nem malware. Outros clientes/codificações, restrições de nomes locais e emuladores permanecem sem validação completa.
+
+## Published CI / CI publicado
+
+Commit `fef5568` passed [GitHub CI run 38569223238](https://github.com/ERF88/StackEmu/actions/runs/38569223238): style checks, Java 25 verification with MiniStack integration, packaged GUI smoke, Unicode upload/download flow and 128 MiB streaming download with a 64 MiB heap. This evidence does not establish content-format validity or comprehensive security.
+
+O commit `fef5568` passou no CI acima: verificações de estilo, Java 25 com integração MiniStack, smoke da GUI empacotada, upload/download Unicode e download de 128 MiB com heap de 64 MiB. Essas evidências não comprovam validade dos formatos nem segurança abrangente.
