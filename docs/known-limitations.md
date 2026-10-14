@@ -2,9 +2,9 @@
 
 ## Baseline status / Status do baseline
 
-This repository currently contains planning documentation. No application, integration test, container image, Compose file, benchmark, or emulator compatibility result exists here. Therefore every operational capability is unverified.
+The Phase 0 implementation lists S3 buckets against MiniStack 1.5.25 using Qute and the AWS SDK. Four local tests and the Compose smoke test passed; see [evidence](spikes/phase-0-results.md). All capabilities outside this narrow proof remain unverified.
 
-Este repositório contém documentação de planejamento. Não há aplicação, teste de integração, imagem de contêiner, Compose, benchmark ou resultado de compatibilidade. Logo, toda capacidade operacional permanece não verificada.
+A Fase 0 implementa listagem de buckets S3 com Qute e SDK contra MiniStack 1.5.25. Quatro testes locais e o smoke test Compose passaram; as demais capacidades permanecem não verificadas.
 
 ## MVP exclusions / Exclusões do MVP
 

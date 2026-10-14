@@ -1,0 +1,8 @@
+<section id="bucket-panel" aria-live="polite" aria-atomic="true">
+{#if connected}
+<p class="status">{#if portuguese}Conectado{#else}Connected{/if}</p>
+<h2>Buckets</h2>
+{#if buckets.isEmpty}<p>{#if portuguese}Nenhum bucket encontrado.{#else}No buckets found.{/if}</p>
+{#else}<table><thead><tr><th scope="col">{#if portuguese}Nome{#else}Name{/if}</th></tr></thead><tbody>{#for bucket in buckets}<tr><td>{bucket}</td></tr>{/for}</tbody></table>{/if}
+{#else}<h2>{#if portuguese}Emulador indisponível{#else}Emulator unavailable{/if}</h2><p>{#if portuguese}Verifique o endpoint configurado e se o emulador está em execução; depois tente novamente.{#else}Check the configured endpoint and whether the emulator is running, then try again.{/if}</p>{/if}
+</section>

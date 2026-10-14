@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Planning documentation — not an implemented product.** StackEmu is a proposed open-source web interface for managing AWS-compatible local emulators, starting with S3. It is not an AWS console, does not manage AWS accounts, and is not yet verified against an emulator.
+> **Phase 0 technical proof.** StackEmu is an open-source web interface for local AWS emulators, starting with a read-only S3 bucket list. The MVP is still in development.
 
 [Português (Brasil)](README.pt-BR.md)
 
@@ -8,21 +8,21 @@
 
 The product name was selected on 13 October 2026, but legal/name validation is **pending**. The project repository is [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Before a public release, validate package registries, Docker Hub, domain availability, and INPI records. StackEmu is not affiliated with AWS, MiniStack, LocalStack, or Moto.
 
-The MVP target is a usable S3 vertical slice: connection status, bucket listing/creation, object navigation by prefix, upload, streaming download, understandable failures, CLI equivalents, and English/pt-BR UI. Nothing in this repository demonstrates that these capabilities work yet.
+The MVP target is a usable S3 vertical slice. Phase 0 currently demonstrates bucket listing against MiniStack 1.5.25, checked Qute templates, localized failure states, and a JVM Compose environment. Bucket creation through the GUI, object navigation, upload and download are not implemented yet.
 
 ## Planned stack
 
 Java 25 LTS (Java 21 considered as an alternative), Quarkus 3.40 LTS, Qute, htmx, CSS, Maven, and AWS SDK for Java 2.x. Exact extension, BOM, JDK, and emulator versions require an implementation spike and official-source validation.
 
-## Quick start — planned, unverified
+## Quick start — Phase 0
 
-The reference topology is a GUI container connected to MiniStack through `http://ministack:4566`, with the GUI published only at `127.0.0.1:8080`. A Compose file and application do not exist in this documentation-only baseline. Do not treat the following as a tested command:
+Requires Docker Compose v2. The GUI connects to MiniStack through `http://ministack:4566`, published only at `127.0.0.1:8080`. The following was executed locally on Windows/amd64:
 
 ```sh
-docker compose up
+docker compose up --build -d
 ```
 
-When implemented and verified, the quick-start guide will cover starting the environment, creating a bucket, uploading/downloading an object, stopping it, and safely removing local data.
+Open http://127.0.0.1:8080/. See [Phase 0 commands and tests](docs/development/phase-0.md) and [executed evidence and limitations](docs/spikes/phase-0-results.md). Stop using `docker compose down`; named volumes are retained.
 
 ## Documentation
 

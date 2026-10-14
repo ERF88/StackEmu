@@ -10,7 +10,7 @@ Conectar não é compatibilidade. Uma afirmação exige versão fixa do emulador
 
 | Emulator | Role in plan | Tested version | Verified operations | Status |
 |---|---|---:|---|---|
-| MiniStack | Proposed primary reference | Not recorded | None | Unverified |
+| MiniStack | Primary Phase 0 reference | 1.5.25 | Create/list/delete empty test bucket; GUI list | Locally verified for this narrow scope; see [evidence](../spikes/phase-0-results.md) |
 | LocalStack | Progressive compatibility target | Not recorded | None | Unverified |
 | Moto | Progressive compatibility target | Not recorded | None | Unverified |
 | Generic S3-compatible endpoint | Fallback classification | N/A | None | Unverified |

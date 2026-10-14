@@ -1,0 +1,23 @@
+name: Phase 0
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - run: docker compose up -d ministack --wait
+      - run: mvn -B -ntp verify
+        env:
+          STACKEMU_INTEGRATION: 'true'
+      - run: docker compose up --build -d --wait
+      - shell: pwsh
+        run: ./scripts/smoke.ps1
+      - if: always()
+        run: docker compose logs && docker compose down

@@ -1,2 +1,4 @@
 # Packaged delivery artifacts are kept local; source documentation is versioned.
 outputs/
+target/
+work/

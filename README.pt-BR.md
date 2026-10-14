@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Documentação de planejamento — não é um produto implementado.** StackEmu é uma proposta de interface web open source para administrar emuladores locais compatíveis com APIs AWS, começando por S3. Não é o console da AWS, não administra contas AWS e ainda não foi validado contra um emulador.
+> **Prova técnica da Fase 0.** StackEmu é uma interface web open source para emuladores locais AWS, começando com listagem de buckets S3. O MVP continua em desenvolvimento.
 
 [English](README.md)
 
@@ -8,21 +8,21 @@
 
 O nome do produto foi escolhido em 13 de outubro de 2026, mas a validação jurídica e de nome está **pendente**. O repositório do projeto é [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Antes de uma release pública, validar registros de pacotes, Docker Hub, domínio e INPI. StackEmu não possui afiliação com AWS, MiniStack, LocalStack ou Moto.
 
-O alvo do MVP é um vertical slice utilizável de S3: status da conexão, listagem/criação de buckets, navegação por prefixo, upload, download por streaming, falhas compreensíveis, comandos CLI equivalentes e UI em inglês/pt-BR. Nada neste repositório demonstra que essas capacidades já funcionam.
+O alvo do MVP é um vertical slice utilizável de S3. A Fase 0 comprova listagem de buckets, página/fragmento Qute, falhas localizadas e execução no Compose. As outras capacidades do MVP continuam pendentes.
 
 ## Stack planejada
 
 Java 25 LTS (Java 21 avaliado como alternativa), Quarkus 3.40 LTS, Qute, htmx, CSS, Maven e AWS SDK for Java 2.x. Versões exatas de extensões, BOM, JDK e emulador exigem spike de implementação e validação em fontes oficiais.
 
-## Início rápido — planejado, não verificado
+## Início rápido — Fase 0
 
-A topologia de referência coloca o contêiner da GUI conectado ao MiniStack em `http://ministack:4566`, com a GUI publicada somente em `127.0.0.1:8080`. Não há aplicação nem arquivo Compose neste baseline de documentação. Não trate o comando abaixo como testado:
+A GUI conecta ao MiniStack em `http://ministack:4566`, publicada somente em `127.0.0.1:8080`. Requer Docker Compose v2. O comando foi executado localmente em Windows/amd64:
 
 ```sh
-docker compose up
+docker compose up --build -d
 ```
 
-Quando implementado e verificado, o guia cobrirá início do ambiente, criação de bucket, upload/download, parada e remoção segura dos dados locais.
+Abra http://127.0.0.1:8080/?lang=pt-BR. Consulte o [guia da Fase 0](docs/development/phase-0.md) e as [evidências/limitações](docs/spikes/phase-0-results.md). Para parar, use `docker compose down`; os volumes são preservados. A GUI ainda não cria buckets nem envia/baixa objetos.
 
 ## Documentação
 

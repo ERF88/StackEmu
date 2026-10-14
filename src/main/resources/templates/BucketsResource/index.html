@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="{#if portuguese}pt-BR{#else}en{/if}">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>StackEmu · S3</title><link rel="stylesheet" href="/app.css"><script src="/vendor/htmx.min.js" defer></script></head>
+<body><main><header><h1>StackEmu <small>S3 · Phase 0</small></h1><nav aria-label="Language"><a href="/?lang=en">English</a> · <a href="/?lang=pt-BR">Português</a></nav></header>
+<p>{#if portuguese}Prova técnica de leitura. Ambiente local confiável.{#else}Read-only technical spike. Trusted local environment.{/if}</p>
+<a class="button" href="/?lang={#if portuguese}pt-BR{#else}en{/if}" hx-get="/buckets?lang={#if portuguese}pt-BR{#else}en{/if}" hx-target="#bucket-panel" hx-swap="outerHTML">{#if portuguese}Testar conexão / Atualizar{#else}Test connection / Refresh{/if}</a>
+{#include BucketsResource/buckets /}
+</main></body></html>
