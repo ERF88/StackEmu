@@ -20,6 +20,8 @@ Scan final passou com zero achados e inventários de 44 pacotes OS/152 Java. Os 
 
 ## Pending gates / Gates pendentes
 
+Published commit `aa12b79` passed [Linux/amd64 CI run 38593294909](https://github.com/ERF88/StackEmu/actions/runs/38593294909). The downloaded artifact was inspected: the all-findings gate passed with zero vulnerabilities, 44 OS packages and 152 Java packages. Functional, browser and constrained-stream checks also passed. SBOM, browser and scan reports are retained until 2026-10-28; regenerate after expiry. / Commit e CI aprovados; artefato inspecionado confirma zero achados com inventários OS/Java presentes. Relatórios retidos até 2026-10-28, sem aprovação automática de release.
+
 The final corrected image also passed a 128 MiB download with `-Xmx64m`, identical SHA-256, in 4.03 seconds locally. This functional timing is not a performance benchmark. / Streaming final de 128 MiB com heap de 64 MiB passou com SHA-256 idêntico; tempo funcional não é benchmark.
 
 Legal-name validation, human accessibility, clean-user quick-start review, ARM64 and public image publication remain pending. No release/tag is created by this remediation. / Nome legal, revisão humana, novo usuário, ARM64 e publicação seguem pendentes; sem release/tag criada.

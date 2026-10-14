@@ -1,5 +1,7 @@
 # Phase 5 — executed evidence / Evidências executadas
 
+Historical baseline; the subsequent 49-finding remediation and current clean gate are recorded in [runtime remediation evidence](runtime-remediation-results.md). / Baseline histórico; correção posterior e gate atual no documento vinculado.
+
 ## Local verification / Verificação local
 
 On 2026-10-14, Windows/amd64 with Docker Desktop Linux containers, Java 25 and MiniStack 1.5.25: `mvn -B -ntp spotless:apply clean verify` passed 51 tests with zero failures/errors/skips and generated CycloneDX 1.6 JSON/XML with 152 Maven components. The inspected JSON contained no JUnit/ArchUnit/REST Assured components. The plugin reported schema-keyword warnings (`meta:enum`, `deprecated`), not build failure; no broader SBOM completeness/certification is claimed.
