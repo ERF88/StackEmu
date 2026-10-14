@@ -10,13 +10,17 @@
       <label for="mutation-bucket">{ui.text('targetBucket')}</label>
       <input id="mutation-bucket" name="bucket" value="{view.bucket}" required {#if !view.createBucket}readonly{/if}>
       {#if view.errors.containsKey('bucket')}<p class="error">{ui.text(view.errors.get('bucket'))}</p>{/if}
-      {#if !view.createBucket}
+      {#if !view.createBucket && !view.upload}
         <label for="mutation-key">{#if view.upload}{ui.text('targetKey')}{#else}{ui.text('targetPrefix')}{/if}</label>
         <input id="mutation-key" name="key" value="{view.key}" required>
         {#if view.errors.containsKey('key')}<p class="error">{ui.text(view.errors.get('key'))}</p>{/if}
         {#if view.errors.containsKey('prefix')}<p class="error">{ui.text(view.errors.get('prefix'))}</p>{/if}
       {/if}
       {#if view.upload}
+        <p>{ui.text('uploadNamePolicy')}</p>
+        <p>{ui.text('targetPrefix')}: <code>{view.key}</code></p>
+        <input type="hidden" name="prefix" value="{view.key}">
+        {#if view.errors.containsKey('prefix')}<p class="error">{ui.text(view.errors.get('prefix'))}</p>{/if}
         <label for="mutation-file">{ui.text('selectFile')}</label>
         <input id="mutation-file" type="file" name="file" required>
         <p>{ui.text('uploadMaximum')}: {view.maximumUpload} B</p>
@@ -28,11 +32,11 @@
       {#if view.errors.containsKey('confirm')}<p class="error">{ui.text(view.errors.get('confirm'))}</p>{/if}
       <button type="submit">{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</button>
     </form>
-    <section>
+    {#if !view.upload}<section>
       <h2>{ui.text('cliEquivalent')}</h2>
       <p>{ui.text('cliHelp')}</p>
       <textarea readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
-    </section>
+    </section>{/if}
     <a href="/?{ui.query}">{ui.text('dashboard')}</a>
   {/content}
 {/include}

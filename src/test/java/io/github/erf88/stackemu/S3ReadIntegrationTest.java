@@ -208,7 +208,7 @@ class S3ReadIntegrationTest {
         .get(S3ViewMapper.downloadPath(bucket, key))
         .then()
         .statusCode(200)
-        .contentType("application/octet-stream")
+        .contentType("text/html")
         .header("X-Content-Type-Options", "nosniff")
         .header("Content-Disposition", containsString("attachment;"))
         .body(org.hamcrest.Matchers.equalTo(content));

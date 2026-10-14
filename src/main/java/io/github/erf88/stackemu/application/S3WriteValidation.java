@@ -50,4 +50,26 @@ public final class S3WriteValidation {
       throw new WriteValidationException("file", "uploadLimit");
     }
   }
+
+  public static String uploadObjectKey(String prefix, String filename) {
+    if (filename == null) {
+      throw new WriteValidationException("file", "invalidFilename");
+    }
+    String normalized = filename.replace('\\', '/');
+    String basename = normalized.substring(normalized.lastIndexOf('/') + 1);
+    if (basename.isBlank()
+        || basename.equals(".")
+        || basename.equals("..")
+        || basename.codePoints().anyMatch(Character::isISOControl)) {
+      throw new WriteValidationException("file", "invalidFilename");
+    }
+    String parent = prefix == null || prefix.isEmpty() ? "" : folderMarkerKey(prefix);
+    String key = parent + basename;
+    try {
+      validateObjectKey(key);
+    } catch (WriteValidationException invalid) {
+      throw new WriteValidationException("file", "invalidFilename");
+    }
+    return key;
+  }
 }

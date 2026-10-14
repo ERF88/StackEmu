@@ -9,9 +9,10 @@ public final class DownloadHeaders {
     if (name.isEmpty()) {
       name = "object";
     }
-    int[] codePoints = name.codePoints().limit(120).toArray();
-    name = new String(codePoints, 0, codePoints.length);
-    return "attachment; filename=\"download\"; filename*=UTF-8''"
+    String ascii = name.replaceAll("[^A-Za-z0-9 ._+-]", "_");
+    return "attachment; filename=\""
+        + ascii
+        + "\"; filename*=UTF-8''"
         + S3ViewMapper.encode(name).replace("*", "%2A");
   }
 }

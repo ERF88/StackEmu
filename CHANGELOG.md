@@ -32,6 +32,8 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Changed
 
+- Upload keys now use the current prefix and original filename automatically; valid MIME metadata and download filename/extension are retained, with safe fallbacks.
+
 - Purpose-revealing port/adapter/view/exception names; separate connection/component resources and download helpers. HTTP routes remain unchanged.
 
 ### Not yet released or verified

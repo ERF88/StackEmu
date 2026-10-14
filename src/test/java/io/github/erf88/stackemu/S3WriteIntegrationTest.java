@@ -131,18 +131,34 @@ class S3WriteIntegrationTest {
     new java.util.Random(42).nextBytes(bytes);
     var session = form("upload");
     given()
+        .config(
+            io.restassured.config.RestAssuredConfig.config()
+                .multiPartConfig(
+                    io.restassured.config.MultiPartConfig.multiPartConfig()
+                        .defaultCharset("UTF-8")))
         .cookies(session.cookies())
         .multiPart("csrf-token", session.token())
         .multiPart("bucket", bucket)
         .multiPart(
-            new io.restassured.builder.MultiPartSpecBuilder(key)
-                .controlName("key")
+            new io.restassured.builder.MultiPartSpecBuilder("one/two/")
+                .controlName("prefix")
                 .charset("UTF-8")
                 .mimeType("text/plain")
                 .emptyFileName()
                 .build())
         .multiPart("confirm", "yes")
-        .multiPart("file", "../../outside.bin", bytes, "text/html")
+        .multiPart(
+            new io.restassured.builder.MultiPartSpecBuilder(bytes)
+                .controlName("file")
+                .fileName(
+                    "=?UTF-8?B?"
+                        + java.util.Base64.getEncoder()
+                            .encodeToString(
+                                key.substring(key.lastIndexOf('/') + 1)
+                                    .getBytes(java.nio.charset.StandardCharsets.UTF_8))
+                        + "?=")
+                .mimeType("text/html")
+                .build())
         .post("/s3/write/upload")
         .then()
         .statusCode(200)
@@ -177,6 +193,8 @@ class S3WriteIntegrationTest {
             .get("/s3/download")
             .then()
             .statusCode(200)
+            .contentType("text/html")
+            .header("Content-Disposition", containsString(".bin"))
             .extract()
             .asByteArray();
     assertArrayEquals(bytes, actual);
@@ -371,7 +389,7 @@ class S3WriteIntegrationTest {
         .multiPart("bucket", bucket)
         .multiPart("key", "existing.bin")
         .multiPart("confirm", "yes")
-        .multiPart("file", "new.bin", new byte[1])
+        .multiPart("file", "existing.bin", new byte[1])
         .post("/s3/write/upload")
         .then()
         .statusCode(409);
@@ -381,5 +399,57 @@ class S3WriteIntegrationTest {
             .getObjectAsBytes(request -> request.bucket(bucket).key("existing.bin"))
             .asUtf8String());
     assertUploadsRemoved();
+  }
+
+  @Test
+  void originalExtensionsAndTypesRoundTripWithoutManualKey() throws Exception {
+    createThroughGui();
+    given()
+        .queryParam("action", "upload")
+        .queryParam("bucket", bucket)
+        .get("/s3/write")
+        .then()
+        .statusCode(200)
+        .body(not(containsString("name=\"key\"")), containsString("name=\"prefix\""));
+    String[][] cases = {
+      {"report.pdf", "application/pdf"},
+      {"photo.png", "image/png"},
+      {"notes.txt", "text/plain"},
+      {"unknown.zzz", "application/octet-stream"}
+    };
+    for (String[] item : cases) {
+      var session = form("upload");
+      byte[] bytes = "original bytes".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+      given()
+          .cookies(session.cookies())
+          .multiPart("csrf-token", session.token())
+          .multiPart("bucket", bucket)
+          .multiPart("prefix", "docs/")
+          .multiPart("key", "ignored-forged-key")
+          .multiPart("confirm", "yes")
+          .multiPart("file", item[0], bytes, "application/octet-stream")
+          .post("/s3/write/upload")
+          .then()
+          .statusCode(200);
+      assertEquals(
+          item[1],
+          client
+              .headObject(request -> request.bucket(bucket).key("docs/" + item[0]))
+              .contentType());
+      var response =
+          given()
+              .queryParam("bucket", bucket)
+              .queryParam("key", "docs/" + item[0])
+              .get("/s3/download")
+              .then()
+              .statusCode(200)
+              .contentType(item[1])
+              .header("Content-Disposition", containsString("filename=\"" + item[0] + "\""))
+              .header("X-Content-Type-Options", "nosniff")
+              .extract()
+              .response();
+      assertArrayEquals(bytes, response.asByteArray());
+      assertUploadsRemoved();
+    }
   }
 }

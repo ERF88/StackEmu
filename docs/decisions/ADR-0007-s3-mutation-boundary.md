@@ -3,6 +3,8 @@
 - Status: Accepted / Aceita
 - Date: 2026-10-14
 
+Original-file metadata policy now follows [ADR-0008](ADR-0008-original-file-metadata.md). The text below records the initial Phase 3 decision. / A política atual segue a ADR-0008; o texto registra a decisão inicial.
+
 ## Decision / Decisão
 
 Separate writes from read ports. Keep domain validation pure, SDK mutation/failure mapping in the AWS adapter and form/CSRF/temporary-file handling in web/framework. Use normal forms, explicit confirmation and safely quoted illustrative CLI text, not a JavaScript/shell execution feature. Limit file and request size separately and clean server-generated temporaries. Store uploads as octet-stream and request conditional creation rather than overwrite.

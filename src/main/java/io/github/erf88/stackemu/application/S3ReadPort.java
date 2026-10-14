@@ -50,7 +50,11 @@ public interface S3ReadPort {
   record ObjectDetails(String key, long size, String contentType, String etag, Instant modified) {}
 
   /** The caller owns and must close this stream, including on client disconnect. */
-  record Download(InputStream body, long size) implements AutoCloseable {
+  record Download(InputStream body, long size, String contentType) implements AutoCloseable {
+    public Download(InputStream body, long size) {
+      this(body, size, null);
+    }
+
     @Override
     public void close() throws IOException {
       body.close();

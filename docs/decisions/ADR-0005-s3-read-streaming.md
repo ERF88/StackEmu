@@ -2,6 +2,8 @@
 
 Status: Accepted for Phase 2 / Aceita para a Fase 2
 
+File MIME/name policy is superseded by [ADR-0008](ADR-0008-original-file-metadata.md); this is the historical Phase 2 decision. / Política de MIME/nome substituída pela ADR-0008; decisão histórica preservada.
+
 ## Decision / Decisão
 
 Keep SDK types in the AWS adapter and pure Java contracts in application. Fetch one `ListObjectsV2` page with delimiter `/` and opaque tokens. Show optional missing metadata as unknown; translate required failures to safe categories. Stream with a fixed 64 KiB buffer, close/abort upstream on completion/cancellation, and serve attachment/octet-stream.

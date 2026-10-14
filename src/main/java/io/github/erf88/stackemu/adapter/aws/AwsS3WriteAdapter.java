@@ -48,24 +48,19 @@ public class AwsS3WriteAdapter implements S3WritePort {
   }
 
   @Override
-  public void uploadObject(String bucket, String key, Path file) {
-    putNewObject(bucket, key, RequestBody.fromFile(file));
+  public void uploadObject(String bucket, String key, Path file, String contentType) {
+    putNewObject(bucket, key, RequestBody.fromFile(file), contentType);
   }
 
   @Override
   public void createFolderMarker(String bucket, String prefix) {
-    putNewObject(bucket, prefix, RequestBody.empty());
+    putNewObject(bucket, prefix, RequestBody.empty(), "application/octet-stream");
   }
 
-  private void putNewObject(String bucket, String key, RequestBody body) {
+  private void putNewObject(String bucket, String key, RequestBody body, String contentType) {
     try {
       client.putObject(
-          request ->
-              request
-                  .bucket(bucket)
-                  .key(key)
-                  .contentType("application/octet-stream")
-                  .ifNoneMatch("*"),
+          request -> request.bucket(bucket).key(key).contentType(contentType).ifNoneMatch("*"),
           body);
     } catch (SdkException failure) {
       throw translate(failure);

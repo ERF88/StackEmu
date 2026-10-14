@@ -94,7 +94,7 @@ public class S3Resource {
 
   @GET
   @Path("download")
-  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @Produces(MediaType.WILDCARD)
   public Response downloadObject(
       @QueryParam("bucket") String bucket,
       @QueryParam("key") String key,
@@ -116,7 +116,7 @@ public class S3Resource {
             }
           };
       var response =
-          Response.ok(body, MediaType.APPLICATION_OCTET_STREAM)
+          Response.ok(body, FileContentTypes.safeContentType(download.contentType()))
               .header("Content-Disposition", DownloadHeaders.attachmentDisposition(key))
               .header("X-Content-Type-Options", "nosniff")
               .header("Cache-Control", "no-store");

@@ -10,11 +10,13 @@ $projectDirectory = Split-Path -Parent $PSScriptRoot
 $fixtureDirectory = Join-Path $projectDirectory "work/write-smoke-$fixtureId"
 $source = Join-Path $projectDirectory 'LICENSE'
 $destination = Join-Path $fixtureDirectory 'download.bin'
+$uploadSource = Join-Path $fixtureDirectory "$unicodeLabel +%.txt"
 $bucketCreated = $false
 New-Item -ItemType Directory -Path $fixtureDirectory -Force | Out-Null
 $credentials = @('exec', '-T', '-e', 'AWS_ACCESS_KEY_ID=test', '-e', 'AWS_SECRET_ACCESS_KEY=test',
     'ministack', 'aws', '--endpoint-url', 'http://localhost:4566', '--region', 'us-east-1', 's3api')
 try {
+    Copy-Item -LiteralPath $source -Destination $uploadSource
     $form = Invoke-WebRequest "$BaseUrl/s3/write?action=bucket&lang=pt-BR" -SessionVariable mutationSession
     $token = [regex]::Match($form.Content, 'name="csrf-token" value="([^"]+)"').Groups[1].Value
     if (-not $token) { throw 'CSRF token absent from deployed form' }
@@ -24,7 +26,7 @@ try {
     $bucketCreated = $true
     $body.key = 'smoke/'
     Invoke-WebRequest "$BaseUrl/s3/write/folder" -WebSession $mutationSession -Method Post -Body $body | Out-Null
-    $upload = @{ 'csrf-token' = $token; bucket = $bucket; key = $key; confirm = 'yes'; file = Get-Item -LiteralPath $source }
+    $upload = @{ 'csrf-token' = $token; bucket = $bucket; prefix = 'smoke/'; confirm = 'yes'; file = Get-Item -LiteralPath $uploadSource }
     Invoke-WebRequest "$BaseUrl/s3/write/upload" -WebSession $mutationSession -Method Post -Form $upload | Out-Null
     $page = Invoke-WebRequest "$BaseUrl/s3/bucket?bucket=$bucket&prefix=smoke%2F"
     if ($page.Content -notmatch $unicodeLabel) { throw 'Unicode uploaded key absent from navigation' }
@@ -46,5 +48,6 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Fixture bucket cleanup failed' }
     }
     if (Test-Path -LiteralPath $destination) { Remove-Item -LiteralPath $destination -Force }
+    if (Test-Path -LiteralPath $uploadSource) { Remove-Item -LiteralPath $uploadSource -Force }
     Remove-Item -LiteralPath $fixtureDirectory
 }

@@ -34,6 +34,8 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Alterado
 
+- Upload usa prefixo e nome original automaticamente; MIME válido e nome/extensão no download são preservados, com fallbacks seguros.
+
 - Nomes explícitos por papel, recursos de conexão/componentes separados e helpers de download na camada web. Rotas HTTP preservadas.
 
 ### Ainda não lançado ou verificado

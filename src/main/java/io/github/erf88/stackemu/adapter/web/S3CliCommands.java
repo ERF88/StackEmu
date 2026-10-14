@@ -6,6 +6,16 @@ public final class S3CliCommands {
 
   public static String equivalent(
       String action, String endpoint, String region, String bucket, String key) {
+    return equivalent(action, endpoint, region, bucket, key, "application/octet-stream");
+  }
+
+  public static String equivalent(
+      String action,
+      String endpoint,
+      String region,
+      String bucket,
+      String key,
+      String contentType) {
     String base =
         "aws --endpoint-url " + quote(endpoint) + " --region " + quote(region) + " s3api ";
     return switch (action) {
@@ -29,7 +39,9 @@ public final class S3CliCommands {
               + quote(bucket)
               + " --key "
               + quote(key)
-              + " --body '/path/to/file' --content-type 'application/octet-stream' --if-none-match '*'";
+              + " --body '/path/to/file' --content-type "
+              + quote(contentType)
+              + " --if-none-match '*'";
     };
   }
 

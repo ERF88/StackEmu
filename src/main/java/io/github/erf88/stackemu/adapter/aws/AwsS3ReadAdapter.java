@@ -114,7 +114,8 @@ public class AwsS3ReadAdapter implements S3ReadPort {
           };
       return new Download(
           stream,
-          response.response().contentLength() == null ? -1 : response.response().contentLength());
+          response.response().contentLength() == null ? -1 : response.response().contentLength(),
+          response.response().contentType());
     } catch (SdkException failure) {
       throw translate(failure);
     }

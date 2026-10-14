@@ -7,6 +7,25 @@ import org.junit.jupiter.api.Test;
 
 class S3WriteValidationTest {
   @Test
+  void uploadUsesPrefixAndBasenameWithoutChangingExtension() {
+    assertEquals(
+        "docs/report.pdf", S3WriteValidation.uploadObjectKey("docs/", "C:\\fakepath\\report.pdf"));
+    assertEquals("report.pdf", S3WriteValidation.uploadObjectKey("", "../../report.pdf"));
+    assertEquals("docs/ação.csv", S3WriteValidation.uploadObjectKey("docs", "ação.csv"));
+  }
+
+  @Test
+  void unsafeFilenameAndCombinedKeyLengthAreRejected() {
+    for (String name : new String[] {"", ".", "..", "a\r\nb.pdf", "folder/"}) {
+      assertThrows(
+          WriteValidationException.class, () -> S3WriteValidation.uploadObjectKey("", name));
+    }
+    assertThrows(
+        WriteValidationException.class,
+        () -> S3WriteValidation.uploadObjectKey("a".repeat(1020), "file.pdf"));
+  }
+
+  @Test
   void rejectsUnsafeAndReservedBucketNames() {
     for (String name :
         new String[] {

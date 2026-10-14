@@ -123,14 +123,14 @@ public class S3WriteResource {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   public Response uploadObject(
       @RestForm String bucket,
-      @RestForm String key,
+      @RestForm String prefix,
       @RestForm String confirm,
       @RestForm FileUpload file,
       @RestForm String lang,
       @RestForm String theme)
       throws IOException {
     try {
-      return mutate("upload", bucket, key, confirm, file, lang, theme);
+      return mutate("upload", bucket, prefix, confirm, file, lang, theme);
     } finally {
       // The name comes from Quarkus, never from the client-supplied filename or key.
       if (file != null) {
@@ -154,6 +154,7 @@ public class S3WriteResource {
       }
       S3WriteValidation.validateBucketName(bucket);
       String target = key;
+      String contentType = "application/octet-stream";
       switch (action) {
         case "bucket" -> writer.createBucket(bucket);
         case "folder" -> {
@@ -161,12 +162,15 @@ public class S3WriteResource {
           writer.createFolderMarker(bucket, target);
         }
         default -> {
-          S3WriteValidation.validateObjectKey(key);
           if (file == null) {
             throw new WriteValidationException("file", "fileRequired");
           }
+          target =
+              S3WriteValidation.uploadObjectKey(
+                  key, UploadFileNames.originalFilename(file.fileName()));
           S3WriteValidation.validateUploadSize(Files.size(file.uploadedFile()), maximumUpload);
-          writer.uploadObject(bucket, key, file.uploadedFile());
+          contentType = FileContentTypes.uploadContentType(target, file.contentType());
+          writer.uploadObject(bucket, target, file.uploadedFile(), contentType);
         }
       }
       String destination =
@@ -175,7 +179,12 @@ public class S3WriteResource {
               : S3ViewMapper.bucketPath(bucket, action.equals("folder") ? target : "", null);
       String command =
           S3CliCommands.equivalent(
-              action, configuration.endpoint(), configuration.region(), bucket, target);
+              action,
+              configuration.endpoint(),
+              configuration.region(),
+              bucket,
+              target,
+              contentType);
       return Response.ok(
               Templates.result(
                       new MutationPageView(
