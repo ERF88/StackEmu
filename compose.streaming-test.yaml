@@ -1,0 +1,5 @@
+# Test-only override: a 128 MiB download must succeed with a 64 MiB Java heap.
+services:
+  gui:
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx64m

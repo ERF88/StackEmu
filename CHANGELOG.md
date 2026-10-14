@@ -6,6 +6,10 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Phase 2 bucket details/tags, paginated objects/common prefixes, breadcrumbs, metadata and streaming downloads.
+- MiniStack integration coverage, stream cancellation/closure tests and a 128 MiB download proof with a 64 MiB Java heap.
+- Fase 2: leitura/paginação/metadados/download; guias/evidências bilíngues e ADR de streaming.
+
 - Per-file coding conventions, EditorConfig, LF Git attributes, Maven formatting checks and development lint tools.
 - CI checks for Markdown, CSS, PowerShell, Dockerfile, workflows and Compose; Java/XML style is checked during Maven validate.
 
@@ -21,4 +25,4 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Not yet released or verified
 
-- MVP bucket creation through GUI, object navigation, upload/download, full compatibility, benchmarks, arm64 and mutation security remain pending.
+- GUI bucket creation/upload, full compatibility, benchmarks, arm64 and mutation security remain pending.

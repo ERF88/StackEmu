@@ -1,5 +1,7 @@
 # Testing strategy / Estratégia de testes
 
+Phase 2 coverage/commands: [guide](phase-2.md), [evidence](../spikes/phase-2-results.md). / Cobertura e comandos da Fase 2 nos documentos vinculados.
+
 ## Test pyramid / Pirâmide
 
 | Layer         | Planned tool                  | Scope                                    |

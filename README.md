@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Phase 1 foundation.** StackEmu is an open-source web interface for local AWS emulators, with read-only S3 buckets, effective connection settings, shared navigation and light/dark themes. The MVP is still in development.
+> **Phase 2: S3 reading.** StackEmu provides bucket details, paginated objects, prefixes/breadcrumbs, metadata and streaming downloads, with English/pt-BR and light/dark themes. The MVP is still in development.
 
 [Português (Brasil)](README.pt-BR.md)
 
@@ -8,7 +8,7 @@
 
 The product name was selected on 13 October 2026, but legal/name validation is **pending**. The project repository is [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Before a public release, validate package registries, Docker Hub, domain availability, and INPI records. StackEmu is not affiliated with AWS, MiniStack, LocalStack, or Moto.
 
-The MVP target is a usable S3 vertical slice. Phase 0 currently demonstrates bucket listing against MiniStack 1.5.25, checked Qute templates, localized failure states, and a JVM Compose environment. Bucket creation through the GUI, object navigation, upload and download are not implemented yet.
+Phase 2 reads and downloads objects against MiniStack 1.5.25. GUI bucket creation/upload remain pending. See the [Phase 2 guide](docs/development/phase-2.md) and [executed evidence](docs/spikes/phase-2-results.md).
 
 ## Planned stack
 

@@ -2,9 +2,9 @@
 
 ## Source of truth / Fonte de verdade
 
-Phase 1 implements `/connection` as a read-only view of the effective endpoint and region used by the Quarkiverse client. The four endpoint/region/credential variables below are implemented; upload/preview/page-size variables remain future planning. See [Phase 1](development/phase-1.md) for configuration precedence and tests.
+Phase 1 implements the effective connection view. Phase 2 adds `STACKEMU_PAGE_SIZE` mapped to `stackemu.page-size`: default 50, clamped to 1–1000. Upload/preview remain planned. See [Phase 1](development/phase-1.md) and [Phase 2](development/phase-2.md).
 
-A Fase 1 implementa `/connection` como visão somente leitura da configuração efetiva. Endpoint, região e credenciais estão implementados; limites de upload/preview/paginação continuam planejados.
+A Fase 1 mostra configuração efetiva; a Fase 2 implementa paginação, padrão 50 e limite defensivo 1–1000. Upload/preview continuam planejados. A tabela abaixo mantém variáveis futuras; não é contrato integral do runtime.
 
 For the MVP, environment variables are the only persistent connection configuration. The UI should display the effective endpoint and region, mask secrets, and test a safe read operation. It must not imply that edits persist across restart. A temporary session-only override is deferred unless a real need is demonstrated.
 

@@ -30,5 +30,8 @@ jobs:
       - run: docker compose up --build -d --wait
       - shell: pwsh
         run: ./scripts/smoke.ps1
+      - run: docker compose -f compose.yaml -f compose.streaming-test.yaml up -d --no-deps gui
+      - shell: pwsh
+        run: ./scripts/verify-streaming.ps1
       - if: always()
         run: docker compose logs && docker compose down

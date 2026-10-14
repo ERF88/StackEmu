@@ -1,0 +1,17 @@
+{#include layout}
+  {#content}
+    <h1>{ui.text('objectDetails')}</h1>
+    <section>
+      <h2 class="object-key">{view.key}</h2>
+      <dl>
+        <dt>Bucket</dt><dd>{view.bucket}</dd>
+        <dt>{ui.text('size')}</dt><dd>{view.size}</dd>
+        <dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd>
+        <dt>ETag</dt><dd>{view.etag}</dd>
+        <dt>{ui.text('modified')}</dt><dd>{view.modified}</dd>
+      </dl>
+      <a class="button" href="{view.downloadHref}">{ui.text('download')}</a>
+      <a href="{view.parentHref}">{ui.text('backToObjects')}</a>
+    </section>
+  {/content}
+{/include}

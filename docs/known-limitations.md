@@ -2,9 +2,9 @@
 
 ## Baseline status / Status do baseline
 
-The Phase 0 implementation lists S3 buckets against MiniStack 1.5.25 using Qute and the AWS SDK. Four local tests and the Compose smoke test passed; see [evidence](spikes/phase-0-results.md). All capabilities outside this narrow proof remain unverified.
+Phase 2 implements bucket/object reading, pagination, prefixes, metadata and streaming downloads against MiniStack 1.5.25. See [evidence](spikes/phase-2-results.md). GUI writes, range/resume and version selection are not implemented; full compatibility remains unverified.
 
-A Fase 0 implementa listagem de buckets S3 com Qute e SDK contra MiniStack 1.5.25. Quatro testes locais e o smoke test Compose passaram; as demais capacidades permanecem não verificadas.
+A Fase 2 implementa leitura/paginação/prefixos/metadados/download contra MiniStack 1.5.25. Escritas, retomada e versões ainda não existem; compatibilidade completa permanece não verificada.
 
 ## MVP exclusions / Exclusões do MVP
 

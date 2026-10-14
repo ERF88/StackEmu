@@ -1,0 +1,9 @@
+{#include layout}
+  {#content}
+    <section role="alert">
+      <h1 class="error">{message}</h1>
+      <a href="/?{ui.query}">{ui.text('dashboard')}</a>
+      <a href="/connection?{ui.query}">{ui.text('connection')}</a>
+    </section>
+  {/content}
+{/include}

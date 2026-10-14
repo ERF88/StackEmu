@@ -11,7 +11,7 @@
         </thead>
         <tbody>
           {#for bucket in buckets}
-            <tr><td>{bucket}</td></tr>
+            <tr><td><a href="{ui.bucketLink(bucket)}">{bucket}</a></td></tr>
           {/for}
         </tbody>
       </table>

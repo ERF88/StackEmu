@@ -1,0 +1,63 @@
+{#include layout}
+  {#content}
+    <h1>{view.name}</h1>
+    <nav aria-label="{ui.text('breadcrumb')}">
+      <ol class="breadcrumbs">
+        {#for crumb in view.breadcrumbs}
+          <li><a href="{crumb.href}">{crumb.label}</a></li>
+        {/for}
+      </ol>
+    </nav>
+    <section>
+      <h2>{ui.text('bucketDetails')}</h2>
+      <dl>
+        <dt>{ui.text('region')}</dt>
+        <dd>{configuration.region}</dd>
+        <dt>{ui.text('reportedRegion')}</dt>
+        <dd>{view.region}</dd>
+      </dl>
+      <p>{ui.text('regionNote')}</p>
+      <h3>{ui.text('tags')}</h3>
+      {#if view.tags.isEmpty}
+        <p>{view.tagsMessage}</p>
+      {#else}
+        <table>
+          <thead><tr><th scope="col">{ui.text('tagKey')}</th><th scope="col">{ui.text('tagValue')}</th></tr></thead>
+          <tbody>
+            {#for tag in view.tags}
+              <tr><td>{tag.key}</td><td>{tag.value}</td></tr>
+            {/for}
+          </tbody>
+        </table>
+      {/if}
+    </section>
+    <section>
+      <h2>{ui.text('objects')}</h2>
+      <p>{ui.text('prefix')}: <code>{view.prefix}</code></p>
+      <p>{ui.text('prefixNote')}</p>
+      <p>{ui.text('pageLimit')}: {view.pageSize}</p>
+      {#if view.folders.isEmpty}
+        {#if view.objects.isEmpty}<p>{ui.text('emptyObjects')}</p>{/if}
+      {/if}
+      <table>
+        <thead>
+          <tr><th scope="col">{ui.text('name')}</th><th scope="col">{ui.text('size')}</th><th scope="col">{ui.text('modified')}</th></tr>
+        </thead>
+        <tbody>
+          {#for folder in view.folders}
+            <tr><td><a href="{folder.href}">{folder.label}</a> ({ui.text('prefix')})</td><td>—</td><td>—</td></tr>
+          {/for}
+          {#for object in view.objects}
+            <tr><td><a href="{object.href}">{object.key}</a></td><td>{object.size}</td><td>{object.modified}</td></tr>
+          {/for}
+        </tbody>
+      </table>
+      <nav aria-label="{ui.text('objects')}">
+        <a href="{view.rootHref}">{ui.text('firstPage')}</a>
+        {#if !view.nextHref.isEmpty}
+          <a id="next-page" class="button" href="{view.nextHref}">{ui.text('nextPage')}</a>
+        {/if}
+      </nav>
+    </section>
+  {/content}
+{/include}

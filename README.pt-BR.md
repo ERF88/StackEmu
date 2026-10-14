@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Fundação da Fase 1.** StackEmu é uma interface web open source para emuladores locais AWS, com buckets S3 em leitura, configuração efetiva de conexão, navegação compartilhada e temas claro/escuro. O MVP continua em desenvolvimento.
+> **Fase 2: leitura S3.** StackEmu oferece detalhes de buckets, objetos paginados, prefixos/breadcrumbs, metadados e downloads por streaming, em português/inglês e temas claro/escuro. O MVP continua em desenvolvimento.
 
 [English](README.md)
 
@@ -8,7 +8,7 @@
 
 O nome do produto foi escolhido em 13 de outubro de 2026, mas a validação jurídica e de nome está **pendente**. O repositório do projeto é [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Antes de uma release pública, validar registros de pacotes, Docker Hub, domínio e INPI. StackEmu não possui afiliação com AWS, MiniStack, LocalStack ou Moto.
 
-O alvo do MVP é um vertical slice utilizável de S3. A Fase 0 comprova listagem de buckets, página/fragmento Qute, falhas localizadas e execução no Compose. As outras capacidades do MVP continuam pendentes.
+A Fase 2 lê e baixa objetos contra MiniStack 1.5.25; criação de buckets e upload pela GUI continuam pendentes. Consulte o [guia da Fase 2](docs/development/phase-2.md) e as [evidências](docs/spikes/phase-2-results.md).
 
 ## Stack planejada
 
@@ -22,7 +22,7 @@ A GUI conecta ao MiniStack em `http://ministack:4566`, publicada somente em `127
 docker compose up --build -d
 ```
 
-Abra <http://127.0.0.1:8080/?lang=pt-BR>. Consulte o [guia da Fase 0](docs/development/phase-0.md) e as [evidências/limitações](docs/spikes/phase-0-results.md). Para parar, use `docker compose down`; os volumes são preservados. A GUI ainda não cria buckets nem envia/baixa objetos.
+Abra <http://127.0.0.1:8080/?lang=pt-BR>. Para parar, use `docker compose down`; os volumes são preservados. A GUI permite leitura e download, mas ainda não cria buckets nem envia objetos.
 
 ## Documentação
 

@@ -97,4 +97,30 @@ class BucketsResourceTest {
         .statusCode(200)
         .body(containsString("Effective endpoint"));
   }
+
+  @Test
+  void s3ReadFailureKeepsLocalizedPageAndHidesSecrets() {
+    given()
+        .queryParam("bucket", "bucket")
+        .queryParam("lang", "pt-BR")
+        .get("/s3/bucket")
+        .then()
+        .statusCode(503)
+        .body(
+            containsString("Emulador indisponível"),
+            not(containsString("hidden-test-value")),
+            not(containsString("SdkException")));
+  }
+
+  @Test
+  void downloadFailureBeforeStreamingIsSafePlainText() {
+    given()
+        .queryParam("bucket", "bucket")
+        .queryParam("key", "file")
+        .get("/s3/download")
+        .then()
+        .statusCode(503)
+        .contentType("text/plain")
+        .body(containsString("Emulator unavailable"), not(containsString("hidden-test-value")));
+  }
 }

@@ -8,6 +8,10 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- Fase 2: detalhes/tags de buckets, objetos paginados, prefixos/breadcrumbs, metadados e downloads seguros por streaming.
+- Testes reais MiniStack, fechamento/cancelamento de streams e prova de download de 128 MiB com heap Java de 64 MiB.
+- Guia, evidências e ADR de streaming bilíngues.
+
 - Convenções por tipo de arquivo, EditorConfig, atributos Git LF, checagem de formatação Maven e validadores de desenvolvimento.
 - CI para Markdown, CSS, PowerShell, Dockerfile, workflows e Compose; Java/XML são verificados no validate Maven.
 
@@ -23,4 +27,4 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Ainda não lançado ou verificado
 
-- Criação pela GUI, navegação de objetos, upload/download, compatibilidade completa, benchmarks, arm64 e segurança de mutações continuam pendentes.
+- Criação/upload pela GUI, compatibilidade completa, benchmarks, arm64 e segurança de mutações continuam pendentes.

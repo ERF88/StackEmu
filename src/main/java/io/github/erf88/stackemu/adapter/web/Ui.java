@@ -37,14 +37,27 @@ public record Ui(String language, String theme, String page, Map<String, String>
   }
 
   public String english() {
-    return page + "?lang=en&theme=" + theme;
+    return page + separator() + "lang=en&theme=" + theme;
   }
 
   public String portuguese() {
-    return page + "?lang=pt-BR&theme=" + theme;
+    return page + separator() + "lang=pt-BR&theme=" + theme;
   }
 
   public String toggleTheme() {
-    return page + "?lang=" + language + "&theme=" + (theme.equals("dark") ? "light" : "dark");
+    return page
+        + separator()
+        + "lang="
+        + language
+        + "&theme="
+        + (theme.equals("dark") ? "light" : "dark");
+  }
+
+  public String bucketLink(String bucket) {
+    return S3Views.bucketPath(bucket, "", null) + "&" + query();
+  }
+
+  private String separator() {
+    return page.contains("?") ? "&" : "?";
   }
 }
