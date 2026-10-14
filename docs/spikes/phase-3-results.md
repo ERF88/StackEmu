@@ -10,6 +10,12 @@ Create through the GUI, upload an exact-limit file with a Unicode/special/XSS-st
 
 Criar pela GUI, enviar arquivo no limite com chave Unicode/especial/XSS, navegar e comparar download; verificar conflitos, confirmação, erros por campo, escaping, CSRF, limites, falhas e limpeza. Testes de aplicação e CLI cobrem validação e quoting. Não são benchmark nem teste de caos.
 
+## Published CI / CI publicado
+
+Commit `dda00dd` passed [GitHub run 38562764657](https://github.com/ERF88/StackEmu/actions/runs/38562764657) on Linux/amd64: style checks, Java integration, packaged Compose smoke, deployed write flow and 128 MiB streaming with a 64 MiB Java heap. Heap is not total process memory. The first Linux run exposed root-owned workspace fixture directories; test uploads now use the system temporary directory instead. No release tag was created.
+
+O commit passou no CI Linux/amd64 vinculado, incluindo o fluxo de escrita e a regressão de streaming. A primeira execução encontrou conflito de permissões nas fixtures; uploads de teste passaram para o temporário do sistema. Heap não representa memória total do processo. Nenhuma tag de release foi criada.
+
 ## Limitations / Limitações
 
 No LocalStack/Moto/arm64 certification, public exposure, auth, crash cleanup, resumability, version semantics or concurrent-creation stress evidence. Legal name validation remains pending. See [guide](../development/phase-3.md).
