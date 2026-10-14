@@ -29,7 +29,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @TestProfile(S3WriteIntegrationTest.Integration.class)
 @EnabledIfEnvironmentVariable(named = "STACKEMU_INTEGRATION", matches = "true")
 class S3WriteIntegrationTest {
-  private static final Path UPLOADS = Path.of("work", "phase3-test-uploads").toAbsolutePath();
+  private static final Path UPLOADS =
+      Path.of(System.getProperty("java.io.tmpdir"), "stackemu-phase3-test-uploads");
 
   public static class Integration implements QuarkusTestProfile {
     @Override
