@@ -1,6 +1,6 @@
 # StackEmu
 
-> **Prova técnica da Fase 0.** StackEmu é uma interface web open source para emuladores locais AWS, começando com listagem de buckets S3. O MVP continua em desenvolvimento.
+> **Fundação da Fase 1.** StackEmu é uma interface web open source para emuladores locais AWS, com buckets S3 em leitura, configuração efetiva de conexão, navegação compartilhada e temas claro/escuro. O MVP continua em desenvolvimento.
 
 [English](README.md)
 
@@ -25,6 +25,8 @@ docker compose up --build -d
 Abra http://127.0.0.1:8080/?lang=pt-BR. Consulte o [guia da Fase 0](docs/development/phase-0.md) e as [evidências/limitações](docs/spikes/phase-0-results.md). Para parar, use `docker compose down`; os volumes são preservados. A GUI ainda não cria buckets nem envia/baixa objetos.
 
 ## Documentação
+
+- [Guia da Fase 1](docs/development/phase-1.md) e [validação](docs/spikes/phase-1-results.md)
 
 - [Inventário](docs/DOCUMENTATION_INVENTORY.md)
 - [Roadmap](docs/product/roadmap.md) e [hipóteses de pesquisa](docs/product/user-research.md)

@@ -1,4 +1,4 @@
-name: Phase 0
+name: Build and integration
 on: [push, pull_request]
 permissions:
   contents: read
@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker compose up -d ministack --wait
-      - run: docker run --rm --network host -v "$PWD:/build" -w /build -e STACKEMU_INTEGRATION=true maven:3.9.11-eclipse-temurin-25 mvn -B -ntp verify
+      - run: docker run --rm --network host -v "$PWD:/build" -w /build -e STACKEMU_INTEGRATION=true maven:3.9.11-eclipse-temurin-25 mvn -B -ntp clean verify
       - run: docker compose up --build -d --wait
       - shell: pwsh
         run: ./scripts/smoke.ps1

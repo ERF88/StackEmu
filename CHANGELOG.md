@@ -6,6 +6,9 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- Phase 1 effective connection view, shared Qute layout/navigation, light/dark semantic tokens and component gallery.
+- Locale negotiation and English/pt-BR catalogs, translation parity and ArchUnit boundary checks.
+
 - Phase 0 Java 25 / Quarkus 3.40.1 read-only S3 screen, checked Qute templates and local htmx asset.
 - MiniStack 1.5.25 Compose environment, non-root JVM image, four tests and passing Linux/amd64 CI.
 - Reproducible run guide and actual spike evidence, including explicit remaining validation.

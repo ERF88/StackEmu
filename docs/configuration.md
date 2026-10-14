@@ -2,6 +2,10 @@
 
 ## Source of truth / Fonte de verdade
 
+Phase 1 implements `/connection` as a read-only view of the effective endpoint and region used by the Quarkiverse client. The four endpoint/region/credential variables below are implemented; upload/preview/page-size variables remain future planning. See [Phase 1](development/phase-1.md) for configuration precedence and tests.
+
+A Fase 1 implementa `/connection` como visão somente leitura da configuração efetiva. Endpoint, região e credenciais estão implementados; limites de upload/preview/paginação continuam planejados.
+
 For the MVP, environment variables are the only persistent connection configuration. The UI should display the effective endpoint and region, mask secrets, and test a safe read operation. It must not imply that edits persist across restart. A temporary session-only override is deferred unless a real need is demonstrated.
 
 No MVP, variáveis de ambiente são a única configuração persistente. A UI deve mostrar endpoint/região efetivos, mascarar segredos e testar uma operação segura de leitura. Não deve sugerir que edições persistem após reinício.

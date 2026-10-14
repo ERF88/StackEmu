@@ -12,9 +12,10 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 @TestProfile(BucketsResourceTest.Unavailable.class)
 class BucketsResourceTest {
+    @jakarta.inject.Inject software.amazon.awssdk.services.s3.S3Client client;
     public static class Unavailable implements QuarkusTestProfile {
         public Map<String, String> getConfigOverrides() {
-            return Map.of("quarkus.s3.endpoint-override", "http://127.0.0.1:1");
+            return Map.of("quarkus.s3.endpoint-override", "http://127.0.0.1:1", "quarkus.s3.aws.region", "sa-east-1", "quarkus.s3.aws.credentials.static-provider.secret-access-key", "hidden-test-value");
         }
     }
     @Test void unavailableIsAnUnderstandablePage() {
@@ -28,5 +29,22 @@ class BucketsResourceTest {
     }
     @Test void processHealthDoesNotDependOnEmulator() {
         given().get("/q/health/live").then().statusCode(200);
+    }
+    @Test void connectionShowsEffectiveConfigurationWithoutSecrets() {
+        org.junit.jupiter.api.Assertions.assertEquals("sa-east-1", client.serviceClientConfiguration().region().id());
+        given().get("/connection").then().statusCode(200)
+            .body(containsString("http://127.0.0.1:1"), containsString("sa-east-1"),
+                containsString("Emulator unavailable"), not(containsString("hidden-test-value")));
+    }
+    @Test void galleryRendersWithoutEmulatorAndPreservesPreferences() {
+        given().queryParam("lang", "pt-BR").queryParam("theme", "light").get("/components")
+            .then().statusCode(200).body(containsString("Galeria de componentes"),
+                containsString("data-theme=\"light\""), containsString("lang=pt-BR"));
+    }
+    @Test void languageNegotiationRespectsExplicitOverride() {
+        given().header("Accept-Language", "pt-BR, en;q=0.8").get("/connection")
+            .then().statusCode(200).body(containsString("Endpoint efetivo"));
+        given().header("Accept-Language", "pt-BR").queryParam("lang", "en").get("/connection")
+            .then().statusCode(200).body(containsString("Effective endpoint"));
     }
 }

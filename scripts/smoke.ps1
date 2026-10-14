@@ -15,4 +15,10 @@ if ($fragment.Content -notmatch 'Conectado' -or $fragment.Content -match '<!doct
     throw 'Localized partial response failed'
 }
 Invoke-RestMethod 'http://127.0.0.1:8080/q/health/live' | Out-Null
-Write-Output 'PASS: GUI, localized fragment and process health'
+$connection = (Invoke-WebRequest 'http://127.0.0.1:8080/connection?lang=en&theme=light').Content
+if ($connection -notmatch 'Effective endpoint' -or $connection -notmatch 'http://ministack:4566' -or $connection -notmatch 'data-theme="light"') {
+    throw 'Effective connection configuration or light theme failed'
+}
+$gallery = (Invoke-WebRequest 'http://127.0.0.1:8080/components?lang=pt-BR').Content
+if ($gallery -notmatch 'Galeria de componentes') { throw 'Component gallery failed' }
+Write-Output 'PASS: GUI, localized fragment, process health, connection configuration and gallery'

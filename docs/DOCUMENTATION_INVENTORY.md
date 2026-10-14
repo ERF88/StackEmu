@@ -22,6 +22,8 @@ This inventory prioritizes the documentation required by plan section 14 and its
 
 ## Bilingual policy
 
+Implementation follow-ups: [Phase 1 guide](development/phase-1.md), [validation](spikes/phase-1-results.md) and [ADR-0004](decisions/ADR-0004-phase-1-boundaries.md) document the current layers, effective configuration, shared UI and remaining limitations.
+
 The product and documentation target English and Brazilian Portuguese. Root documents have paired `pt-BR` editions where they are user-facing. Technical documents are written bilingually in the same file during this planning baseline to keep decisions synchronized; implementation documentation should preserve that practice or add paired files with a translation check.
 
 ## Legal-name validation
