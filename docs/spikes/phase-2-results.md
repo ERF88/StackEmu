@@ -13,7 +13,13 @@ On 13 October 2026, Windows/amd64, Java 25, Quarkus 3.40.1 and MiniStack 1.5.25:
 
 Os 28 testes locais passaram. Downloads reais de 32 MiB e 128 MiB preservaram tamanho/hash; a segunda prova limitou heap a 64 MiB. Navegação, caracteres especiais, idioma e tela estreita foram inspecionados. Isso não certifica S3 completo, memória total ou desempenho.
 
-## Remaining / Pendente
+## Published CI / CI publicado
+
+Commit `f09c4f4` passed [GitHub run 38498607311](https://github.com/ERF88/StackEmu/actions/runs/38498607311) on Linux/amd64: style, Maven integration, Compose smoke and the 128 MiB/64 MiB heap proof. No release tag was created.
+
+O commit `f09c4f4` passou nessa execução Linux/amd64, incluindo integração, smoke e prova de heap. Nenhuma tag de release foi criada.
+
+## Remaining validation / Validação restante
 
 LocalStack, Moto, arm64, full S3 semantics, range/resume, versions and production load are unverified. Cancellation has a deterministic stream test, not network chaos. GUI mutations/security belong to subsequent phases. Legal name validation remains pending.
 
