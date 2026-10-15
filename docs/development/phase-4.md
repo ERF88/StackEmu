@@ -19,9 +19,9 @@ Linux CI uses `--network host` with the default loopback URLs. URLs are restrict
 
 O CI Linux usa rede host e URLs loopback. Não remover as restrições de destino para testar AWS. Um worker, sem retry. A limpeza exclui apenas chaves exatas no bucket UUID criado pelo teste; não enumera dados do usuário. Requisições de limpeza sem assinatura são comportamento do MiniStack, não garantia de autorização. Verificar falhas de limpeza antes de repetir.
 
-Reports, axe findings, screenshots on failure and traces are under ignored `work/`; they may contain fixture data and effective local endpoint information. Keep them local or review before sharing. Browser JavaScript is test tooling only; the runtime remains Qute/CSS/htmx. ESLint and Prettier cover the new tooling.
+Reports, axe findings, screenshots on failure and traces are under ignored `work/`; they may contain fixture data and effective local endpoint information. Keep them local or review before sharing. At the original Phase 4 baseline, browser JavaScript was test tooling only; runtime remained Qute/CSS/htmx. Redesign E5 later adds the small progressive-feedback `app.js`, also covered by ESLint/Prettier; see [E5 evidence](../spikes/redesign-e5-results.md).
 
-Relatórios, resultados axe, screenshots de falha e traces ficam em `work/` ignorado. Podem conter dados de fixture/endpoint local: revisar antes de compartilhar. JavaScript novo existe apenas nas ferramentas de teste; runtime continua Qute/CSS/htmx.
+Relatórios, resultados axe, screenshots de falha e traces ficam em `work/` ignorado. Podem conter dados de fixture/endpoint local: revisar antes de compartilhar. Na Fase 4 original, JavaScript novo existia apenas nas ferramentas de teste. A E5 do redesign adiciona posteriormente `app.js` para feedback progressivo, também com ESLint/Prettier; evidências no documento vinculado.
 
 ## Gate and limits / Gate e limites
 

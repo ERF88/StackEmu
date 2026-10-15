@@ -42,12 +42,63 @@ class BucketsResourceTest {
   }
 
   @Test
+  void writesDeterministicPresentationAndRealUnavailableBrowserFixtures()
+      throws java.io.IOException {
+    for (String language : java.util.List.of("en", "pt-BR")) {
+      for (String theme : java.util.List.of("dark", "light")) {
+        VisualPageFixtures.write(language, theme);
+      }
+    }
+  }
+
+  @Test
   void unavailableIsAnUnderstandablePage() {
     given()
         .get("/")
         .then()
         .statusCode(200)
-        .body(containsString("Emulator unavailable"), not(containsString("SdkException")));
+        .body(
+            containsString("Emulator unavailable"),
+            not(containsString("SdkException")),
+            containsString("data-bucket-count=\"unknown\""),
+            containsString("http://127.0.0.1:1"),
+            containsString("sa-east-1"),
+            not(containsString("hidden-test-value")),
+            not(containsString("data-bucket-count=\"0\"")));
+  }
+
+  @Test
+  void fullPagesHaveLocalizedTitlesAndBundledFingerprintedAssets() {
+    given()
+        .queryParam("lang", "pt-BR")
+        .get("/")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("<title>Visão geral · StackEmu</title>"),
+            containsString("rel=\"icon\""),
+            containsString("/app.css?v="),
+            containsString("aria-hidden=\"true\""),
+            not(containsString("◫")));
+    given()
+        .queryParam("lang", "pt-BR")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("<title>Conexão · StackEmu</title>"));
+    given()
+        .queryParam("lang", "en")
+        .get("/components")
+        .then()
+        .statusCode(200)
+        .body(containsString("<title>Component gallery · StackEmu</title>"));
+    given()
+        .queryParam("lang", "pt-BR")
+        .queryParam("bucket", "example")
+        .get("/s3/bucket")
+        .then()
+        .statusCode(503)
+        .body(containsString("<title>Emulador indisponível · StackEmu</title>"));
   }
 
   @Test

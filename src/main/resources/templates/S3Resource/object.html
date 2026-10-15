@@ -1,17 +1,23 @@
 {#include layout}
+  {#title}{view.key}{/title}
   {#content}
-    <h1>{ui.text('objectDetails')}</h1>
-    <section>
+    <h1>{#include icons/file /}{ui.text('objectDetails')}</h1>
+    <div class="object-detail-grid">
+    <section class="resource-panel">
       <h2 class="object-key">{view.key}</h2>
       <dl>
         <dt>Bucket</dt><dd>{view.bucket}</dd>
         <dt>{ui.text('size')}</dt><dd>{view.size}</dd>
         <dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd>
-        <dt>ETag</dt><dd>{view.etag}</dd>
+        <dt>ETag</dt><dd><code>{view.etag}</code></dd>
         <dt>{ui.text('modified')}</dt><dd>{view.modified}</dd>
       </dl>
-      <a class="button" href="{view.downloadHref}">{ui.text('download')}</a>
+    </section>
+    <section class="resource-panel object-actions" aria-labelledby="object-actions-title">
+      <h2 id="object-actions-title">{ui.text('objectActions')}</h2>
+      <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
       <a href="{view.parentHref}">{ui.text('backToObjects')}</a>
     </section>
+    </div>
   {/content}
 {/include}

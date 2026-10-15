@@ -1,23 +1,23 @@
 {#include layout}
+  {#title}{view.name}{/title}
   {#content}
     <div class="page-heading">
     <div><p class="eyebrow">S3 · Bucket</p><h1>{view.name}</h1></div>
     <div class="page-actions">
-    <a class="button primary" href="{view.uploadHref}">{ui.text('uploadObject')}</a>
-    <a class="button" href="{view.folderHref}">{ui.text('createFolder')}</a>
+    <a class="button primary" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
+    <a class="button" href="{view.folderHref}">{#include icons/folder /}{ui.text('createFolder')}</a>
     </div>
     </div>
-    <nav aria-label="{ui.text('breadcrumb')}">
+    <nav class="resource-breadcrumb" aria-label="{ui.text('breadcrumb')}">
       <ol class="breadcrumbs">
         {#for crumb in view.breadcrumbs}
-          <li><a href="{crumb.href}">{crumb.label}</a></li>
+          <li>{#if crumb_hasNext}<a href="{crumb.href}"><code>{crumb.label}</code></a>{#else}<span aria-current="page"><code>{crumb.label}</code></span>{/if}</li>
         {/for}
       </ol>
     </nav>
     <details class="bucket-metadata">
       <summary>{ui.text('bucketDetails')}</summary>
-    <section>
-      <h2>{ui.text('bucketDetails')}</h2>
+    <div class="metadata-panel">
       <dl>
         <dt>{ui.text('region')}</dt>
         <dd>{configuration.region}</dd>
@@ -25,46 +25,52 @@
         <dd>{view.region}</dd>
       </dl>
       <p>{ui.text('regionNote')}</p>
-      <h3>{ui.text('tags')}</h3>
+      <h2>{ui.text('tags')}</h2>
       {#if view.tags.isEmpty}
         <p>{view.tagsMessage}</p>
       {#else}
-        <table>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('tags')}">
+        <table class="resource-table">
+          <caption class="visually-hidden">{ui.text('tags')}</caption>
           <thead><tr><th scope="col">{ui.text('tagKey')}</th><th scope="col">{ui.text('tagValue')}</th></tr></thead>
           <tbody>
             {#for tag in view.tags}
-              <tr><td>{tag.key}</td><td>{tag.value}</td></tr>
+              <tr><th scope="row">{tag.key}</th><td>{tag.value}</td></tr>
             {/for}
           </tbody>
         </table>
+        </div>
       {/if}
-    </section>
+    </div>
     </details>
-    <section>
+    <section class="resource-panel">
       <h2>{ui.text('objects')}</h2>
-      <p>{ui.text('prefix')}: <code>{view.prefix}</code></p>
+      <div class="resource-context"><p class="context-chip">{ui.text('prefix')}: <code>{view.prefix}</code></p>
+      <p class="context-chip">{ui.text('pageLimit')}: {view.pageSize}</p></div>
       <p>{ui.text('prefixNote')}</p>
-      <p>{ui.text('pageLimit')}: {view.pageSize}</p>
       {#if view.folders.isEmpty}
         {#if view.objects.isEmpty}<p>{ui.text('emptyObjects')}</p>{/if}
       {/if}
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('objects')}">
+      <table class="resource-table object-table">
+        <caption class="visually-hidden">{ui.text('objects')}</caption>
         <thead>
           <tr><th scope="col">{ui.text('name')}</th><th scope="col">{ui.text('size')}</th><th scope="col">{ui.text('modified')}</th></tr>
         </thead>
         <tbody>
           {#for folder in view.folders}
-            <tr><td><a href="{folder.href}">{folder.label}</a> ({ui.text('prefix')})</td><td>—</td><td>—</td></tr>
+            <tr><th scope="row"><a href="{folder.href}">{#include icons/folder /}<code>{folder.label}</code></a> ({ui.text('prefix')})</th><td>—</td><td>—</td></tr>
           {/for}
           {#for object in view.objects}
-            <tr><td><a href="{object.href}">{object.key}</a></td><td>{object.size}</td><td>{object.modified}</td></tr>
+            <tr><th scope="row"><a href="{object.href}">{#include icons/file /}<code>{object.key}</code></a></th><td>{object.size}</td><td>{object.modified}</td></tr>
           {/for}
         </tbody>
       </table>
-      <nav aria-label="{ui.text('objects')}">
-        <a href="{view.rootHref}">{ui.text('firstPage')}</a>
+      </div>
+      <nav class="resource-pagination" aria-label="{ui.text('pagination')}">
+        <a class="button" href="{view.rootHref}">{ui.text('firstPage')}</a>
         {#if !view.nextHref.isEmpty}
-          <a id="next-page" class="button" href="{view.nextHref}">{ui.text('nextPage')}</a>
+          <a id="next-page" class="button" href="{view.nextHref}">{ui.text('nextPage')}{#include icons/chevron /}</a>
         {/if}
       </nav>
     </section>

@@ -4,39 +4,79 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="htmx-config" content='{"allowEval":false,"includeIndicatorStyles":false}'>
-    <title>StackEmu · S3</title>
-    <link rel="stylesheet" href="/app.css?v=workspace1">
+    <meta name="color-scheme" content="{#if ui.theme == 'auto'}dark light{#else}{ui.theme}{/if}">
+    {#if ui.theme == 'auto'}
+      <meta name="theme-color" content="#081225" media="(prefers-color-scheme: dark)">
+      <meta name="theme-color" content="#f2f5fb" media="(prefers-color-scheme: light)">
+    {#else}
+      <meta name="theme-color" content="{#if ui.theme == 'light'}#f2f5fb{#else}#081225{/if}">
+    {/if}
+    <title>{#insert title}{ui.text('workspace')}{/insert} · StackEmu</title>
+    <link rel="icon" type="image/svg+xml" href="{inject:webAssets.faviconHref}">
+    <link rel="stylesheet" href="{inject:webAssets.stylesheetHref}">
     <script src="/vendor/htmx.min.js" defer></script>
+    <script src="{inject:webAssets.scriptHref}" defer></script>
   </head>
   <body>
     <a class="skip" href="#content">{ui.text('skip')}</a>
     <div class="app-shell">
       <aside class="sidebar" aria-label="{ui.text('navigation')}">
-        <a class="brand" href="/?{ui.query}"><span class="brand-mark" aria-hidden="true">S</span>StackEmu</a>
-        <p class="nav-caption">{ui.text('workspace')}</p>
+        <a class="brand" href="/?{ui.query}">
+          <svg class="brand-symbol" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" rx="12" fill="#081225"/>
+            <path d="m24 9 14 8-14 8-14-8 14-8Zm-14 15 14 8 14-8M10 31l14 8 14-8" stroke="#b6b3ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>StackEmu<small>{ui.text('consoleLabel')}</small></span>
+        </a>
         <nav class="primary-navigation" aria-label="{ui.text('navigation')}">
-          <a href="/?{ui.query}" {#if ui.page == '/'}aria-current="page"{/if}><span aria-hidden="true">◫</span>{ui.text('dashboard')}</a>
-          <a href="/?{ui.query}#bucket-panel" {#if ui.page.startsWith('/s3')}aria-current="page"{/if}><span aria-hidden="true">▱</span>S3 · Buckets</a>
-          <a href="/connection?{ui.query}" {#if ui.page == '/connection'}aria-current="page"{/if}><span aria-hidden="true">◎</span>{ui.text('connection')}</a>
+          <p class="nav-caption">{ui.text('workspace')}</p>
+          <a href="/?{ui.query}" {#if ui.page == '/'}aria-current="page"{/if}>
+            {#include icons/dashboard /}<span>{ui.text('dashboard')}</span>
+          </a>
+          <p class="nav-caption">{ui.text('services')}</p>
+          <a href="/?{ui.query}#bucket-panel" {#if ui.page.startsWith('/s3')}aria-current="page"{/if}>
+            {#include icons/buckets /}<span>S3<small>{ui.text('objectStorage')}</small></span>
+          </a>
+          <a href="/connection?{ui.query}" {#if ui.page == '/connection'}aria-current="page"{/if}>
+            {#include icons/connection /}<span>{ui.text('connection')}</span>
+          </a>
         </nav>
         <div class="sidebar-bottom">
-          <a href="/components?{ui.query}">{ui.text('components')}</a>
-          <p>{ui.text('local')}</p>
+          <a class="tool-link" href="/components?{ui.query}" {#if ui.page == '/components'}aria-current="page"{/if}>
+            {#include icons/components /}<span>{ui.text('components')}</span>
+          </a>
+          <div class="local-notice">{#include icons/shield /}<p>{ui.text('local')}</p></div>
         </div>
       </aside>
       <div class="workspace">
-      <header class="workspace-header">
-        <span class="workspace-label">{ui.text('workspace')} <small>/ S3</small></span>
-        <div class="preferences">
-          <a href="{ui.english}" lang="en">English</a>
-          <a href="{ui.portuguese}" lang="pt-BR">Português</a>
-          <a href="{ui.toggleTheme}">{ui.text('theme')}</a>
-        </div>
-      </header>
-      <main id="content" tabindex="-1">
-        {#insert content /}
-      </main>
-      <footer>{ui.text('local')}</footer>
+        <header class="workspace-header">
+          <div class="workspace-label">
+            <span class="eyebrow">{ui.text('consoleLabel')}</span>
+            <span>{ui.text('workspace')} <small>/ S3</small></span>
+          </div>
+          <div class="preferences">
+            <div class="language-controls" role="group" aria-label="{ui.text('languagePreferences')}">
+              {#include icons/language /}
+              <a href="{ui.english}" lang="en" {#if ui.language == 'en'}aria-current="true"{/if}>English</a>
+              <a href="{ui.portuguese}" lang="pt-BR" {#if ui.language == 'pt-BR'}aria-current="true"{/if}>Português</a>
+            </div>
+            <div class="theme-controls" role="group" aria-label="{ui.text('themePreferences')}">
+              <a href="{ui.themeLink('auto')}" title="{ui.text('themeAuto')}" {#if ui.theme == 'auto'}aria-current="true"{/if}>
+                {#include icons/system /}<span class="visually-hidden">{ui.text('themeAuto')}</span>
+              </a>
+              <a href="{ui.themeLink('light')}" title="{ui.text('themeLight')}" {#if ui.theme == 'light'}aria-current="true"{/if}>
+                {#include icons/sun /}<span class="visually-hidden">{ui.text('themeLight')}</span>
+              </a>
+              <a href="{ui.themeLink('dark')}" title="{ui.text('themeDark')}" {#if ui.theme == 'dark'}aria-current="true"{/if}>
+                {#include icons/moon /}<span class="visually-hidden">{ui.text('themeDark')}</span>
+              </a>
+            </div>
+          </div>
+        </header>
+        <main id="content" tabindex="-1">
+          {#insert content /}
+        </main>
+        <footer>{ui.text('local')}</footer>
       </div>
     </div>
   </body>

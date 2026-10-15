@@ -12,6 +12,8 @@ A Fase 3 adiciona formulários com confirmação/CSRF e upload limitado contra M
 
 ## Stack implementada
 
+Os SVGs da interface usam [coolicons v4.1](https://coolicons.cool/), de Kryston Schwarze, sob [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), não sob a licença MIT da aplicação. Ícones selecionados são adaptados em fragmentos Qute locais; atribuição, revisão de origem e alterações estão nos [notices de terceiros](THIRD_PARTY_NOTICES.md).
+
 Java 25, Quarkus 3.40.1, Qute, htmx local, CSS, Maven e AWS SDK for Java 2.x via BOM da plataforma. MiniStack 1.5.25 em amd64 é o baseline testado; outras plataformas/emuladores não são certificados.
 
 ## Início rápido — desenvolvimento local

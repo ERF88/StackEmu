@@ -6,6 +6,22 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- E7 final redesign validation record, reproducible commands, screenshot references and explicit human-review/release limits; no P2 activation or publication.
+
+- E6 bilingual component gallery/contracts, deterministic Qute presentation fixtures, unavailable/error axe checks and container-based visual snapshots; P2 follow-ups recorded as unapproved ADR-0012 proposals only.
+
+- E5 native-form presentation and progressive local request feedback: localized loading/failure/submitting status, real `aria-busy`, disabled submit-only state and page-restoration reset; unchanged CSRF/upload/download policies.
+
+- E4 semantic resource tables with keyboard-scrollable regions, sticky headers, breadcrumb/context chips and responsive object metadata/download panels; unchanged S3 contracts.
+
+- E3 responsive overview with effective connection settings, snapshot-based bucket count and contextual next action; atomic htmx updates and unknown-count failure state.
+
+- E2 local SVG shell, explicit system/light/dark preference controls, localized page titles and original SVG favicon.
+- Bundled asset SHA-256 URL fingerprints and coolicons v4.1 CC BY 4.0 attribution/source inventory; unchanged CSP.
+
+- E1 layered CSS, semantic OKLCH tokens with hex fallbacks/legacy aliases, automatic system theme and accessibility preferences.
+- Dependency-free contrast gate/reference tests and browser preference/responsive checks; no template or CSP changes.
+
 - Complete runtime package/CVE inventory and all-severity clean-image CI gate with OS/Java inventory checks.
 
 - Phase 5 Maven CycloneDX SBOM, isolated archive-based Trivy scan and retained CI reports.

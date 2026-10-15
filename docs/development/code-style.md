@@ -18,7 +18,7 @@ These are the StackEmu defaults. They use established language tools while prese
 | Editor/Git files       | EditorConfig and Git attributes: UTF-8, LF, final newline, spaces, no trailing whitespace                                                                                |
 | Third-party JavaScript | Vendored htmx is excluded from formatting; keep upstream contents and notices intact                                                                                     |
 
-First-party JavaScript currently exists only in browser-test tooling (`.mjs`), with pinned ESLint recommended rules and Prettier. Runtime UI still uses Qute/CSS and vendored htmx. Avoid inline event handlers and translate any future runtime user-facing strings.
+First-party JavaScript includes development tooling (`.mjs`) and the small progressive-feedback `app.js`. Pinned ESLint recommended rules and Prettier cover both. Runtime feedback uses DOM text/attributes and local htmx events only; native POSTs/server validation remain authoritative. No inline handlers, HTML injection, eval or secrets; translate user-facing text through Qute data attributes. Fingerprint the script like other bundled assets.
 
 ## Java and architecture review
 
@@ -80,7 +80,7 @@ Generated output, `node_modules`, build directories and vendor assets are exclud
 
 Java segue Google Java Style, com Spotless/google-java-format e imports explícitos. XML Maven segue SortPom. CSS, YAML, JSON e Markdown usam Prettier; CSS recebe Stylelint e Markdown recebe markdownlint. Workflows são verificados por actionlint, Compose por sua validação nativa e Dockerfile por Hadolint. PowerShell usa PSScriptAnalyzer, com quatro espaços. Todos os arquivos próprios usam UTF-8/LF.
 
-Templates Qute exigem HTML semântico, indentação de dois espaços e blocos legíveis; recebem checagem básica de espaços e validação no build. Não são tratados como HTML comum por Prettier. O htmx externo permanece intacto. O JavaScript próprio é restrito às ferramentas de teste `.mjs`, com ESLint fixado e Prettier; não adiciona runtime JS próprio.
+Templates Qute exigem HTML semântico, indentação de dois espaços e blocos legíveis; recebem checagem básica de espaços e validação no build. Não são tratados como HTML comum por Prettier. O htmx externo permanece intacto. O JavaScript próprio inclui ferramentas `.mjs` e `app.js` para feedback progressivo, ambos com ESLint fixado/Prettier. O runtime altera apenas texto/atributos e acompanha eventos locais do htmx; POSTs nativos e validação no servidor permanecem autoritativos. Sem handlers inline, HTML dinâmico, eval ou segredos; textos traduzidos chegam por atributos Qute e o script recebe hash de conteúdo.
 
 O CI verifica as regras e não reescreve arquivos. Execute os comandos acima antes de contribuir. Formatação não substitui revisão de nomes, limites de camada, erros, segurança, acessibilidade e comportamento. Node é usado somente pelas ferramentas de desenvolvimento; executar/compilar o produto segue o fluxo Maven/Java/Compose.
 

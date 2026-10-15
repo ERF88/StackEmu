@@ -5,10 +5,19 @@ for (const theme of ["dark", "light"]) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(`/?lang=pt-BR&theme=${theme}`);
     await expect(page.locator(".sidebar")).toBeVisible();
-    await expect(page.locator(".primary-navigation [aria-current=page]")).toHaveText(
-      "◫Visão geral",
-    );
+    await expect(page.locator(".primary-navigation [aria-current=page]")).toHaveText("Visão geral");
     await expect(page.locator(".page-actions .primary")).toBeVisible();
+    const listedBuckets = await page.locator("#bucket-list tbody tr").count();
+    await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
+      "data-bucket-count",
+      String(listedBuckets),
+    );
+    await expect(page.locator(".connection-facts")).toBeVisible();
+    await page.locator("[hx-get]").click();
+    await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
+      "data-bucket-count",
+      String(await page.locator("#bucket-list tbody tr").count()),
+    );
     const sidebar = await page.locator(".sidebar").boundingBox();
     const content = await page.locator("main").boundingBox();
     expect(content.x).toBeGreaterThanOrEqual(sidebar.width);

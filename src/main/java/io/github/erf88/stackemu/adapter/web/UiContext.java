@@ -23,7 +23,7 @@ public record UiContext(String language, String theme, String page, Map<String, 
     ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.forLanguageTag(language));
     return new UiContext(
         language,
-        "light".equals(theme) ? "light" : "dark",
+        "light".equals(theme) ? "light" : "dark".equals(theme) ? "dark" : "auto",
         page,
         bundle.keySet().stream()
             .collect(Collectors.toUnmodifiableMap(key -> key, bundle::getString)));
@@ -51,11 +51,18 @@ public record UiContext(String language, String theme, String page, Map<String, 
         + "lang="
         + language
         + "&theme="
-        + (theme.equals("dark") ? "light" : "dark");
+        + (theme.equals("auto") ? "dark" : theme.equals("dark") ? "light" : "auto");
   }
 
   public String bucketLink(String bucket) {
     return S3ViewMapper.bucketPath(bucket, "", null) + "&" + query();
+  }
+
+  public String themeLink(String selected) {
+    if (!java.util.Set.of("auto", "dark", "light").contains(selected)) {
+      throw new IllegalArgumentException("Unsupported theme preference");
+    }
+    return page + separator() + "lang=" + language + "&theme=" + selected;
   }
 
   private String separator() {

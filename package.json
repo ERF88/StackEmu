@@ -5,10 +5,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:markdown": "markdownlint-cli2",
-    "lint:css": "stylelint src/main/resources/META-INF/resources/app.css",
+    "lint:css": "stylelint \"src/main/resources/META-INF/resources/*.css\"",
+    "check:contrast": "node --test scripts/check-contrast.test.mjs && node scripts/check-contrast.mjs",
     "lint:javascript": "eslint .",
     "test:browser": "playwright test",
-    "check": "npm run format:check && npm run lint:markdown && npm run lint:css && npm run lint:javascript"
+    "check": "npm run format:check && npm run lint:markdown && npm run lint:css && npm run lint:javascript && npm run check:contrast"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

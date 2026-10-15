@@ -1,5 +1,35 @@
 # Design system direction / Direção do design system
 
+## E7 acceptance boundary / Limite de aceite E7
+
+The [final validation record](spikes/redesign-e7-results.md) separates executed technical checks and representative screenshot inspection from pending human acceptance. E1–E6 evidence remains historical. P2 proposals are not enabled; legal/name validation, broader assistive-technology/browser review and release approval remain separate.
+
+O [registro final](spikes/redesign-e7-results.md) separa verificações técnicas executadas e inspeção de capturas representativas do aceite humano pendente. Evidências E1–E6 permanecem históricas. P2 não está ativado; validação jurídica/do nome, revisão ampliada de tecnologias assistivas/navegadores e aprovação de release são separadas.
+
+## E6 gallery and visual contracts / Galeria e contratos visuais E6
+
+The gallery labels illustrative values and documents native keyboard/ARIA contracts alongside action, status, loading, empty, table, field and disclosure samples. Hover/focus are real browser interactions, not fake state classes. Deterministic Qute presentation fixtures support 80 screenshot comparisons across themes, languages and 1440/390px; actual local unavailable/error responses receive axe checks. These fixtures are not emulator measurements or certification. [Contracts](development/component-accessibility.md) and [baseline workflow](development/visual-regression.md) describe review limits. [ADR-0012](decisions/ADR-0012-proposed-browser-follow-ups.md) is proposed only; no P2 header, cookie, performance budget or contribution-policy change is enabled.
+
+A galeria identifica valores ilustrativos e contratos de teclado/ARIA junto aos exemplos. Hover/foco são interações reais. Fixtures Qute determinísticas permitem 80 comparações por idioma/tema/largura; respostas locais reais de indisponibilidade/erro recebem axe. Fixtures não são medições ou certificação. Guias vinculados registram limites de revisão. ADR-0012 é apenas proposta; sem ativar cabeçalhos, cookies, orçamento de desempenho ou política de contribuição P2.
+
+## E5 forms and request feedback / Formulários e feedback E5
+
+Mutation forms retain native POST, CSRF, enctype, server validation and original-file policies. Component classes replace the form compatibility selector; fields/CLI previews use 16px text, invalid fields have explicit messages and borders, and confirmation/submit controls have clear targets. File-policy/help/error descriptions are associated; file reselection after errors is explained. The small local, content-fingerprinted `app.js` is a progressive enhancement: htmx refresh sets/clears panel `aria-busy` and localized status text, including failure that explicitly identifies stale results. Native submit marks the form busy and disables only the submit button, never payload inputs, then resets on page restoration. This is not server-side idempotency or upload progress. Without JavaScript, native forms and refresh navigation remain available. CSP and htmx eval restrictions stay unchanged.
+
+Formulários mantêm POST nativo, CSRF, enctype, validação no servidor e políticas do arquivo original. Classes substituem o seletor temporário de formulário; campos/CLI usam 16px, erros têm mensagens/bordas e confirmação/envio têm alvos claros. Política, ajuda e erros do arquivo são associados; a necessidade de selecionar o arquivo novamente é explicada. `app.js` local e versionado por hash é melhoria progressiva: acompanha `aria-busy` e status traduzido do refresh, inclusive falha que identifica resultado anterior. No POST, marca o formulário ocupado e desabilita somente o botão, preservando payload, com restauração ao voltar à página. Não é idempotência no servidor nem progresso de upload. Sem JS, formulários e navegação continuam disponíveis. CSP e restrições de eval são preservadas.
+
+## E4 resource presentation / Apresentação de recursos E4
+
+Bucket/object/tag tables have captions, column and row headers, and labelled focusable scroll regions. Only table containers scroll; long keys remain escaped, verbatim and monospace. Bounded table regions use opaque sticky column headers, row hover/focus highlighting and keyboard scrolling. Breadcrumbs mark the current location and separate ancestors visually; pagination keeps the existing opaque cursor contract without invented page numbers. Prefix/page-limit chips show existing values. Object details separate metadata and download actions into two desktop columns, stacking on mobile. No new commands, copy script, SDK calls or runtime dependencies are introduced; CLI commands remain in the existing mutation flow.
+
+Tabelas de buckets/objetos/tags têm captions, cabeçalhos de coluna/linha e regiões rotuladas, focáveis e roláveis. Somente os contêineres das tabelas rolam; chaves longas continuam escapadas, integrais e monoespaçadas. Cabeçalhos fixos opacos e destaque de linha por hover/foco acompanham a rolagem por teclado. Breadcrumb identifica a localização atual; paginação mantém cursores opacos, sem números inventados. Chips mostram prefixo/limite existentes. Detalhe separa metadados e download em duas colunas no desktop e uma no mobile. Sem novos comandos, script de cópia, chamadas SDK ou dependências; CLI permanece no fluxo de mutação existente.
+
+## E3 overview / Visão geral E3
+
+The responsive bento shows the last bucket-list result, the redacted effective endpoint/region, the returned bucket count and a contextual next action. Status, count and list share one atomic htmx fragment; the refresh trigger stays outside it to retain focus. A failed listing means an unknown count, never zero. No object totals, storage estimates, continuous health monitoring or editable connection profiles are implied. Credentials remain hidden and settings remain startup configuration.
+
+O bento responsivo apresenta o resultado da última listagem, endpoint/região efetivos sem dados sensíveis, quantidade retornada e próxima ação contextual. Estado, contagem e lista são atualizados no mesmo fragmento htmx; o controle permanece fora dele para preservar foco. Falha significa contagem desconhecida, nunca zero. Não há totais de objetos, estimativas de armazenamento, monitoramento contínuo nem perfis editáveis. Credenciais permanecem ocultas e a configuração é lida na inicialização.
+
 ## Reference and boundary / Referência e limite
 
 The visual mood of [Wassim Nasr’s portfolio](https://wassimnasr.com/) is an approved inspiration: a dark, cinematic workspace; deep blue surfaces; restrained luminous blue-violet accents; rounded, layered panels; compact navigation; and guided, conversational prompts. It is a reference for atmosphere and interaction rhythm only.
@@ -11,6 +41,16 @@ O clima visual do [portfólio de Wassim Nasr](https://wassimnasr.com/) é uma in
 StackEmu não deve copiar ilustrações/personagem, textos, layout, ativos de marca nem a experiência de portfólio do site. Trata-se de um console operacional: clareza de dados, ações seguras, velocidade, responsividade e acessibilidade têm prioridade.
 
 ## Design principles / Princípios
+
+### E2 shell, icons and public assets / Shell, ícones e assets públicos
+
+The shared shell uses three opaque surface levels, a compact service navigation, local SVG icons and explicitly labelled system/light/dark controls. Language/theme links preserve the existing page/query contract; there are no preference cookies or first-party runtime scripts; existing CSRF cookies are unchanged. Decorative coolicons v4.1 Line fragments use currentColor, aria-hidden and no repeated SVG IDs. Only the twenty icons currently used are bundled; copy/search icons wait for their actual components. [Provenance and license](design/icon-sources.md) and the English/Portuguese READMEs retain attribution. The original stack-shaped favicon is separate first-party artwork.
+
+O shell usa três níveis opacos de superfície, navegação compacta, SVGs locais e controles rotulados de tema sistema/claro/escuro. Links preservam página/query; sem cookies de preferência ou JS próprio em runtime; cookies CSRF existentes permanecem. Fragmentos coolicons v4.1 Line são decorativos, currentColor e sem IDs repetidos. Apenas vinte ícones usados são incluídos; copiar/buscar ficam para os componentes futuros. Origem/licença e READMEs mantêm atribuição. O favicon geométrico próprio é arte separada.
+
+Each full page overrides a shared Qute title slot; bucket/object titles use escaped resource names and form titles name the selected action. The shell declares color-scheme/theme-color metadata for explicit and automatic preferences. WebAssetCatalog fingerprints the bundled stylesheet/favicon bytes with SHA-256 once per bean lifecycle and exposes same-origin versioned URLs to Qute; it reads only fixed classpath assets, never user/emulator data. Changing asset contents changes the URL even within one snapshot version. CSP, htmx configuration, checked-template method signatures and HTTP routes remain unchanged. Solid surfaces deliberately defer translucency/blur auditing; manual accessibility and final visual baselines remain pending.
+
+Cada página completa sobrescreve o título Qute; bucket/objeto usam nomes escapados e formulários identificam a ação. Metadados de cor acompanham temas explícitos e automático. WebAssetCatalog calcula SHA-256 de CSS/favicon locais e expõe URLs versionadas; lê apenas caminhos fixos do classpath, nunca dados do usuário/emulador. O conteúdo altera o hash mesmo sem nova versão snapshot. CSP, htmx, assinaturas dos templates e rotas não mudam. Superfícies sólidas adiam a auditoria de vidro/blur; acessibilidade manual e baselines visuais finais seguem pendentes.
 
 ### Operational workspace / Workspace operacional
 
@@ -59,6 +99,38 @@ Use semantic tokens such as `--color-canvas`, `--color-surface`, `--color-primar
 Do not use an illustrated character or non-essential hero visual in the data console MVP. If motion is added, limit it to fast, subtle feedback; obey `prefers-reduced-motion`; never use animation as the sole connection/loading/error indicator. The product should feel polished through hierarchy, spacing, and feedback rather than large decorative artwork.
 
 ## Validation checklist / Checklist de validação
+
+### E1 token foundation / Fundação de tokens E1
+
+The single local `app.css` now declares layers in the order reset, tokens, base, layout, components, utilities. Semantic `--color-*`, `--space-*`, `--radius-*`, `--shadow-*` and motion tokens retain the legacy aliases. OKLCH palette declarations are guarded by `@supports`, with hexadecimal fallbacks. Hover uses an sRGB `color-mix()` to stay in gamut and falls back to the primary color without mix support. Interface/monospace system font stacks avoid web-font downloads and CSP changes. CSS layers themselves require a modern browser; only the established Chromium test environment is currently validated.
+
+O único CSS local declara as camadas reset, tokens, base, layout, components e utilities. Tokens semânticos preservam aliases antigos. OKLCH tem `@supports` e fallback hexadecimal; hover usa mistura sRGB dentro do gamut e fallback para a cor primária. Fontes de sistema evitam downloads e mudanças na CSP. As camadas exigem navegador moderno; a validação atual está limitada ao Chromium estabelecido.
+
+Missing/invalid theme parameters select `auto`, following `prefers-color-scheme` with dark fallback. Explicit `dark`/`light` override the OS; the legacy theme helper cycles auto → dark → light → auto; E2 now exposes explicit controls. URL propagation remains; no cookies are added. `prefers-contrast: more` strengthens borders/muted text/focus; forced colors use system colors and a visible current-page border. Motion reduction disables transitions; E1 surfaces remain solid, also under reduced transparency. No templates or CSP were changed. Full card/form class migration, class-free state cleanup and scrollable table wrappers belong to E2–E5; E1 retains scoped content-only compatibility selectors rather than global section/form/nav/header styling.
+
+Tema ausente/inválido seleciona `auto`, seguindo o sistema com fallback escuro. `dark`/`light` explícitos prevalecem; o helper legado alterna auto → dark → light → auto, agora com controles explícitos na E2, mantendo parâmetros e sem cookies. Alto contraste reforça bordas/texto/foco; forced-colors usa cores de sistema e borda na página atual. Movimento reduzido desliga transições; superfícies são sólidas, inclusive com transparência reduzida. Templates/CSP não foram alterados. Migração integral de classes e estados e wrappers de tabela ficam para E2–E5; seletores temporários de conteúdo substituem estilos globais de section/form/nav/header.
+
+#### Measured contrast / Contraste medido
+
+`node scripts/check-contrast.mjs` checks both actual OKLCH declarations (converted to sRGB for WCAG relative luminance) and hex fallbacks, failing below the unrounded threshold. The table reports the minimum across canvas and all three surfaces, rounded to two decimals; both palettes produce the same displayed values. It also checks on-primary text against primary and the mixed hover. These are opaque token-pair checks, not full-page WCAG certification; OS forced-color palettes and future translucent surfaces need separate rendered review. Tiny rounding excursions at the sRGB boundary are clamped within 0.0005 linear-channel tolerance; larger out-of-gamut values fail closed.
+
+O script verifica OKLCH real convertido para sRGB e fallback hexadecimal; falha pelo limite sem arredondamento. A tabela traz mínimos entre canvas e três superfícies, com duas casas; ambas as paletas têm os mesmos valores exibidos. Verifica também texto sobre primário/hover. São pares opacos, não certificação WCAG; paletas do sistema e transparência futura exigem revisão renderizada. Pequenos desvios de arredondamento no limite sRGB são limitados à tolerância linear 0,0005; valores maiores fora do gamut falham.
+
+| Pair / Par            | Dark  | Light | Minimum / Mínimo |
+| --------------------- | ----- | ----- | ---------------- |
+| Text / surfaces       | 12.18 | 12.95 | 4.5              |
+| Muted text / surfaces | 8.49  | 6.36  | 4.5              |
+| Primary / surfaces    | 7.07  | 7.42  | 4.5              |
+| Success / surfaces    | 9.41  | 6.30  | 4.5              |
+| Danger / surfaces     | 8.14  | 6.24  | 4.5              |
+| Warning / surfaces    | 9.77  | 6.81  | 4.5              |
+| Info / surfaces       | 7.07  | 7.42  | 4.5              |
+| Border / surfaces     | 4.64  | 3.32  | 3                |
+| Focus / surfaces      | 10.26 | 7.42  | 3                |
+| On-primary / primary  | 9.68  | 8.89  | 4.5              |
+| On-primary / hover    | 10.57 | 9.78  | 4.5              |
+
+The dependency-free checker and its reference/failure tests run through `npm run check:contrast`, included in `npm run check`. CSS lint covers every local top-level CSS file. / O verificador sem dependências e seus testes de referência/falha integram `npm run check:contrast` e `npm run check`. O lint cobre todo CSS local de primeiro nível.
 
 - Prototype both themes and validate text, focus, status, and disabled-state contrast.
 - Verify keyboard navigation, focus return, and visible focus on the dashboard, bucket list, object list, upload, and errors.

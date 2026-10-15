@@ -12,8 +12,19 @@ export default [
   },
   js.configs.recommended,
   {
+    files: ["src/main/resources/META-INF/resources/app.js"],
+    languageOptions: { globals: { document: "readonly", window: "readonly" } },
+  },
+  {
     files: ["**/*.mjs"],
-    languageOptions: { globals: { process: "readonly", Buffer: "readonly", URL: "readonly" } },
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        Buffer: "readonly",
+        URL: "readonly",
+        URLSearchParams: "readonly",
+      },
+    },
   },
   {
     files: ["tests/browser/**/*.mjs"],

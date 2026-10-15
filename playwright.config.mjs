@@ -13,7 +13,16 @@ if (
 export default defineConfig({
   testDir: "./tests/browser",
   timeout: 60000,
-  expect: { timeout: 10000 },
+  expect: {
+    timeout: 10000,
+    toHaveScreenshot: {
+      animations: "disabled",
+      caret: "hide",
+      threshold: 0.1,
+      maxDiffPixelRatio: 0.001,
+    },
+  },
+  snapshotPathTemplate: "{testDir}/baselines/{testFilePath}/{arg}{ext}",
   workers: 1,
   retries: 0,
   outputDir: "work/browser-results",
@@ -21,6 +30,9 @@ export default defineConfig({
   use: {
     baseURL,
     browserName: "chromium",
+    locale: "en-US",
+    timezoneId: "UTC",
+    deviceScaleFactor: 1,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

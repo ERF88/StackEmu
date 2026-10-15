@@ -1,25 +1,75 @@
 {#include layout}
+  {#title}{ui.text('gallery')}{/title}
   {#content}
     <h1>{ui.text('gallery')}</h1>
-    <p>{ui.text('galleryHelp')}</p>
-    <section>
-      <h2>{ui.text('status')}</h2>
-      <p class="status">● {ui.text('connected')}</p>
-      <p class="error">! {ui.text('unavailable')}</p>
-      <p>{ui.text('diagnostic')}</p>
-      <a class="button" href="/connection?{ui.query}">{ui.text('connection')}</a>
-    </section>
-    <section>
-      <h2>Buckets</h2>
-      <table>
-        <thead>
-          <tr><th scope="col">{ui.text('name')}</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>{ui.text('sample')}</td></tr>
-        </tbody>
-      </table>
-      <p>{ui.text('empty')}</p>
-    </section>
+    <p>{#include icons/info /}{ui.text('galleryHelp')}</p>
+    <div class="component-gallery">
+      <section class="resource-panel gallery-examples">
+        <h2>{ui.text('galleryActions')}</h2>
+        <p>{ui.text('galleryInteraction')}</p>
+        <div class="resource-context">
+          <button id="gallery-primary" class="button primary" type="button">{ui.text('galleryDefault')}</button>
+          <a class="button" href="/connection?{ui.query}">{#include icons/connection /}{ui.text('connection')}</a>
+          <button class="button" type="button" disabled>{ui.text('galleryDisabled')}</button>
+        </div>
+        <p>{ui.text('contractActions')}</p>
+      </section>
+      <section class="resource-panel">
+        <h2>{ui.text('status')}</h2>
+        <p class="status" role="status">{#include icons/success /}{ui.text('connected')}</p>
+        <p class="error" role="alert">{#include icons/error /}{ui.text('unavailable')}</p>
+        <p>{#include icons/warning /}{ui.text('local')}</p>
+        <p>{#include icons/info /}{ui.text('diagnostic')}</p>
+        <p>{ui.text('contractStatus')}</p>
+      </section>
+      <section class="resource-panel">
+        <h2>{ui.text('galleryLoading')}</h2>
+        <div aria-busy="true"><p>{ui.text('galleryBusy')}</p></div>
+        <p class="request-feedback" role="status">{ui.text('loading')}</p>
+        <p>{ui.text('contractLoading')}</p>
+      </section>
+      <section class="resource-panel">
+        <h2>{ui.text('galleryEmpty')}</h2>
+        <p>{#include icons/buckets /}{ui.text('empty')}</p>
+        <a class="button" href="/s3/write?action=bucket&amp;{ui.query}">{#include icons/add /}{ui.text('createBucket')}</a>
+        <p>{ui.text('contractEmpty')}</p>
+      </section>
+      <section class="resource-panel gallery-table">
+        <h2>{ui.text('objects')}</h2>
+        <nav class="resource-breadcrumb" aria-label="{ui.text('breadcrumb')}">
+          <ol class="breadcrumbs"><li><a href="/?{ui.query}">{ui.text('dashboard')}</a></li><li><span aria-current="page">{ui.text('gallery')}</span></li></ol>
+        </nav>
+        <div class="resource-context"><p class="context-chip">{ui.text('prefix')}: <code>samples/</code></p><p class="context-chip">{ui.text('pageLimit')}: 50</p></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('objects')}">
+          <table class="resource-table object-table">
+            <caption class="visually-hidden">{ui.text('galleryHelp')}</caption>
+            <thead><tr><th scope="col">{ui.text('name')}</th><th scope="col">{ui.text('size')}</th><th scope="col">{ui.text('modified')}</th></tr></thead>
+            <tbody><tr><th scope="row">{#include icons/folder /}<code>samples/nested/</code></th><td>—</td><td>—</td></tr><tr><th scope="row">{#include icons/file /}<code>samples/ação +%.txt</code></th><td>44 B</td><td>2026-01-01 UTC</td></tr></tbody>
+          </table>
+        </div>
+        <p>{ui.text('contractTable')}</p>
+      </section>
+      <section class="resource-panel">
+        <h2>{ui.text('galleryFields')}</h2>
+        <div class="component-form">
+          <label for="gallery-name">{ui.text('name')}</label>
+          <input id="gallery-name" value="visual-example">
+          <label for="gallery-invalid">{ui.text('targetBucket')}</label>
+          <input id="gallery-invalid" value="INVALID" aria-invalid="true" aria-describedby="gallery-field-error">
+          <p id="gallery-field-error" class="error">{ui.text('invalidBucketName')}</p>
+          <label for="gallery-readonly">{ui.text('endpoint')}</label>
+          <input id="gallery-readonly" value="http://ministack:4566" readonly>
+          <label for="gallery-file">{ui.text('selectFile')}</label>
+          <input id="gallery-file" type="file" aria-describedby="gallery-file-help">
+          <p id="gallery-file-help">{ui.text('uploadNamePolicy')} {ui.text('fileReselect')}</p>
+          <label for="gallery-preview">{ui.text('galleryReadonly')}</label>
+          <textarea id="gallery-preview" class="command-preview" readonly rows="2">samples/ação +%.txt</textarea>
+          <label class="confirmation-field"><input type="checkbox">{ui.text('confirmMutation')}</label>
+        </div>
+        <p>{ui.text('contractFields')}</p>
+        <details><summary>{ui.text('bucketDetails')}</summary><p>{ui.text('regionNote')}</p></details>
+        <p>{ui.text('contractDisclosure')}</p>
+      </section>
+    </div>
   {/content}
 {/include}

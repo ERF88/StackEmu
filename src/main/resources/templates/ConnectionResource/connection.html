@@ -1,12 +1,9 @@
 {#include layout}
+  {#title}{ui.text('connection')}{/title}
   {#content}
-    <h1>{ui.text('connection')}</h1>
-    <section>
+    <h1>{#include icons/connection /}{ui.text('connection')}</h1>
+    <section class="summary-card">
       <dl>
-        <dt>{ui.text('endpoint')}</dt>
-        <dd><code>{configuration.endpoint}</code></dd>
-        <dt>{ui.text('region')}</dt>
-        <dd>{configuration.region}</dd>
         <dt>{ui.text('credentials')}</dt>
         <dd>•••••••• — {ui.text('masked')}</dd>
       </dl>
@@ -18,7 +15,10 @@
       hx-get="/buckets?{ui.query}"
       hx-target="#bucket-panel"
       hx-swap="outerHTML"
-    >{ui.text('refresh')}</a>
+      hx-sync="this:drop"
+      data-refresh-panel
+    >{#include icons/refresh /}{ui.text('refresh')}</a>
+    <span id="loading" class="request-feedback" role="status" aria-live="polite" aria-atomic="true" data-loading-label="{ui.text('loading')}" data-failed-label="{ui.text('refreshFailed')}"></span>
     {#include BucketsResource/buckets /}
   {/content}
 {/include}

@@ -1,9 +1,10 @@
 {#include layout}
+  {#title}{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}{/title}
   {#content}
-    <h1>{ui.text('writeTitle')}</h1>
-    <p>{ui.text('writeSafety')}</p>
+    <h1>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</h1>
+    <p>{#include icons/warning /}{ui.text('writeSafety')}</p>
     {#if !view.message.isEmpty}<p role="alert" class="error">{ui.text(view.message)}</p>{/if}
-    <form action="/s3/write/{view.action}" method="post" accept-charset="UTF-8" enctype="{#if view.upload}multipart/form-data{#else}application/x-www-form-urlencoded{/if}">
+    <form class="mutation-form" aria-busy="false" data-submitting-label="{ui.text('submitting')}" action="/s3/write/{view.action}" method="post" accept-charset="UTF-8" enctype="{#if view.upload}multipart/form-data{#else}application/x-www-form-urlencoded{/if}">
       <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
       <input type="hidden" name="lang" value="{ui.language}">
       <input type="hidden" name="theme" value="{ui.theme}">
@@ -12,30 +13,33 @@
       {#if view.errors.containsKey('bucket')}<p id="bucket-error" class="error" role="alert">{ui.text(view.errors.get('bucket'))}</p>{/if}
       {#if !view.createBucket && !view.upload}
         <label for="mutation-key">{ui.text('targetPrefix')}</label>
-        <input id="mutation-key" name="key" value="{view.key}" required {#if view.errors.containsKey('key') || view.errors.containsKey('prefix')}aria-invalid="true" aria-describedby="key-error"{/if}>
-        {#if view.errors.containsKey('key')}<p id="key-error" class="error" role="alert">{ui.text(view.errors.get('key'))}</p>{/if}
-        {#if view.errors.containsKey('prefix')}<p id="key-error" class="error" role="alert">{ui.text(view.errors.get('prefix'))}</p>{/if}
+        <input id="mutation-key" name="key" value="{view.key}" required aria-describedby="key-help{#if view.errors.containsKey('key') || view.errors.containsKey('prefix')} key-error{/if}" {#if view.errors.containsKey('key') || view.errors.containsKey('prefix')}aria-invalid="true"{/if}>
+        <p id="key-help">{ui.text('folderSemantics')}</p>
+        {#if view.errors.containsKey('key')}
+          <p id="key-error" class="error" role="alert">{ui.text(view.errors.get('key'))}</p>
+        {#else}
+          {#if view.errors.containsKey('prefix')}<p id="key-error" class="error" role="alert">{ui.text(view.errors.get('prefix'))}</p>{/if}
+        {/if}
       {/if}
       {#if view.upload}
-        <p>{ui.text('uploadNamePolicy')}</p>
+        <p id="upload-policy">{ui.text('uploadNamePolicy')}</p>
         <p>{ui.text('targetPrefix')}: <code>{view.key}</code></p>
         <input type="hidden" name="prefix" value="{view.key}">
-        {#if view.errors.containsKey('prefix')}<p class="error">{ui.text(view.errors.get('prefix'))}</p>{/if}
+        {#if view.errors.containsKey('prefix')}<p id="prefix-error" class="error" role="alert">{ui.text(view.errors.get('prefix'))}</p>{/if}
         <label for="mutation-file">{ui.text('selectFile')}</label>
-        <input id="mutation-file" type="file" name="file" required aria-describedby="file-help{#if view.errors.containsKey('file')} file-error{/if}" {#if view.errors.containsKey('file')}aria-invalid="true"{/if}>
-        <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUpload} B</p>
+        <input id="mutation-file" type="file" name="file" required aria-describedby="upload-policy file-help{#if view.errors.containsKey('file')} file-error{/if}{#if view.errors.containsKey('prefix')} prefix-error{/if}" {#if view.errors.containsKey('file')}aria-invalid="true"{/if}>
+        <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUpload} B. {ui.text('fileReselect')}</p>
         {#if view.errors.containsKey('file')}<p id="file-error" class="error" role="alert">{ui.text(view.errors.get('file'))}</p>{/if}
-      {#else}
-        {#if !view.createBucket}<p>{ui.text('folderSemantics')}</p>{/if}
       {/if}
-      <label><input type="checkbox" name="confirm" value="yes" required {#if view.errors.containsKey('confirm')}aria-invalid="true" aria-describedby="confirm-error"{/if}> {ui.text('confirmMutation')}</label>
+      <label class="confirmation-field"><input type="checkbox" name="confirm" value="yes" required {#if view.errors.containsKey('confirm')}aria-invalid="true" aria-describedby="confirm-error"{/if}> {ui.text('confirmMutation')}</label>
       {#if view.errors.containsKey('confirm')}<p id="confirm-error" class="error" role="alert">{ui.text(view.errors.get('confirm'))}</p>{/if}
-      <button type="submit">{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</button>
+      <button class="button primary" type="submit">{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</button>
     </form>
-    {#if !view.upload}<section>
+    <p id="submission-status" class="request-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+    {#if !view.upload}<section class="resource-panel">
       <h2>{ui.text('cliEquivalent')}</h2>
       <p>{ui.text('cliHelp')}</p>
-      <textarea readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
+      <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
     </section>{/if}
     <a href="/?{ui.query}">{ui.text('dashboard')}</a>
   {/content}

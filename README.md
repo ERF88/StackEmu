@@ -12,6 +12,8 @@ Phase 3 adds confirmed CSRF-protected forms and bounded uploads against MiniStac
 
 ## Implemented stack
 
+Interface SVGs use [coolicons v4.1](https://coolicons.cool/) by Kryston Schwarze, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), not the application's MIT license. Selected icons are adapted into local Qute fragments; attribution, source revision and changes are recorded in [third-party notices](THIRD_PARTY_NOTICES.md).
+
 Java 25, Quarkus 3.40.1, Qute, local htmx, CSS, Maven and AWS SDK for Java 2.x via the platform BOM. MiniStack 1.5.25 on amd64 is the tested baseline; other platforms/emulators are not certified.
 
 ## Quick start — local development

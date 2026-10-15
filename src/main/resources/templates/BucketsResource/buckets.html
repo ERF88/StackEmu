@@ -1,27 +1,66 @@
-<section id="bucket-panel" aria-live="polite" aria-atomic="true">
+<div id="bucket-panel" class="overview-grid" aria-live="polite" aria-atomic="true" aria-busy="false">
+  <section class="summary-card connection-summary">
+    <h2>{#include icons/connection /}{ui.text('status')}</h2>
+    {#if connected}
+      <p class="status">{#include icons/success /}{ui.text('connected')}</p>
+    {#else}
+      <p class="error">{#include icons/error /}{ui.text('unavailable')}</p>
+    {/if}
+    <p>{ui.text('snapshotNote')}</p>
+    <dl class="connection-facts">
+      <dt>{ui.text('endpoint')}</dt>
+      <dd><code>{configuration.endpoint}</code></dd>
+      <dt>{ui.text('region')}</dt>
+      <dd>{configuration.region}</dd>
+    </dl>
+  </section>
+  <section class="summary-card bucket-summary">
+    <h2>{#include icons/buckets /}{ui.text('bucketCount')}</h2>
+    {#if connected}
+      <p class="summary-value" data-bucket-count="{buckets.size}">{buckets.size}</p>
+    {#else}
+      <p class="summary-value" data-bucket-count="unknown">—</p>
+      <p>{ui.text('countUnknown')}</p>
+    {/if}
+    <p>{ui.text('countScope')}</p>
+  </section>
+  <section class="summary-card next-action-summary">
+    <h2>{#include icons/chevron /}{ui.text('nextAction')}</h2>
+    {#if connected}
+      {#if buckets.isEmpty}
+        <p>{ui.text('empty')}</p>
+        <a class="button" href="/s3/write?action=bucket&amp;{ui.query}">{#include icons/add /}{ui.text('createBucket')}</a>
+      {#else}
+        <p>{ui.text('inspectBuckets')}</p>
+        <a class="button" href="#bucket-list">{ui.text('browseBuckets')}</a>
+      {/if}
+    {#else}
+      <p>{ui.text('diagnostic')}</p>
+      <a class="button" href="/connection?{ui.query}">{ui.text('connection')}</a>
+    {/if}
+  </section>
+  <section id="bucket-list" class="summary-card bucket-list-card" aria-labelledby="bucket-list-title">
+    <h2 id="bucket-list-title">{#include icons/buckets /}Buckets</h2>
   {#if connected}
-    <div class="section-heading">
-    <h2>Buckets</h2>
-    <p class="status">● {ui.text('connected')}</p>
-    </div>
     {#if buckets.isEmpty}
       <p>{ui.text('empty')}</p>
     {#else}
-      <table>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Buckets">
+      <table class="resource-table">
+        <caption class="visually-hidden">Buckets</caption>
         <thead>
           <tr><th scope="col">{ui.text('name')}</th></tr>
         </thead>
         <tbody>
           {#for bucket in buckets}
-            <tr><td><a href="{ui.bucketLink(bucket)}">{bucket}</a></td></tr>
+            <tr><th scope="row"><a href="{ui.bucketLink(bucket)}">{#include icons/buckets /}<code>{bucket}</code></a></th></tr>
           {/for}
         </tbody>
       </table>
+      </div>
     {/if}
-    <p>{ui.text('next')}</p>
   {#else}
-    <h2 class="error">{ui.text('unavailable')}</h2>
-    <p>{ui.text('diagnostic')}</p>
-    <a href="/connection?{ui.query}">{ui.text('connection')}</a>
+    <p>{ui.text('countUnknown')}</p>
   {/if}
-</section>
+  </section>
+</div>

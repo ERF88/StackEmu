@@ -8,6 +8,22 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- E7: registro de validação final do redesenho, comandos reproduzíveis, referências de capturas e limites de revisão humana/release; sem ativação P2 ou publicação.
+
+- E6: galeria/contratos bilíngues, fixtures Qute determinísticas, axe em indisponibilidade/erro e snapshots no container; P2 registrado apenas como proposta não aprovada na ADR-0012.
+
+- E5: formulários nativos padronizados e feedback local progressivo com status traduzidos, `aria-busy` real, bloqueio apenas do botão de envio e restauração ao voltar; políticas CSRF/upload/download preservadas.
+
+- E4: tabelas semânticas roláveis por teclado, cabeçalhos fixos, breadcrumb/chips de contexto e painéis responsivos de metadados/download; contratos S3 preservados.
+
+- E3: visão geral responsiva com configuração efetiva, contagem da última listagem e próxima ação contextual; atualização htmx atômica e contagem desconhecida em falhas.
+
+- E2: shell com SVGs locais, controles explícitos de tema, títulos localizados por página e favicon SVG próprio.
+- URLs com hash SHA-256 dos assets e atribuição/inventário coolicons v4.1 CC BY 4.0; CSP preservada.
+
+- E1: CSS em camadas, tokens OKLCH semânticos com fallback/aliases, tema automático e preferências de acessibilidade.
+- Gate de contraste sem dependências, testes de referência e verificações de tema/responsividade no browser; sem mudanças em templates ou CSP.
+
 - Inventário completo pacote/CVE e gate CI para qualquer severidade, com checagem de inventários OS/Java.
 
 - SBOM Maven CycloneDX, scan Trivy isolado da imagem exportada e relatórios retidos no CI.

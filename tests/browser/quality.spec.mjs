@@ -80,6 +80,36 @@ for (const language of ["en", "pt-BR"]) {
         await page.goto(`${path}${path.includes("?") ? "&" : "?"}lang=${language}&theme=${theme}`);
         await audit(page, testInfo, path);
       }
+      const policy = (await page.request.get("/components")).headers()["content-security-policy"];
+      for (const scene of ["unavailable", "error"]) {
+        const html = await readFile(
+          new URL(
+            `../../work/browser-fixtures/${scene}-${language}-${theme}.html`,
+            import.meta.url,
+          ),
+          "utf8",
+        );
+        await page.route("**/*", async (route) =>
+          route.request().isNavigationRequest()
+            ? route.fulfill({
+                status: scene === "error" ? 503 : 200,
+                contentType: "text/html; charset=utf-8",
+                headers: { "Content-Security-Policy": policy },
+                body: html,
+              })
+            : route.fulfill({ response: await route.fetch() }),
+        );
+        await page.goto(`/?lang=${language}&theme=${theme}`);
+        await expect(page.locator(".sidebar")).toHaveCSS("display", "flex");
+        await audit(page, testInfo, scene);
+        if (scene === "unavailable") {
+          await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
+            "data-bucket-count",
+            "unknown",
+          );
+        }
+        await page.unroute("**/*");
+      }
     });
   }
 }
@@ -89,7 +119,7 @@ test("browser S3 writes, original file download, validation and security", async
   request,
 }, testInfo) => {
   const bucket = `stackemu-browser-${randomUUID().replaceAll("-", "")}`;
-  const filename = "ação +%.txt";
+  const filename = `ação +% ${"long-name-".repeat(16)}.txt`;
   const prefix = "browser/";
   const key = prefix + filename;
   const bytes = Buffer.from("StackEmu original bytes — browser fixture\n", "utf8");
@@ -149,6 +179,58 @@ test("browser S3 writes, original file download, validation and security", async
     expect(response.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
     await page.getByRole("link", { name: "Back to objects" }).click();
     await expect(page.getByRole("link", { name: key, exact: true })).toBeVisible();
+    for (const language of ["en", "pt-BR"]) {
+      for (const theme of ["dark", "light"]) {
+        const query = `bucket=${bucket}&prefix=${encodeURIComponent(prefix)}&lang=${language}&theme=${theme}`;
+        await page.goto(`/s3/bucket?${query}`);
+        const tableRegion = page.locator(".table-scroll").last();
+        await expect(tableRegion).toHaveAttribute("tabindex", "0");
+        await expect(tableRegion.locator("caption")).toHaveCount(1);
+        await expect(
+          tableRegion.locator('th[scope="row"] a').filter({ hasText: key }),
+        ).toBeVisible();
+        await expect(page.locator('.breadcrumbs [aria-current="page"]')).toHaveCount(1);
+        await expect(tableRegion.locator("thead th").first()).toHaveCSS("position", "sticky");
+        await audit(page, testInfo, `e4-bucket-${language}-${theme}`);
+        for (const width of [360, 390, 1440, 1920]) {
+          await page.setViewportSize({ width, height: 900 });
+          expect(
+            await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+          ).toBe(true);
+          if (width === 390) {
+            await tableRegion.focus();
+            await page.keyboard.press("ArrowRight");
+            await expect
+              .poll(() => tableRegion.evaluate((element) => element.scrollLeft))
+              .toBeGreaterThan(0);
+          }
+          if (width === 390 || width === 1440) {
+            await page.screenshot({
+              path: testInfo.outputPath(`e4-bucket-${language}-${theme}-${width}.png`),
+              fullPage: true,
+            });
+          }
+        }
+        await page.goto(
+          `/s3/object?bucket=${bucket}&key=${encodeURIComponent(key)}&lang=${language}&theme=${theme}`,
+        );
+        await expect(page.locator(".object-key")).toHaveText(key);
+        await expect(page.locator(".object-actions .primary")).toBeVisible();
+        await audit(page, testInfo, `e4-object-${language}-${theme}`);
+        for (const width of [360, 390, 1440, 1920]) {
+          await page.setViewportSize({ width, height: 900 });
+          expect(
+            await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+          ).toBe(true);
+          if (width === 390 || width === 1440) {
+            await page.screenshot({
+              path: testInfo.outputPath(`e4-object-${language}-${theme}-${width}.png`),
+              fullPage: true,
+            });
+          }
+        }
+      }
+    }
     expect(browserErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
   } finally {

@@ -52,5 +52,6 @@ jobs:
             work/release/vulnerabilities.json
             work/release/scan-summary.json
             work/browser-report.json
+            work/browser-results/
       - if: always()
         run: docker compose logs && docker compose down

@@ -16,18 +16,26 @@ import java.util.List;
 @Produces(MediaType.TEXT_HTML)
 public class BucketsResource {
   private final BucketListPort bucketList;
+  private final ConnectionSettingsView configuration;
 
-  public BucketsResource(BucketListPort bucketList) {
+  public BucketsResource(BucketListPort bucketList, ConnectionSettingsView configuration) {
     this.bucketList = bucketList;
+    this.configuration = configuration;
   }
 
   @CheckedTemplate
   public static class Templates {
     public static native TemplateInstance index(
-        List<String> buckets, boolean connected, UiContext ui);
+        List<String> buckets,
+        boolean connected,
+        UiContext ui,
+        ConnectionSettingsView configuration);
 
     public static native TemplateInstance buckets(
-        List<String> buckets, boolean connected, UiContext ui);
+        List<String> buckets,
+        boolean connected,
+        UiContext ui,
+        ConnectionSettingsView configuration);
   }
 
   @GET
@@ -37,7 +45,10 @@ public class BucketsResource {
       @HeaderParam("Accept-Language") String accept) {
     BucketListSnapshot snapshot = bucketList.listBuckets();
     return Templates.index(
-        snapshot.buckets(), snapshot.connected(), UiContext.resolve(lang, accept, theme, "/"));
+        snapshot.buckets(),
+        snapshot.connected(),
+        UiContext.resolve(lang, accept, theme, "/"),
+        configuration);
   }
 
   @GET
@@ -48,6 +59,9 @@ public class BucketsResource {
       @HeaderParam("Accept-Language") String accept) {
     BucketListSnapshot snapshot = bucketList.listBuckets();
     return Templates.buckets(
-        snapshot.buckets(), snapshot.connected(), UiContext.resolve(lang, accept, theme, "/"));
+        snapshot.buckets(),
+        snapshot.connected(),
+        UiContext.resolve(lang, accept, theme, "/"),
+        configuration);
   }
 }
