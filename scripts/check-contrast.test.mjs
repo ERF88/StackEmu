@@ -21,6 +21,6 @@ test("missing palettes fail closed and deliberately low contrast is detected", a
   const rows = checkPalettes(css);
   assert.equal(rows.length, 44);
   assert.ok(rows.every((row) => row.ratio >= row.required));
-  const broken = css.replace("--palette-dark-text: #edf2ff;", "--palette-dark-text: #081225;");
+  const broken = css.replace(/(--palette-dark-text:) #[\da-f]+;/, "$1 #0f172a;");
   assert.ok(checkPalettes(broken).some((row) => row.ratio < row.required));
 });

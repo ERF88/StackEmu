@@ -14,6 +14,12 @@ O MVP é um vertical slice S3 utilizável com dashboard de conexão, listar/cria
 
 ## Phases and gates / Fases e gates
 
+The user-confirmed [expanded first operational delivery](s3-management-scope.md) now includes preview, deletion, clipboard, presigned download URLs, copy/move and prefix/bucket management. Advanced bucket configuration remains excluded. This supersedes older Phase 6 scheduling below, not implementation status or safety gates. / A primeira entrega operacional ampliada inclui essas capacidades, sem configurações avançadas. Substitui o agendamento antigo da Fase 6, não status de implementação nem gates de segurança.
+
+The visual/UX cycle follows the [UX-0–7 execution plan](visual-ux-evolution.md). UX-1 implements the real Tailwind product build, Slate/blue tokens and responsive shell; its [verification/acceptance record](../spikes/ux-1-results.md) is separate from historical E1–E7/UX-0 evidence. UX-2 explorer/drawer, then upload progress and feedback remain planned. Preview/deletion remain separately gated Phase 6 candidates; no new services or destructive APIs are enabled.
+
+O ciclo segue UX-0–7. UX-1 implementa build Tailwind real, tokens Slate/azul e shell responsivo; validação/aceite no registro vinculado, sem reutilizar evidências históricas. UX-2 explorer/drawer, progresso de upload e feedback continuam planejados. Preview/exclusão têm gates próprios da Fase 6; sem ativar novos serviços ou APIs destrutivas.
+
 | Phase | Focus                                                                                                            | Gate                                                                                     |
 | ----- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | 0     | Discovery: toolchain, S3 endpoint override, Compose hostname, Qute error state, htmx/CSRF/assets, emulator image | A real screen connects to a real emulator with reproducible build and one automated test |

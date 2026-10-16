@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -76,6 +77,82 @@ class S3ReadIntegrationTest {
     client.putObject(
         request -> request.bucket(bucket).key(key).contentType(contentType),
         RequestBody.fromString(content));
+  }
+
+  @Test
+  void objectPanelIsEscapedLocalizedMetadataWithExplicitResponsePolicy() {
+    String key = "folder/ação +%<img src=x onerror=alert(1)>.txt";
+    put(key, "body must not become inline preview", "text/html");
+    given()
+        .header("HX-Request", "true")
+        .queryParam("bucket", bucket)
+        .queryParam("key", key)
+        .queryParam("lang", "pt-BR")
+        .get("/s3/object-panel")
+        .then()
+        .statusCode(200)
+        .header("X-StackEmu-Fragment", "object-details")
+        .header("Cache-Control", "no-store")
+        .header("Vary", "HX-Request")
+        .header("X-Content-Type-Options", "nosniff")
+        .header("Content-Security-Policy", containsString("script-src 'self'"))
+        .body(
+            containsString("&lt;img src=x onerror=alert(1)&gt;"),
+            containsString("Copiar chave do objeto"),
+            containsString("Política de resposta da aplicação"),
+            containsString("text/html"),
+            not(containsString("<img")),
+            not(containsString("<!doctype")),
+            not(containsString("body must not become inline preview")));
+  }
+
+  @Test
+  void objectPanelOrdinaryNavigationRendersFullPage() {
+    put("direct.txt", "fixture", "text/plain");
+    given()
+        .queryParam("bucket", bucket)
+        .queryParam("key", "direct.txt")
+        .queryParam("theme", "light")
+        .get("/s3/object-panel")
+        .then()
+        .statusCode(200)
+        .header("Cache-Control", "no-store")
+        .body(containsString("<!doctype html>"), containsString("data-theme=\"light\""));
+  }
+
+  @Test
+  void objectPanelErrorsRetainStatusAndNeverBecomeSuccessFragments() {
+    given()
+        .header("HX-Request", "true")
+        .queryParam("bucket", bucket)
+        .queryParam("key", "absent.txt")
+        .get("/s3/object-panel")
+        .then()
+        .statusCode(404)
+        .header("Cache-Control", "no-store")
+        .contentType("text/plain")
+        .body(containsString("was not found"));
+    given()
+        .header("HX-Request", "true")
+        .queryParam("bucket", "../invalid")
+        .queryParam("key", "key")
+        .get("/s3/object-panel")
+        .then()
+        .statusCode(400)
+        .header("Cache-Control", "no-store")
+        .contentType("text/plain");
+  }
+
+  @Test
+  void urlEncodedListingPreservesControlCharactersPrefixesAndLiteralPercentValues() {
+    String prefix = "opaque/\r\n+%?ação/";
+    String key = prefix + "file +%20.txt";
+    put(key, "opaque fixture", "text/plain");
+    var root = reader.listObjects(bucket, "opaque/", null, 50);
+    assertEquals(List.of(prefix), root.prefixes());
+    var listing = reader.listObjects(bucket, prefix, null, 50);
+    assertEquals(key, listing.objects().getFirst().key());
+    assertEquals(key, reader.getObjectDetails(bucket, key).key());
   }
 
   @Test

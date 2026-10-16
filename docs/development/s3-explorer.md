@@ -1,0 +1,53 @@
+# S3 explorer contracts / Contratos do explorer S3
+
+## UX-2A — native table / Tabela nativa
+
+Implemented slice; [execution evidence and remaining acceptance](../spikes/ux-2a-results.md) are separate. UX-2A adds readable sizes, filename-type hints and a native attachment-download link to each listed object. It does not add endpoints, SDK requests, JavaScript, mutations or a drawer. The existing `/s3/object` page remains the normal detail link and works without JavaScript. Semantic table captions, row/column headers, keyboard-scrollable overflow, breadcrumbs, opaque pagination tokens and verbatim keys are preserved.
+
+Fatia implementada, com evidência e aceite restante no registro separado. UX-2A acrescenta tamanhos legíveis, indícios de tipo pelo nome e download nativo por objeto. Sem novos endpoints, chamadas SDK, JavaScript, mutações ou drawer. A página `/s3/object` continua sendo o link de detalhes, inclusive sem JS. Preservar tabela semântica, rolagem por teclado, breadcrumbs, tokens opacos e chaves verbatim.
+
+### Sizes and dates / Tamanhos e datas
+
+Formatting belongs only to `adapter.web.S3ViewMapper`, never application/SDK contracts. Sizes use IEC powers of 1024: B, KiB, MiB, GiB, TiB, PiB, EiB. Below 1024 bytes display exact localized integer bytes. At/above that threshold, choose the unit from the unrounded byte count, round HALF_UP to at most two decimal places, and always display the exact localized bytes in parentheses. Example: en `1.5 KiB (1,536 B)`; pt-BR `1,5 KiB (1.536 B)`. A rounded boundary may read `1,024 KiB`; the raw count remains explicit. Negative sizes and missing dates display `—`; zero is `0 B`. Long.MAX_VALUE is presentation data, not a supported object-capacity claim.
+
+Formatação apenas no mapper web. Unidades IEC em potências de 1024, com escolha pela contagem antes do arredondamento, HALF_UP de até duas casas e bytes exatos sempre entre parênteses a partir de KiB. Exemplos acima; limite arredondado pode mostrar `1.024 KiB`, mantendo os bytes originais. Tamanho negativo/data ausente vira `—`; zero é `0 B`. Testar Long.MAX_VALUE não comprova capacidade de armazenamento/transmissão.
+
+Dates retain the existing localized SHORT presentation with an explicit UTC suffix; null is unknown, never “now”. No browser-local timezone or invented modification timestamp is introduced. Exact object keys are never reduced to basenames for display or link generation.
+
+Datas mantêm a apresentação SHORT localizada e sufixo UTC explícito; ausente não vira “agora”. Sem fuso implícito do navegador ou data inventada. Chaves não são reduzidas a basename na apresentação ou nos links.
+
+### Type hints / Indícios de tipo
+
+The generic file SVG is retained; a separate localized badge classifies the final filename suffix case-insensitively: JSON (`json`), Image (`png/jpg/jpeg/gif/webp/avif`), Text (`txt/log/md/csv`), otherwise File. Extensionless names, leading-dot-only names, unknown suffixes and markers fall back to File. Prefix dots do not determine an object's type. HTML/SVG are not promoted to previewable image/text types. A listing note makes clear these are unverified filename hints, not stored Content-Type, byte-format validation, malware screening or a preview allowlist. There is no extra per-row metadata fetch.
+
+Ícone genérico preservado, com badge localizado e sufixos acima, ignorando case. Sem extensão, nomes só com ponto inicial, sufixos desconhecidos e markers usam Arquivo; pontos no prefixo não definem tipo. HTML/SVG não viram indícios de preview. A nota da listagem explica que nome não valida MIME, formato, malware nem allowlist de preview. Sem consulta adicional de metadados por linha.
+
+### Native quick action / Ação rápida nativa
+
+Object rows link to existing `/s3/download?bucket=…&key=…` with opaque query-component encoding and language/theme propagation. Prefix rows have no object download. Each action includes its exact key in the accessible name and a 44px minimum target. The response retains server attachment disposition, original-file policy, safe stored MIME, nosniff, no-store, bounded streaming and resource closure. A filename hint never overrides stored metadata. No client download proxy, presigning, clipboard or inline preview is implied.
+
+Linhas de objetos usam a rota de download existente, com bucket/chave codificados e idioma/tema preservados; prefixos não recebem download. Nome acessível inclui a chave exata e alvo mínimo de 44px. Resposta mantém anexo, política do arquivo original, MIME seguro armazenado, nosniff, no-store, streaming limitado e fechamento de recursos. Indício de nome não altera metadados. Sem proxy cliente, assinatura, clipboard ou preview implícitos.
+
+## UX-2B — modal drawer and exact clipboard / Drawer modal e clipboard exato
+
+[ADR-0015](../decisions/ADR-0015-object-drawer-clipboard.md) defines the implemented contract; fresh evidence is tracked separately. Unmodified object-link activation opens a native modal dialog on the right, full width on mobile, with Close focused, native focus containment/Escape and exact-link focus restoration. Ordinary/modified/new-tab links retain the full object route. Opening/closing is transient and does not rewrite bucket/prefix/pagination/history; Back/Forward navigate normal documents and discard the drawer, while the visible full-page link is directly navigable.
+
+A ADR vinculada define o contrato implementado; evidência nova é separada. Ativação simples abre modal nativo à direita, largura total mobile, foco em Fechar, contenção/Escape e retorno ao link. Preservar fallback e links modificados. Estado transitório não altera URL/histórico/prefixo/paginação; Back/Forward navegam documentos e descartam drawer. Link visível abre detalhes completos diretamente.
+
+`GET /s3/object-panel` performs one existing metadata read after bucket/key validation. HX-Request true selects a checked escaped fragment and explicit response marker; ordinary navigation renders the full page. Responses are no-store/Vary and retain CSP/nosniff/frame-denial. No object body/preview or N+1 listing decoration. htmx alone swaps the approved local fragment; script-tag execution is disabled, without allowing inline/eval. The controller rejects closed/stale XHRs and unmarked/non-200 responses, aborts old requests, clears old content, and presents translated loading/error/manual retry with a 10-second browser timeout. Browser timeout is not SDK cancellation.
+
+Rota acima lê metadados uma vez, com validação, fragmento Qute escapado/marcado somente com HX-Request e página inteira na navegação comum. No-store/Vary e cabeçalhos preservados; sem corpo/preview/N+1. Swap restrito pelo htmx, scripts desativados. Rejeitar XHR obsoleto/modal fechado/resposta não marcada ou não 200, abortar anteriores e limpar conteúdo antigo. Carga/erro/retry manual traduzidos, timeout navegador de 10 segundos sem promessa de cancelar SDK.
+
+Clipboard copies exact bucket/key values only after a user gesture and secure-context API availability; success is announced after the promise resolves. Denial/absence leaves labelled read-only textareas with selected text for manual copying. Buttons are hidden before enhancement. ARN, emulator/public URLs and signed links are still unimplemented, with separate endpoint/partition/signing gates. Automated Clipboard API simulations test UI settlement, not OS clipboard/permission certification.
+
+For control-character keys, obtain the original value from the canonical encoded URL rather than HTML textarea text (which normalizes line endings). Clipboard receives the original value; the manual field shows explicitly labelled percent-encoding instead of silently changing characters. [Execution evidence](../spikes/ux-2b-results.md) distinguishes simulated and native Clipboard API tests.
+
+Clipboard copia bucket/chave exatos por gesto do usuário e API disponível em contexto seguro. Sucesso somente após resolução; falha/ausência mantém textareas rotuladas selecionáveis. Botões ocultos antes da melhoria. ARN/URLs S3/assinadas continuam pendentes de contratos próprios. Simulação de API em testes valida estado da UI, não clipboard do SO/permissões reais.
+
+Para caracteres de controle, extrair valor original da URL canônica codificada, não da textarea que normaliza quebras de linha. API recebe o original; campo manual exibe percent-encoding identificado. Evidência vinculada separa simulações e API nativa.
+
+## Expanded delivery remaining / Restante da entrega ampliada
+
+The [user-confirmed operational scope](../product/s3-management-scope.md) includes preview, presigned download links, copy/move and deletion in this first functional delivery. UX-2B implements metadata drawer and bucket/key clipboard only, not those remaining capabilities. Preview, presigning, ARN/URL semantics and all mutations retain their own technical/security gates; no illustrative `/s3/preview` or `/s3/delete` route exists merely because a design example mentions it.
+
+O escopo ampliado mantém essas capacidades na primeira entrega. UX-2B implementa somente drawer de metadados e clipboard de bucket/chave. Preview, assinatura, ARN/URLs e mutações continuam sujeitos a contratos/gates próprios; exemplos de design não criam rotas.

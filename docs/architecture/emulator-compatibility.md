@@ -8,6 +8,8 @@ Conectar não é compatibilidade. Uma afirmação exige versão fixa do emulador
 
 ## Current matrix / Matriz atual
 
+UX-2B local integration additionally verifies URL-encoded ListObjectsV2 responses with MiniStack 1.5.25/AWS SDK 2.54.13: exact CR/LF, Unicode, plus and literal percent values in object keys and common prefixes, without decoding pagination tokens. This narrowly corrects XML normalization observed during drawer testing; it is not certification of other emulators, all control characters or mutation/version semantics. [Fresh execution record](../spikes/ux-2b-results.md). / Integração local UX-2B verifica preservação desses caracteres/chaves/prefixos com resposta codificada URL, sem alterar tokens. Correção delimitada, não certificação ampla de emuladores, controles, mutações ou versões.
+
 Phase 2 locally verified MiniStack 1.5.25: bucket/head/tag reads, `ListObjectsV2` with common prefixes/continuation tokens, `HeadObject` and `GetObject` streaming. See [Phase 2 evidence](../spikes/phase-2-results.md). This extends the historical Phase 0 matrix below; it does not certify all S3 semantics or other emulators.
 
 A Fase 2 verificou localmente essas leituras, paginação/prefixos e streaming em MiniStack 1.5.25. Não certifica todas as semânticas S3 nem outros emuladores.

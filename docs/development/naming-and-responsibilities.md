@@ -45,6 +45,8 @@ Criar use cases/domain apenas para regras reais, sem arquitetura especulativa. S
 
 ## Enforcement and limits / Automação e limites
 
+Scoped preview lifecycle exception: [ADR-0018](../decisions/ADR-0018-bounded-text-preview.md) derives an adapter-owned bounded-transport client from the public configuration of the Quarkiverse-managed client. Close only the owned client on destruction; never mutate/close the ordinary client or explicitly close its credentials provider. No SDK/lifecycle dependency crosses into application/web; advanced configuration compatibility remains unverified. / Exceção delimitada: preview deriva cliente próprio da configuração pública do gerenciado, fechando só o próprio sem alterar/fechar cliente comum/provider. Sem SDK/lifecycle nas camadas aplicação/web; configurações avançadas não verificadas.
+
 Spotless formats Java, not semantic responsibility. `ArchitectureTest` checks application/web/SDK dependency boundaries, AWS-to-web isolation, package/type/method naming shape, role placement and absence of service field injection. Those checks do not prove cohesion, SOLID compliance, full Google Style compliance or absence of security defects; the checklist and review remain necessary. Templates are checked during Quarkus build. Tests must be updated with behavior, not weakened to allow a forbidden dependency.
 
 Spotless não valida responsabilidade semântica. Os testes verificam limites e um subconjunto de convenções, sem certificar SOLID ou Google Style integral. Revisão humana e testes de comportamento continuam obrigatórios.

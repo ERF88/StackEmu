@@ -1,6 +1,9 @@
 package io.github.erf88.stackemu.adapter.web;
 
+import io.github.erf88.stackemu.application.ImagePreviewPolicy;
 import io.github.erf88.stackemu.application.S3ReadPort;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
@@ -14,13 +17,17 @@ import java.util.List;
 import java.util.Locale;
 
 public final class S3ViewMapper {
+  private static final List<String> BYTE_UNITS =
+      List.of("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB");
+
   private S3ViewMapper() {}
 
   public record Link(String label, String href) {}
 
   public record Tag(String key, String value) {}
 
-  public record ObjectRow(String key, String size, String modified, String href) {}
+  public record ObjectRow(
+      String key, String size, String modified, String href, String downloadHref, String kind) {}
 
   public record BucketPageView(
       String name,
@@ -45,7 +52,9 @@ public final class S3ViewMapper {
       String modified,
       String downloadHref,
       String parentHref,
-      String bucket) {}
+      String bucket,
+      String previewHref,
+      String imagePreviewHref) {}
 
   public static String encode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
@@ -62,6 +71,18 @@ public final class S3ViewMapper {
 
   public static String downloadPath(String bucket, String key) {
     return "/s3/download?bucket=" + encode(bucket) + "&key=" + encode(key);
+  }
+
+  public static String previewPath(String bucket, String key) {
+    return "/s3/preview?bucket=" + encode(bucket) + "&key=" + encode(key);
+  }
+
+  public static String imagePreviewPath(String bucket, String key) {
+    return "/s3/preview/image?bucket=" + encode(bucket) + "&key=" + encode(key);
+  }
+
+  public static String imagePreviewContentPath(String bucket, String key) {
+    return "/s3/preview/image/content?bucket=" + encode(bucket) + "&key=" + encode(key);
   }
 
   public static BucketPageView toBucketPage(
@@ -117,7 +138,9 @@ public final class S3ViewMapper {
                         o.key(),
                         bytes(o.size(), ui),
                         date(o.modified(), ui),
-                        objectPath(details.name(), o.key()) + "&" + ui.query()))
+                        objectPath(details.name(), o.key()) + "&" + ui.query(),
+                        downloadPath(details.name(), o.key()) + "&" + ui.query(),
+                        fileKind(o.key(), ui)))
             .toList(),
         listing.nextToken() == null || listing.nextToken().isEmpty()
             ? ""
@@ -150,7 +173,11 @@ public final class S3ViewMapper {
         date(object.modified(), ui),
         downloadPath(bucket, object.key()) + "&" + ui.query(),
         bucketPath(bucket, prefix, null) + "&" + ui.query(),
-        bucket);
+        bucket,
+        previewPath(bucket, object.key()) + "&" + ui.query(),
+        ImagePreviewPolicy.format(object.key(), object.contentType(), null).isEmpty()
+            ? ""
+            : imagePreviewPath(bucket, object.key()) + "&" + ui.query());
   }
 
   private static String optional(String value) {
@@ -159,8 +186,34 @@ public final class S3ViewMapper {
 
   private static String bytes(long size, UiContext ui) {
     if (size < 0) return "—";
-    return NumberFormat.getIntegerInstance(Locale.forLanguageTag(ui.language())).format(size)
-        + " B";
+    Locale locale = Locale.forLanguageTag(ui.language());
+    String exact = NumberFormat.getIntegerInstance(locale).format(size) + " B";
+    long divisor = 1;
+    int unit = 0;
+    while (unit < BYTE_UNITS.size() - 1 && size / divisor >= 1024) {
+      divisor *= 1024;
+      unit++;
+    }
+    if (unit == 0) return exact;
+    var rounded =
+        BigDecimal.valueOf(size).divide(BigDecimal.valueOf(divisor), 2, RoundingMode.HALF_UP);
+    var format = NumberFormat.getNumberInstance(locale);
+    format.setMaximumFractionDigits(2);
+    return format.format(rounded) + " " + BYTE_UNITS.get(unit) + " (" + exact + ")";
+  }
+
+  private static String fileKind(String key, UiContext ui) {
+    int dot = key.lastIndexOf('.');
+    String extension =
+        dot <= key.lastIndexOf('/') + 1 ? "" : key.substring(dot + 1).toLowerCase(Locale.ROOT);
+    String label =
+        switch (extension) {
+          case "json" -> "fileKindJson";
+          case "png", "jpg", "jpeg", "gif", "webp", "avif" -> "fileKindImage";
+          case "txt", "log", "md", "csv" -> "fileKindText";
+          default -> "fileKindFile";
+        };
+    return ui.text(label);
   }
 
   private static String date(Instant instant, UiContext ui) {

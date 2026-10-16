@@ -17,6 +17,7 @@
     <maven.compiler.release>25</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <quarkus.version>3.40.1</quarkus.version>
+    <skip.frontend>false</skip.frontend>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -75,7 +76,58 @@
     </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>META-INF/resources/app.css</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>${project.build.directory}/generated-resources</directory>
+      </resource>
+    </resources>
     <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.15.4</version>
+        <configuration>
+          <installDirectory>${project.build.directory}/frontend</installDirectory>
+          <nodeVersion>v24.10.0</nodeVersion>
+          <npmVersion>11.6.1</npmVersion>
+          <skip>${skip.frontend}</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install-frontend-toolchain</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+          <execution>
+            <id>install-frontend-dependencies</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>ci --ignore-scripts --no-audit --no-fund</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-stylesheet</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>generate-resources</phase>
+            <configuration>
+              <arguments>run build:css</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.cyclonedx</groupId>
         <artifactId>cyclonedx-maven-plugin</artifactId>

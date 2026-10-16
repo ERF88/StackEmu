@@ -6,6 +6,29 @@ All notable changes will be documented in this file. This project intends to fol
 
 ### Added
 
+- UX-5B native bilingual S3 image preview for bounded static PNG/JPEG, structural/refusal checks and isolated fresh-PNG output; original attachment unchanged, no active formats or CSP relaxation. [Local verification and remaining final-image gates](docs/spikes/ux-5b-results.md).
+
+- UX-5B isolated JDK raster-worker foundation with bounded input/output, heap/process-wait policy and local lifecycle tests; no image-preview route/UI enabled. [Contract](docs/decisions/ADR-0019-raster-preview-isolation.md), [evidence](docs/spikes/ux-5b-worker-results.md).
+
+- UX-5A separate bounded UTF-8 text/JSON-as-text preview with strict byte checks, escaped native page and attachment fallback; no active content, decompression or raster preview. [Contract](docs/decisions/ADR-0018-bounded-text-preview.md), [verification](docs/spikes/ux-5a-results.md).
+
+- UX-4 dismissible, indefinitely retained in-flow notices for confirmed native bucket/folder and enhanced upload results; persistent no-JS fallback and nonduplicated focus/live behavior. Destructive-dialog contract documented, no deletion/modal enabled. [Verification](docs/spikes/ux-4-results.md).
+
+- UX-3 single-file drop/picker enhancement and native labelled upload progress, separating transfer from server-confirmed completion; checked upload workspace, duplicate guards and explicit recovery without browser auto-retry. Native multipart, CSRF, original-file and no-overwrite policies retained. [Execution/remaining acceptance](docs/spikes/ux-3-results.md).
+
+- UX-2B native modal object drawer, escaped checked metadata fragment, stale-response/timeout/manual-retry controls and exact bucket/key clipboard with selectable failure fallback. No preview, ARN, signing or mutation capability is implied; validation recorded separately.
+
+- Confirmed first-delivery operational S3 scope and scope-only ADR-0014: buckets, prefixes, objects, preview, upload/download, copy/move, deletion, clipboard and presigned downloads. Advanced configuration remains excluded; requirements are not claims of implementation.
+- Escopo operacional S3 confirmado para a primeira entrega e ADR-0014: buckets, prefixos, objetos, preview, upload/download, cópia/movimentação, exclusão, clipboard e downloads assinados. Configurações avançadas continuam fora; requisitos não comprovam implementação.
+- UX-2A explorer table: localized IEC sizes with exact byte counts, filename-type hints and native attachment downloads. Drawer and expanded operational capabilities remain pending their documented gates.
+- Tabela UX-2A: tamanhos IEC localizados com bytes exatos, indícios de tipo pelo nome e download nativo. Drawer e demais capacidades operacionais seguem pendentes dos gates documentados.
+
+- UX-1: locked build-only Tailwind generation for Maven/Docker, packaged MIT license, Slate/blue themes and scoped shell utilities; keyboard-reachable short desktop sidebar and restored mobile panel fill. [Validation/acceptance record](docs/spikes/ux-1-results.md); no new S3 capability or publication.
+
+- UX-0 isolated locked Tailwind/Pico comparison, escaped Qute fixtures, deterministic CSS build/size/license reports and Chromium diagnostics; Tailwind/CLI 4.3.3 without Preflight selected for staged UX-1 migration, production assets unchanged.
+
+- Documentation-only UX-0–7 evolution plan and proposed ADR-0013: build-time CSS evaluation, explorer/drawer, drop/progress, notifications and separately gated preview/deletion; updated contributor/security guidance, no runtime changes.
+
 - E7 final redesign validation record, reproducible commands, screenshot references and explicit human-review/release limits; no P2 activation or publication.
 
 - E6 bilingual component gallery/contracts, deterministic Qute presentation fixtures, unavailable/error axe checks and container-based visual snapshots; P2 follow-ups recorded as unapproved ADR-0012 proposals only.

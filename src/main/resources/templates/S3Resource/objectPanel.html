@@ -1,0 +1,33 @@
+<section class="object-panel" aria-labelledby="drawer-object-key">
+  <h3 id="drawer-object-key" class="object-key">{view.key}</h3>
+  <dl>
+    <dt>Bucket</dt><dd>{view.bucket}</dd>
+    <dt>{ui.text('size')}</dt><dd>{view.size}</dd>
+    <dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd>
+    <dt>ETag</dt><dd><code>{view.etag}</code></dd>
+    <dt>{ui.text('modified')}</dt><dd>{view.modified}</dd>
+  </dl>
+  <section class="response-policy" aria-labelledby="drawer-policy-title">
+    <h3 id="drawer-policy-title">{ui.text('responsePolicy')}</h3>
+    <p>{ui.text('responsePolicyNote')}</p>
+    <p>{ui.text('metadataTrustNote')}</p>
+  </section>
+  <section class="clipboard-panel" aria-labelledby="drawer-copy-title"
+    data-copied-label="{ui.text('copied')}" data-copy-failed-label="{ui.text('copyFailed')}">
+    <h3 id="drawer-copy-title">{ui.text('copyValues')}</h3>
+    <p>{ui.text('manualCopyNote')}</p>
+    <p data-encoded-note hidden>{ui.text('encodedCopyNote')}</p>
+    <div class="copy-field">
+      <label for="drawer-copy-bucket">Bucket</label>
+      <textarea id="drawer-copy-bucket" data-copy-param="bucket" rows="1" readonly spellcheck="false">{view.bucket}</textarea>
+      <button type="button" data-copy-field hidden>{ui.text('copyBucket')}</button>
+    </div>
+    <div class="copy-field">
+      <label for="drawer-copy-key">{ui.text('objectKey')}</label>
+      <textarea id="drawer-copy-key" data-copy-param="key" rows="3" readonly spellcheck="false">{view.key}</textarea>
+      <button type="button" data-copy-field hidden>{ui.text('copyKey')}</button>
+    </div>
+    <p class="copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  </section>
+  <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
+</section>

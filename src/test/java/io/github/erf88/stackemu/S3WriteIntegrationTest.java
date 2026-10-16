@@ -3,6 +3,7 @@ package io.github.erf88.stackemu;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -121,6 +122,50 @@ class S3WriteIntegrationTest {
     try (var files = Files.list(UPLOADS)) {
       assertEquals(0, files.count());
     }
+  }
+
+  @Test
+  void uploadWorkspaceKeepsRealSuccessConflictValidationAndCsrfStatuses() throws Exception {
+    createThroughGui();
+    var session = form("upload");
+    for (int expected : new int[] {200, 409}) {
+      given()
+          .header("HX-Request", "true")
+          .cookies(session.cookies())
+          .multiPart("csrf-token", session.token())
+          .multiPart("bucket", bucket)
+          .multiPart("prefix", "enhanced/")
+          .multiPart("confirm", "yes")
+          .multiPart("file", "original.txt", new byte[] {1, 2, 3}, "text/plain")
+          .post("/s3/write/upload")
+          .then()
+          .statusCode(expected)
+          .header("X-StackEmu-Upload", "workspace")
+          .header("Cache-Control", "no-store")
+          .body(containsString("id=\"mutation-workspace\""));
+    }
+    given()
+        .header("HX-Request", "true")
+        .cookies(session.cookies())
+        .multiPart("csrf-token", session.token())
+        .multiPart("bucket", bucket)
+        .multiPart("prefix", "enhanced/")
+        .multiPart("file", "rejected.txt", new byte[] {4}, "text/plain")
+        .post("/s3/write/upload")
+        .then()
+        .statusCode(422)
+        .header("X-StackEmu-Upload", "workspace")
+        .body(containsString("confirm-error"), containsString("id=\"mutation-workspace\""));
+    given()
+        .header("HX-Request", "true")
+        .multiPart("bucket", bucket)
+        .multiPart("confirm", "yes")
+        .multiPart("file", "rejected.txt", new byte[] {4}, "text/plain")
+        .post("/s3/write/upload")
+        .then()
+        .statusCode(400)
+        .header("X-StackEmu-Upload", nullValue());
+    assertUploadsRemoved();
   }
 
   @Test

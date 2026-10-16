@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="htmx-config" content='{"allowEval":false,"includeIndicatorStyles":false}'>
+    <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false}'>
     <meta name="color-scheme" content="{#if ui.theme == 'auto'}dark light{#else}{ui.theme}{/if}">
     {#if ui.theme == 'auto'}
-      <meta name="theme-color" content="#081225" media="(prefers-color-scheme: dark)">
-      <meta name="theme-color" content="#f2f5fb" media="(prefers-color-scheme: light)">
+      <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+      <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
     {#else}
-      <meta name="theme-color" content="{#if ui.theme == 'light'}#f2f5fb{#else}#081225{/if}">
+      <meta name="theme-color" content="{#if ui.theme == 'light'}#f8fafc{#else}#0f172a{/if}">
     {/if}
     <title>{#insert title}{ui.text('workspace')}{/insert} · StackEmu</title>
     <link rel="icon" type="image/svg+xml" href="{inject:webAssets.faviconHref}">
@@ -19,12 +19,12 @@
   </head>
   <body>
     <a class="skip" href="#content">{ui.text('skip')}</a>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="{ui.text('navigation')}">
+    <div class="app-shell grid grid-cols-1 min-[901px]:grid-cols-[256px_minmax(0,1fr)]">
+      <aside class="sidebar bg-panel" aria-label="{ui.text('navigation')}">
         <a class="brand" href="/?{ui.query}">
           <svg class="brand-symbol" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 48 48" fill="none">
-            <rect width="48" height="48" rx="12" fill="#081225"/>
-            <path d="m24 9 14 8-14 8-14-8 14-8Zm-14 15 14 8 14-8M10 31l14 8 14-8" stroke="#b6b3ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect width="48" height="48" rx="12" fill="#0f172a"/>
+            <path d="m24 9 14 8-14 8-14-8 14-8Zm-14 15 14 8 14-8M10 31l14 8 14-8" stroke="#93c5fd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span>StackEmu<small>{ui.text('consoleLabel')}</small></span>
         </a>
@@ -48,13 +48,13 @@
           <div class="local-notice">{#include icons/shield /}<p>{ui.text('local')}</p></div>
         </div>
       </aside>
-      <div class="workspace">
-        <header class="workspace-header">
+      <div class="workspace min-w-0">
+        <header class="workspace-header flex flex-wrap items-center justify-between gap-4 bg-panel">
           <div class="workspace-label">
             <span class="eyebrow">{ui.text('consoleLabel')}</span>
             <span>{ui.text('workspace')} <small>/ S3</small></span>
           </div>
-          <div class="preferences">
+          <div class="preferences flex flex-wrap items-center gap-4">
             <div class="language-controls" role="group" aria-label="{ui.text('languagePreferences')}">
               {#include icons/language /}
               <a href="{ui.english}" lang="en" {#if ui.language == 'en'}aria-current="true"{/if}>English</a>
@@ -75,6 +75,10 @@
         </header>
         <main id="content" tabindex="-1">
           {#insert content /}
+          <section class="operation-notice" data-operation-notice aria-label="{ui.text('operationNotification')}" hidden>
+            <p data-notice-message aria-atomic="true"></p>
+            <button type="button" data-notice-dismiss>{ui.text('dismissNotification')}</button>
+          </section>
         </main>
         <footer>{ui.text('local')}</footer>
       </div>

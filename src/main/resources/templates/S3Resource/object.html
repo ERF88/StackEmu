@@ -16,6 +16,10 @@
     <section class="resource-panel object-actions" aria-labelledby="object-actions-title">
       <h2 id="object-actions-title">{ui.text('objectActions')}</h2>
       <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
+      <a class="button" href="{view.previewHref}">{ui.text('textPreview')}</a>
+      {#if view.imagePreviewHref != ''}
+        <a class="button" href="{view.imagePreviewHref}">{ui.text('imagePreview')}</a>
+      {/if}
       <a href="{view.parentHref}">{ui.text('backToObjects')}</a>
     </section>
     </div>

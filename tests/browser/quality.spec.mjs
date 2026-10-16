@@ -117,12 +117,15 @@ for (const language of ["en", "pt-BR"]) {
 test("browser S3 writes, original file download, validation and security", async ({
   page,
   request,
+  browser,
+  baseURL,
 }, testInfo) => {
   const bucket = `stackemu-browser-${randomUUID().replaceAll("-", "")}`;
   const filename = `ação +% ${"long-name-".repeat(16)}.txt`;
   const prefix = "browser/";
   const key = prefix + filename;
-  const bytes = Buffer.from("StackEmu original bytes — browser fixture\n", "utf8");
+  const bytes = Buffer.alloc(1536, "a");
+  Buffer.from("StackEmu original bytes — browser fixture\n", "utf8").copy(bytes);
   const hash = (value) => createHash("sha256").update(value).digest("hex");
   const browserErrors = [];
   page.on("pageerror", (error) => browserErrors.push(error.message));
@@ -191,6 +194,18 @@ test("browser S3 writes, original file download, validation and security", async
         ).toBeVisible();
         await expect(page.locator('.breadcrumbs [aria-current="page"]')).toHaveCount(1);
         await expect(tableRegion.locator("thead th").first()).toHaveCSS("position", "sticky");
+        const objectRow = tableRegion.locator("tbody tr").filter({ hasText: key });
+        await expect(objectRow.locator(".file-kind")).toHaveText(
+          language === "en" ? "Text" : "Texto",
+        );
+        await expect(objectRow.locator("td").first()).toHaveText(
+          language === "en" ? "1.5 KiB (1,536 B)" : "1,5 KiB (1.536 B)",
+        );
+        const quickDownload = objectRow.locator(".table-action");
+        await expect(quickDownload).toHaveAccessibleName(
+          `${language === "en" ? "Download as attachment" : "Baixar como anexo"}: ${key}`,
+        );
+        await expect(quickDownload).toHaveCSS("min-height", "44px");
         await audit(page, testInfo, `e4-bucket-${language}-${theme}`);
         for (const width of [360, 390, 1440, 1920]) {
           await page.setViewportSize({ width, height: 900 });
@@ -230,6 +245,25 @@ test("browser S3 writes, original file download, validation and security", async
           }
         }
       }
+    }
+    const nativeContext = await browser.newContext({ javaScriptEnabled: false, baseURL });
+    try {
+      const nativePage = await nativeContext.newPage();
+      await nativePage.goto(
+        `/s3/bucket?bucket=${bucket}&prefix=${encodeURIComponent(prefix)}&lang=en`,
+      );
+      const nativeDownloadPromise = nativePage.waitForEvent("download");
+      await nativePage
+        .getByRole("link", { name: `Download as attachment: ${key}`, exact: true })
+        .click();
+      const nativeDownload = await nativeDownloadPromise;
+      expect(nativeDownload.suggestedFilename()).toBe(filename);
+      expect(hash(await readFile(await nativeDownload.path()))).toBe(hash(bytes));
+      await nativePage.getByRole("link", { name: key, exact: true }).click();
+      await expect(nativePage).toHaveURL(/\/s3\/object\?/);
+      await expect(nativePage.locator(".object-key")).toHaveText(key);
+    } finally {
+      await nativeContext.close();
     }
     expect(browserErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);

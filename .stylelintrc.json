@@ -1,5 +1,18 @@
 {
   "extends": "stylelint-config-standard",
+  "overrides": [
+    {
+      "files": ["tools/ux0/input.css", "src/main/frontend/input.css"],
+      "rules": {
+        "import-notation": "string",
+        "nesting-selector-no-missing-scoping-root": null,
+        "at-rule-no-unknown": [
+          true,
+          { "ignoreAtRules": ["source", "custom-variant", "theme", "slot"] }
+        ]
+      }
+    }
+  ],
   "rules": {
     "selector-class-pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
   }

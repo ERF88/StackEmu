@@ -22,6 +22,8 @@ First-party JavaScript includes development tooling (`.mjs`) and the small progr
 
 ## Java and architecture review
 
+UX-2B exception: [ADR-0015](../decisions/ADR-0015-object-drawer-clipboard.md) allows the bundled htmx to swap only the checked, escaped same-origin object-detail fragment after active-request/status/marker checks. First-party code still must not assign innerHTML, evaluate strings, inject scripts or interpret emulator HTML. Local JavaScript also handles native dialog/focus and user-initiated Clipboard API promises with selectable fallback. / Exceção UX-2B: swap htmx restrito ao fragmento local Qute escapado/verificado; sem innerHTML próprio, eval, scripts ou HTML do emulador. JS local controla diálogo/foco e clipboard por gesto, com fallback selecionável.
+
 Detailed naming/role rules and review checklist: [naming and responsibilities](naming-and-responsibilities.md). / Regras detalhadas de nomenclatura, papéis e revisão no guia vinculado.
 
 - Use two-space indentation and the formatter's 100-column layout. Imports are explicit, sorted and separated from the package declaration.
@@ -34,11 +36,19 @@ Detailed naming/role rules and review checklist: [naming and responsibilities](n
 
 ## Templates and assets
 
+UX-1 integrates Tailwind CSS/CLI 4.3.3 into the product build, without Preflight. Follow [CSS source/output and build rules](frontend-build.md): full literal utility tokens are allowed for migrated shell layout, never assembled from emulator data. Semantic components and theme tokens remain authoritative. Compiler-specific Stylelint exceptions apply only to input files, not ordinary component selectors. UX-0 remains historical spike evidence. / UX-1 integra Tailwind no build, sem Preflight. Seguir guia vinculado: utilitários literais no shell migrado, nunca montados de dados externos; componentes/tokens semânticos continuam. Exceções do compilador restritas às entradas; UX-0 é evidência histórica.
+
+Visual/UX changes follow [UX-0–7](../product/visual-ux-evolution.md) and ADR-0013. Apply UX-1's scoped utility/source/output rules above; preserve semantic tokens and kebab-case component classes outside that migration. Do not copy illustrative routes/bindings or inline event scripts. Maintain native links/forms, external local JavaScript, theme/i18n parity and safe encoded keys. / Evolução UX segue plano/ADR e as regras delimitadas UX-1 acima; manter tokens e componentes semânticos fora da migração, sem copiar APIs ilustrativas/scripts inline, preservando fallback e segurança.
+
 Qute directives are not ordinary HTML. Prettier deliberately excludes `src/main/resources/templates/`; an HTML-only formatter can alter directive/whitespace semantics. Keep block directives on separate lines, indent HTML hierarchy, preserve meaningful inline spaces, and run a checked-template build after edits. Do not claim templates are fully automatically formatted.
 
 Use landmark elements, associated labels, appropriate headings, table headers, visible focus and text alongside status colors. Avoid unescaped/raw output for emulator data. Use semantic CSS tokens rather than duplicating colors in components. Avoid IDs for styling, `!important` except a documented accessibility override, and selectors coupled to unrelated pages.
 
 Markdown line-length limits are disabled for prose/tables; duplicate headings are checked within siblings, and inline HTML is allowed where documentation needs it. These targeted exceptions live in `.markdownlint-cli2.jsonc`; the other default rules remain enabled. Embedded code blocks are not reformatted by Prettier.
+
+## Progressive upload / Upload progressivo
+
+UX-3 follows [ADR-0016](../decisions/ADR-0016-single-file-upload-progress.md) and the [upload contract](s3-upload.md). Bundled htmx may select/swap the checked upload workspace only after its request/target/status/type/marker gates; script execution stays disabled. First-party code manages native progress properties and translated text/attributes, not innerHTML or emulator content. Correlate native upload samples before consuming htmx progress, preserve native multipart/CSRF and never auto-retry a mutation. / UX-3 permite somente swap restrito do workspace verificado, sem scripts/innerHTML próprio; progresso nativo e texto seguro, com correlação de envio, fallback/CSRF e sem retry automático do navegador.
 
 ## Commands
 

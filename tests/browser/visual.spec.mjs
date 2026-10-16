@@ -72,6 +72,11 @@ for (const language of ["en", "pt-BR"]) {
           await expect(page.locator("html")).toHaveAttribute("lang", language);
           await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
           await expect(page.locator(".sidebar")).toHaveCSS("display", "flex");
+          if (width === 390) {
+            const sidebar = await page.locator(".sidebar").boundingBox();
+            const workspace = await page.locator(".workspace").boundingBox();
+            expect(Math.abs(workspace.y - sidebar.y - sidebar.height)).toBeLessThanOrEqual(1);
+          }
           if (scene === "overview") {
             for (const [selector, attribute] of [
               ['link[rel="stylesheet"]', "href"],
@@ -91,6 +96,11 @@ for (const language of ["en", "pt-BR"]) {
           expect(
             await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
           ).toBe(true);
+          if (scene === "gallery") {
+            // The first full-page capture can settle this gallery's layout by 3px.
+            // Discard only this preparation frame; compare the complete full-page baseline below.
+            await page.screenshot({ fullPage: true, animations: "disabled", caret: "hide" });
+          }
           await expect(page).toHaveScreenshot(`${scene}-${language}-${theme}-${width}.png`, {
             fullPage: true,
           });

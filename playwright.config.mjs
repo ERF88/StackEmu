@@ -3,7 +3,9 @@ import { defineConfig } from "@playwright/test";
 const baseURL = process.env.STACKEMU_BROWSER_URL || "http://127.0.0.1:8080";
 const endpoint = new URL(baseURL);
 if (
-  !["127.0.0.1", "localhost", "gui", "host.docker.internal"].includes(endpoint.hostname) ||
+  !["127.0.0.1", "127.0.0.2", "localhost", "gui", "host.docker.internal"].includes(
+    endpoint.hostname,
+  ) ||
   endpoint.protocol !== "http:" ||
   endpoint.port !== "8080"
 ) {

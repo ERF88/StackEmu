@@ -9,6 +9,20 @@ import org.junit.jupiter.api.Test;
 
 class WebAssetCatalogTest {
   @Test
+  void packagedStylesContainCompiledUtilitiesAndTheirLicense() throws Exception {
+    try (var stylesheet = getClass().getResourceAsStream("/META-INF/resources/app.css");
+        var license =
+            getClass().getResourceAsStream("/META-INF/licenses/tailwindcss-LICENSE.txt")) {
+      var css = new String(stylesheet.readAllBytes(), StandardCharsets.UTF_8);
+      assertTrue(css.contains(".grid{"));
+      assertTrue(css.contains("--palette-dark-canvas"));
+      assertTrue(!css.contains("@source") && !css.contains("@import"));
+      assertTrue(
+          new String(license.readAllBytes(), StandardCharsets.UTF_8).contains("MIT License"));
+    }
+  }
+
+  @Test
   void bundledUrlsHaveStableContentFingerprints() {
     var assets = new WebAssetCatalog();
     assertTrue(assets.stylesheetHref().matches("/app\\.css\\?v=[a-f0-9]{64}"));

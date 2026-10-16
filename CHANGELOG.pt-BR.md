@@ -8,6 +8,25 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ### Adicionado
 
+- UX-5B: preview S3 nativo bilíngue de PNG/JPEG estáticos limitados, validações/recusas e saída PNG nova em worker isolado; anexo original intacto, sem formatos ativos ou relaxar CSP. [Validação local e gates finais de imagem](docs/spikes/ux-5b-results.md).
+
+- UX-5B: base de worker raster JDK isolado, entrada/saída limitadas, política de heap/espera e testes locais de ciclo de vida; sem ativar rota/UI de preview de imagens. [Contrato](docs/decisions/ADR-0019-raster-preview-isolation.md), [evidência](docs/spikes/ux-5b-worker-results.md).
+
+- UX-5A: preview separado de texto UTF-8/JSON-como-texto limitado, bytes estritos, página nativa escapada e fallback de anexo; sem conteúdo ativo/descompressão/imagens. [Contrato](docs/decisions/ADR-0018-bounded-text-preview.md), [verificação](docs/spikes/ux-5a-results.md).
+
+- UX-4: avisos dispensáveis no fluxo, sem expiração, para resultados confirmados de bucket/pasta nativos e upload melhorado; fallback persistente sem JS e foco/live sem duplicidade. Contrato de diálogo destrutivo documentado, sem ativar exclusão/modal. [Verificação](docs/spikes/ux-4-results.md).
+
+- UX-3: drop/seletor individual e progresso nativo rotulado, separando transferência da confirmação do servidor; workspace verificado, proteção contra duplicidade e recuperação explícita sem retry automático do navegador. Preservados multipart nativo, CSRF, arquivo original e não sobrescrita. [Validação/aceite restante](docs/spikes/ux-3-results.md).
+
+- UX-2B: drawer modal nativo de metadados, fragmento Qute escapado/verificado, proteção contra resposta obsoleta, timeout/retry manual e clipboard de bucket/chave exatos com fallback selecionável. Sem preview, ARN, assinatura ou mutação implícitos; validação registrada separadamente.
+- Escopo operacional da primeira entrega ampliado pela ADR-0014, sem configurações avançadas. UX-2A implementa tamanhos IEC com bytes exatos, indícios de tipo pelo nome e download nativo; aprovação de escopo não comprova implementação de todas as capacidades.
+
+- UX-1: Tailwind fixado somente no build Maven/Docker, licença MIT empacotada, temas Slate/azul e utilitários delimitados no shell; sidebar desktop baixa acessível por teclado e preenchimento mobile restaurado. [Registro de validação/aceite](docs/spikes/ux-1-results.md); sem nova capacidade S3 ou publicação.
+
+- UX-0: comparação isolada Tailwind/Pico com lockfile, fixtures Qute escapadas, build determinístico/relatórios e diagnóstico Chromium; Tailwind/CLI 4.3.3 sem Preflight selecionado para UX-1, sem alterar assets de produção.
+
+- Plano documental UX-0–7 e ADR-0013 proposta: avaliação CSS no build, explorer/drawer, drop/progresso, notificações e gates separados para preview/exclusão; diretrizes de contribuição/segurança atualizadas, sem mudanças de runtime.
+
 - E7: registro de validação final do redesenho, comandos reproduzíveis, referências de capturas e limites de revisão humana/release; sem ativação P2 ou publicação.
 
 - E6: galeria/contratos bilíngues, fixtures Qute determinísticas, axe em indisponibilidade/erro e snapshots no container; P2 registrado apenas como proposta não aprovada na ADR-0012.

@@ -6,11 +6,15 @@
 
 ## Status
 
+The first current functional delivery now targets [full operational S3 management](docs/product/s3-management-scope.md), including preview, deletion, copy/move, clipboard and presigned download links. This is confirmed scope, not a claim those capabilities are already implemented; advanced bucket configuration is excluded.
+
 The product name was selected on 13 October 2026, but legal/name validation is **pending**. The project repository is [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Before a public release, validate package registries, Docker Hub, domain availability, and INPI records. StackEmu is not affiliated with AWS, MiniStack, LocalStack, or Moto.
 
 Phase 3 adds confirmed CSRF-protected forms and bounded uploads against MiniStack 1.5.25. See the [Phase 3 guide](docs/development/phase-3.md) and [executed evidence](docs/spikes/phase-3-results.md). There is no deletion, overwrite or resumable-upload UI; use only in trusted local development.
 
 ## Implemented stack
+
+UX-1 implements Slate/blue themes and a responsive shell with locally compiled Tailwind CSS, without Preflight; Node is build-only. See [CSS build rules](docs/development/frontend-build.md) and [verification and acceptance status](docs/spikes/ux-1-results.md). Pending UX stages are not implemented S3 capabilities.
 
 Interface SVGs use [coolicons v4.1](https://coolicons.cool/) by Kryston Schwarze, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), not the application's MIT license. Selected icons are adapted into local Qute fragments; attribution, source revision and changes are recorded in [third-party notices](THIRD_PARTY_NOTICES.md).
 

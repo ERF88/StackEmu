@@ -48,6 +48,7 @@
       <div class="resource-context"><p class="context-chip">{ui.text('prefix')}: <code>{view.prefix}</code></p>
       <p class="context-chip">{ui.text('pageLimit')}: {view.pageSize}</p></div>
       <p>{ui.text('prefixNote')}</p>
+      <p>{ui.text('fileTypeHintNote')}</p>
       {#if view.folders.isEmpty}
         {#if view.objects.isEmpty}<p>{ui.text('emptyObjects')}</p>{/if}
       {/if}
@@ -55,14 +56,19 @@
       <table class="resource-table object-table">
         <caption class="visually-hidden">{ui.text('objects')}</caption>
         <thead>
-          <tr><th scope="col">{ui.text('name')}</th><th scope="col">{ui.text('size')}</th><th scope="col">{ui.text('modified')}</th></tr>
+          <tr><th scope="col">{ui.text('name')}</th><th scope="col">{ui.text('size')}</th><th scope="col">{ui.text('modified')}</th><th scope="col">{ui.text('objectActions')}</th></tr>
         </thead>
         <tbody>
           {#for folder in view.folders}
-            <tr><th scope="row"><a href="{folder.href}">{#include icons/folder /}<code>{folder.label}</code></a> ({ui.text('prefix')})</th><td>—</td><td>—</td></tr>
+            <tr><th scope="row"><a href="{folder.href}">{#include icons/folder /}<code>{folder.label}</code></a> ({ui.text('prefix')})</th><td>—</td><td>—</td><td>—</td></tr>
           {/for}
           {#for object in view.objects}
-            <tr><th scope="row"><a href="{object.href}">{#include icons/file /}<code>{object.key}</code></a></th><td>{object.size}</td><td>{object.modified}</td></tr>
+            <tr>
+              <th scope="row"><div class="object-name"><a href="{object.href}" data-object-detail>{#include icons/file /}<code>{object.key}</code></a><span class="file-kind">{object.kind}</span></div></th>
+              <td>{object.size}</td>
+              <td>{object.modified}</td>
+              <td><a class="table-action" href="{object.downloadHref}" aria-label="{ui.text('download')}: {object.key}">{#include icons/download /}<span>{ui.text('download')}</span></a></td>
+            </tr>
           {/for}
         </tbody>
       </table>
@@ -74,5 +80,18 @@
         {/if}
       </nav>
     </section>
+    <dialog id="object-drawer" class="object-drawer" aria-labelledby="drawer-title" aria-modal="true"
+      data-loading-label="{ui.text('drawerLoading')}" data-failed-label="{ui.text('drawerFailed')}">
+      <div class="drawer-heading">
+        <h2 id="drawer-title">{ui.text('objectDetails')}</h2>
+        <button type="button" data-drawer-close autofocus>{ui.text('closeDetails')}</button>
+      </div>
+      <p id="drawer-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <div class="drawer-navigation">
+        <button type="button" data-drawer-retry hidden>{ui.text('retryDetails')}</button>
+        <a data-drawer-page>{ui.text('openFullDetails')}</a>
+      </div>
+      <div id="object-drawer-content" aria-busy="false"></div>
+    </dialog>
   {/content}
 {/include}

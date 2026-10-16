@@ -1,0 +1,10 @@
+{
+  "name": "stackemu-css-decision-spike",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@picocss/pico": "2.1.1",
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}

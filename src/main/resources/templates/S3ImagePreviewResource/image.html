@@ -1,0 +1,19 @@
+{#include layout}
+  {#title}{ui.text('imagePreview')}{/title}
+  {#content}
+    <h1>{ui.text('imagePreview')}</h1>
+    <p>{ui.text('targetBucket')}: <code>{view.bucket}</code></p>
+    <h2 class="object-key">{view.key}</h2>
+    <p>{ui.text('previewImageNote')}</p>
+    <p id="image-preview-status" role="status" data-image-status
+      data-loading="{ui.text('previewImageLoading')}"
+      data-success="{ui.text('previewImageReady')}"
+      data-failure="{ui.text('previewImageFailed')}">{ui.text('previewImageFallback')}</p>
+    <img class="image-preview" data-image-preview src="{view.contentHref}"
+      alt="{ui.text('previewImageAlt')}" aria-describedby="image-preview-status">
+    <nav class="preview-navigation" aria-label="{ui.text('objectActions')}">
+      <a class="button primary" href="{view.downloadHref}">{ui.text('download')}</a>
+      <a href="{view.objectHref}">{ui.text('backToDetails')}</a>
+    </nav>
+  {/content}
+{/include}

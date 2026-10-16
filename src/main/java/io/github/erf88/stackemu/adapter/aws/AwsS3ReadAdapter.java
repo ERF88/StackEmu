@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.EncodingType;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @ApplicationScoped
@@ -63,6 +64,7 @@ public class AwsS3ReadAdapter implements S3ReadPort {
                       .bucket(bucket)
                       .prefix(prefix)
                       .delimiter("/")
+                      .encodingType(EncodingType.URL)
                       .continuationToken(token)
                       .maxKeys(pageSize));
       if (Boolean.TRUE.equals(response.isTruncated())

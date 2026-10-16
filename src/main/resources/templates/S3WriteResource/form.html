@@ -1,10 +1,15 @@
 {#include layout}
   {#title}{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}{/title}
   {#content}
+    {#if view.upload}<div id="mutation-workspace" tabindex="-1" data-page-title="{ui.text('uploadObject')} · StackEmu">{/if}
     <h1>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</h1>
     <p>{#include icons/warning /}{ui.text('writeSafety')}</p>
     {#if !view.message.isEmpty}<p role="alert" class="error">{ui.text(view.message)}</p>{/if}
-    <form class="mutation-form" aria-busy="false" data-submitting-label="{ui.text('submitting')}" action="/s3/write/{view.action}" method="post" accept-charset="UTF-8" enctype="{#if view.upload}multipart/form-data{#else}application/x-www-form-urlencoded{/if}">
+    <form class="mutation-form" aria-busy="false" data-submitting-label="{ui.text('submitting')}" action="/s3/write/{view.action}" method="post" accept-charset="UTF-8" enctype="{#if view.upload}multipart/form-data{#else}application/x-www-form-urlencoded{/if}"
+      {#if view.upload}data-upload-form hx-encoding="multipart/form-data"
+      data-upload-sending="{ui.text('uploadSending')}" data-upload-processing="{ui.text('uploadProcessing')}"
+      data-upload-uncertain="{ui.text('uploadUncertain')}" data-upload-rejected="{ui.text('uploadRejected')}"
+      data-drop-rejected="{ui.text('dropRejected')}" data-drop-selected="{ui.text('dropSelected')}"{/if}>
       <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
       <input type="hidden" name="lang" value="{ui.language}">
       <input type="hidden" name="theme" value="{ui.theme}">
@@ -29,7 +34,17 @@
         <label for="mutation-file">{ui.text('selectFile')}</label>
         <input id="mutation-file" type="file" name="file" required aria-describedby="upload-policy file-help{#if view.errors.containsKey('file')} file-error{/if}{#if view.errors.containsKey('prefix')} prefix-error{/if}" {#if view.errors.containsKey('file')}aria-invalid="true"{/if}>
         <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUpload} B. {ui.text('fileReselect')}</p>
+        <div class="upload-dropzone" data-upload-drop hidden>
+          <p id="upload-drop-hint">{ui.text('dropHint')}</p>
+          <button type="button" data-upload-picker aria-describedby="upload-drop-hint">{ui.text('chooseUploadFile')}</button>
+        </div>
+        <p data-drop-status role="status" aria-live="polite" aria-atomic="true"></p>
         {#if view.errors.containsKey('file')}<p id="file-error" class="error" role="alert">{ui.text(view.errors.get('file'))}</p>{/if}
+        <div class="upload-progress" data-upload-progress hidden>
+          <label for="upload-progress">{ui.text('uploadTransferLabel')}</label>
+          <progress id="upload-progress" max="100"></progress>
+          <p data-upload-status role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
       {/if}
       <label class="confirmation-field"><input type="checkbox" name="confirm" value="yes" required {#if view.errors.containsKey('confirm')}aria-invalid="true" aria-describedby="confirm-error"{/if}> {ui.text('confirmMutation')}</label>
       {#if view.errors.containsKey('confirm')}<p id="confirm-error" class="error" role="alert">{ui.text(view.errors.get('confirm'))}</p>{/if}
@@ -42,5 +57,8 @@
       <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
     </section>{/if}
     <a href="/?{ui.query}">{ui.text('dashboard')}</a>
+    {#if view.upload}
+      <p><a href="{view.bucketHref}&{ui.query}">{ui.text('backToObjects')}</a> · <a href="{ui.page}&{ui.query}">{ui.text('reloadUploadForm')}</a></p>
+    </div>{/if}
   {/content}
 {/include}

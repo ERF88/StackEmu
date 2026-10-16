@@ -62,6 +62,10 @@ public class S3WriteResource {
     public boolean upload() {
       return action.equals("upload");
     }
+
+    public String bucketHref() {
+      return S3ViewMapper.bucketPath(bucket, key, null);
+    }
   }
 
   @CheckedTemplate
@@ -130,7 +134,9 @@ public class S3WriteResource {
       @RestForm String theme)
       throws IOException {
     try {
-      return mutate("upload", bucket, prefix, confirm, file, lang, theme);
+      return Response.fromResponse(mutate("upload", bucket, prefix, confirm, file, lang, theme))
+          .header("X-StackEmu-Upload", "workspace")
+          .build();
     } finally {
       // The name comes from Quarkus, never from the client-supplied filename or key.
       if (file != null) {

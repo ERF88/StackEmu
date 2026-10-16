@@ -1,5 +1,17 @@
 # Design system direction / Direção do design system
 
+## Next visual/UX cycle / Próximo ciclo visual/UX
+
+UX-1 implements Slate neutrals, one developer-blue accent (`#93c5fd` dark / `#1d4ed8` light), generated local CSS and incremental shell utilities. Desktop sidebar is 256px, sticky and independently scrollable, reserving space for the full keyboard-focus outline. At 900px and below it returns to document flow and stretches to fill its grid row, preserving the mobile panel background. Header minimum is 80px; layout uses 8px rhythm with documented 4px dense/optical exceptions and 44px minimum controls. [Build ownership](development/frontend-build.md) governs sources/output and literal classes; [fresh verification and acceptance](spikes/ux-1-results.md) is separate from historical E1–E7/UX-0 evidence.
+
+UX-1 implementa neutros Slate, azul adaptado por tema, CSS local gerado e utilitários no shell. Sidebar desktop de 256px sticky/rolável, com espaço para o contorno de foco inteiro; até 900px volta ao fluxo e preenche a linha do grid, preservando o fundo mobile. Header mínimo de 80px, ritmo de 8px e exceções de 4px, sem reduzir alvos de 44px. Guias vinculados registram fontes/gerados e validação/aceite atual, separados das evidências históricas.
+
+Historical UX-0 selected Tailwind/CLI 4.3.3 without Preflight through an isolated prototype; [results and limits](spikes/ux-0-css-results.md) record that comparison before production migration. / UX-0 histórico selecionou Tailwind/CLI sem Preflight via protótipo isolado; resultados/limites vinculados registram a comparação anterior à migração do produto.
+
+The [UX-0–7 plan](product/visual-ux-evolution.md) is the current evolution backlog: staged build-time Tailwind migration, 8px rhythm/neutral palette, explorer/drawer, accessible single-file drop/progress and supplementary notifications. Automatic themes/sidebar/breadcrumbs already exist. Preview/deletion/presigning require separate capability gates. Candidate blue/amber colors are not approved contrast pairs. Existing E1–E7 sections describe the delivered baseline; the isolated selection does not silently supersede production tokens, utility restrictions, CSP or contracts. See [ADR-0013](decisions/ADR-0013-visual-ux-evolution.md).
+
+O plano UX-0–7 orienta migração Tailwind em etapas, ritmo de 8px/neutros, explorer/drawer, drop/progresso e notificações. Temas/sidebar/breadcrumbs já existem. Preview/exclusão/assinatura têm gates próprios; cores candidatas não têm contraste aprovado. Seleção isolada não altera silenciosamente tokens, CSS, CSP ou contratos de produção. Consultar ADR-0013.
+
 ## E7 acceptance boundary / Limite de aceite E7
 
 The [final validation record](spikes/redesign-e7-results.md) separates executed technical checks and representative screenshot inspection from pending human acceptance. E1–E6 evidence remains historical. P2 proposals are not enabled; legal/name validation, broader assistive-technology/browser review and release approval remain separate.

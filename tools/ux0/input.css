@@ -1,0 +1,22 @@
+/* Spike only: reuse the application reset/tokens; do not import Preflight. */
+@import "tailwindcss/theme.css" layer(tokens);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../../src/test/resources/ux0/prototype.html";
+
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="auto"], [data-theme="auto"] *) {
+      @slot;
+    }
+  }
+}
+
+@theme inline {
+  --color-panel: var(--color-surface-1);
+  --color-ink: var(--color-text);
+}

@@ -40,6 +40,9 @@ public class S3Resource {
 
     public static native TemplateInstance object(S3ViewMapper.ObjectPageView view, UiContext ui);
 
+    public static native TemplateInstance objectPanel(
+        S3ViewMapper.ObjectPageView view, UiContext ui);
+
     public static native TemplateInstance error(String message, UiContext ui);
   }
 
@@ -89,6 +92,37 @@ public class S3Resource {
           S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui), ui);
     } catch (S3ReadException failure) {
       throw pageError(failure, ui);
+    }
+  }
+
+  @GET
+  @Path("object-panel")
+  public Response showObjectPanel(
+      @QueryParam("bucket") String bucket,
+      @QueryParam("key") String key,
+      @QueryParam("lang") String lang,
+      @QueryParam("theme") String theme,
+      @HeaderParam("Accept-Language") String accept,
+      @HeaderParam("HX-Request") String hxRequest) {
+    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
+    try {
+      validateBucket(bucket);
+      validateKey(key, false);
+      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.objectPath(bucket, key));
+      var view = S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui);
+      boolean fragment = "true".equals(hxRequest);
+      var response =
+          Response.ok(
+              (fragment ? Templates.objectPanel(view, ui) : Templates.object(view, ui)).render());
+      if (fragment) response.header("X-StackEmu-Fragment", "object-details");
+      return response.header("Cache-Control", "no-store").header("Vary", "HX-Request").build();
+    } catch (S3ReadException failure) {
+      return Response.status(status(failure.kind()))
+          .type(MediaType.TEXT_PLAIN_TYPE)
+          .entity(ui.text(message(failure.kind())))
+          .header("Cache-Control", "no-store")
+          .header("Vary", "HX-Request")
+          .build();
     }
   }
 

@@ -1,5 +1,26 @@
 import { test, expect } from "@playwright/test";
 
+for (const language of ["en", "pt-BR"]) {
+  test(`short desktop sidebar preserves keyboard reachability: ${language}`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 320 });
+    await page.goto(`/?lang=${language}&theme=dark`);
+    const links = page.locator(".sidebar a");
+    await links.first().focus();
+    for (let index = 0; index < (await links.count()); index++) {
+      const link = links.nth(index);
+      await expect(link).toBeFocused();
+      const bounds = await link.boundingBox();
+      // Keep the 3px outline plus 4px offset inside the scroll viewport.
+      expect(bounds.y).toBeGreaterThanOrEqual(7);
+      expect(bounds.y + bounds.height).toBeLessThanOrEqual(313);
+      await page.keyboard.press("Tab");
+    }
+    expect(await page.locator(".sidebar").evaluate((sidebar) => sidebar.scrollTop)).toBeGreaterThan(
+      0,
+    );
+  });
+}
+
 for (const scheme of ["dark", "light"]) {
   test(`system theme and explicit overrides: ${scheme}`, async ({ page }, testInfo) => {
     await page.emulateMedia({ colorScheme: scheme });
@@ -8,12 +29,24 @@ for (const scheme of ["dark", "light"]) {
     const schemeValue = () =>
       page.evaluate(() => window.getComputedStyle(document.documentElement).colorScheme);
     expect(await schemeValue()).toBe(scheme);
-    for (const width of [360, 390, 1440, 1920]) {
+    for (const width of [360, 390, 900, 901, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       await expect(page.locator(".primary-navigation")).toHaveCSS(
         "display",
         width <= 900 ? "flex" : "grid",
       );
+      await expect(page.locator(".app-shell")).toHaveCSS("display", "grid");
+      await expect(page.locator(".sidebar")).toHaveCSS(
+        "position",
+        width <= 900 ? "static" : "sticky",
+      );
+      await expect(page.locator(".sidebar")).toHaveCSS(
+        "align-self",
+        width <= 900 ? "stretch" : "start",
+      );
+      if (width > 900) {
+        await expect(page.locator(".sidebar")).toHaveCSS("width", "256px");
+      }
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
         .toBe(true);
@@ -45,7 +78,8 @@ test("contrast, motion and forced-colors preferences", async ({ page }) => {
     );
   });
   expect(tokens[0]).toBe(tokens[1]);
-  expect(tokens[2]).toBe("0ms");
+  // The production CSS minifier may normalize equivalent zero time units.
+  expect(tokens[2]).toMatch(/^0(?:ms|s)$/);
   await page.emulateMedia({ forcedColors: "active" });
   await page.reload();
   await expect(page.locator(".primary-navigation [aria-current=page]")).toBeVisible();

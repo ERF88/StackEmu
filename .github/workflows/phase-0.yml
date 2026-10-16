@@ -13,7 +13,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run check
-      - run: docker run --rm -v "$PWD:/repo" -w /repo hadolint/hadolint:v2.12.0 hadolint Dockerfile
+      - run: docker run --rm -v "$PWD:/repo" -w /repo hadolint/hadolint:v2.12.0 hadolint Dockerfile tools/ux0/Dockerfile
       - run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7
       - run: docker compose config --quiet
       - shell: pwsh
@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: docker compose up -d ministack --wait
       - run: docker run --rm --network host -v "$PWD:/build" -w /build -e STACKEMU_INTEGRATION=true maven:3.9.11-eclipse-temurin-25 mvn -B -ntp clean verify
+      - run: docker run --rm -v "$PWD:/workspace" -w /workspace node:24.10.0 npm run spike:css
       - run: docker compose up --build -d --wait
       - shell: pwsh
         run: ./scripts/verify-container.ps1
@@ -34,7 +35,8 @@ jobs:
         run: ./scripts/smoke.ps1
       - shell: pwsh
         run: ./scripts/verify-writes.ps1
-      - run: docker run --rm --ipc=host --network host -v "$PWD:/repo" -w /repo mcr.microsoft.com/playwright:v1.64.1-noble bash -lc "npm ci --ignore-scripts --no-audit --no-fund && npm run test:browser"
+      - run: docker run --rm --ipc=host --network host -e STACKEMU_BROWSER_HOST_NETWORK=true -v "$PWD:/repo" -w /repo mcr.microsoft.com/playwright:v1.64.1-noble bash -lc "npm ci --ignore-scripts --no-audit --no-fund && node scripts/run-browser-local.mjs"
+      - run: docker run --rm --ipc=host --network host -v "$PWD:/repo" -w /repo mcr.microsoft.com/playwright:v1.64.1-noble node tools/ux0/check.mjs
       - run: docker compose -f compose.yaml -f compose.streaming-test.yaml up -d --no-deps gui
       - shell: pwsh
         run: ./scripts/verify-streaming.ps1
@@ -53,5 +55,8 @@ jobs:
             work/release/scan-summary.json
             work/browser-report.json
             work/browser-results/
+            work/ux0/*.json
+            work/ux0/*.png
+            work/ux0/license-*.txt
       - if: always()
         run: docker compose logs && docker compose down
