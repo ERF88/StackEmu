@@ -2,6 +2,8 @@
 
 ## Logical design / Desenho lógico
 
+Current web entry, 2026-10-20: [ADR-0020](../decisions/ADR-0020-service-catalog-navigation.md) separates `HomeResource` (catalog, no service I/O), `BucketsResource` (`/s3` page) and `BucketListFragmentResource` (existing `/buckets` read fragment). The latter two use the existing bucket-list port; no generic registry or application module is introduced. `/connection` remains S3-specific, not a global health service. The proposed logical diagram below is not a map of implemented Maven modules. / Entrada atual separa catálogo sem I/O, página S3 e fragmento existente, reutilizando o port sem novo módulo/catálogo genérico. Diagnóstico é S3, não saúde global; diagrama proposto abaixo não representa módulos implementados.
+
 The proposed application uses Quarkus REST and Qute for server rendering; htmx is limited to useful partial interactions. The browser talks to the app, not directly to the emulator. The app composes connection configuration, S3 use cases, UI, and an AWS SDK adapter. This is a logical boundary map, not proof that each component should be a Maven module on day one.
 
 ```mermaid
@@ -28,4 +30,4 @@ O navegador conversa com a aplicação, não diretamente com o emulador. A aplic
 
 ## Open validation / Validação em aberto
 
-Validate Quarkus extension names/BOM/toolchain, AWS endpoint override and path-style behavior, CDI/Jandex behavior for libraries, Qute template collisions, htmx CSRF/error/history behavior, and container-to-container networking. See [spikes](../spikes/).
+Validate Quarkus extension names/BOM/toolchain, AWS endpoint override and path-style behavior, CDI/Jandex behavior for libraries, Qute template collisions, htmx CSRF/error/history behavior, and container-to-container networking. See [spikes](../evidence/).

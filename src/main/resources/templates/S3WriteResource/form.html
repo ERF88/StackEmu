@@ -2,6 +2,10 @@
   {#title}{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}{/title}
   {#content}
     {#if view.upload}<div id="mutation-workspace" tabindex="-1" data-page-title="{ui.text('uploadObject')} · StackEmu">{/if}
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}">
+      {#if view.createBucket}<a href="/s3?{ui.query}">{#include icons/back /}{ui.text('backToS3')}</a>
+      {#else}<a href="{view.bucketHref}&{ui.query}">{#include icons/back /}{ui.text('backToObjects')}</a>{/if}
+    </nav>
     <h1>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</h1>
     <p>{#include icons/warning /}{ui.text('writeSafety')}</p>
     {#if !view.message.isEmpty}<p role="alert" class="error">{ui.text(view.message)}</p>{/if}
@@ -13,6 +17,7 @@
       <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
       <input type="hidden" name="lang" value="{ui.language}">
       <input type="hidden" name="theme" value="{ui.theme}">
+      <input type="hidden" name="density" value="{ui.density}">
       <label for="mutation-bucket">{ui.text('targetBucket')}</label>
       <input id="mutation-bucket" name="bucket" value="{view.bucket}" required {#if !view.createBucket}readonly{/if} {#if view.errors.containsKey('bucket')}aria-invalid="true" aria-describedby="bucket-error"{/if}>
       {#if view.errors.containsKey('bucket')}<p id="bucket-error" class="error" role="alert">{ui.text(view.errors.get('bucket'))}</p>{/if}
@@ -36,7 +41,7 @@
         <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUpload} B. {ui.text('fileReselect')}</p>
         <div class="upload-dropzone" data-upload-drop hidden>
           <p id="upload-drop-hint">{ui.text('dropHint')}</p>
-          <button type="button" data-upload-picker aria-describedby="upload-drop-hint">{ui.text('chooseUploadFile')}</button>
+          <button class="button" type="button" data-upload-picker aria-describedby="upload-drop-hint">{#include icons/upload /}{ui.text('chooseUploadFile')}</button>
         </div>
         <p data-drop-status role="status" aria-live="polite" aria-atomic="true"></p>
         {#if view.errors.containsKey('file')}<p id="file-error" class="error" role="alert">{ui.text(view.errors.get('file'))}</p>{/if}
@@ -48,7 +53,7 @@
       {/if}
       <label class="confirmation-field"><input type="checkbox" name="confirm" value="yes" required {#if view.errors.containsKey('confirm')}aria-invalid="true" aria-describedby="confirm-error"{/if}> {ui.text('confirmMutation')}</label>
       {#if view.errors.containsKey('confirm')}<p id="confirm-error" class="error" role="alert">{ui.text(view.errors.get('confirm'))}</p>{/if}
-      <button class="button primary" type="submit">{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</button>
+      <button class="button primary" type="submit">{#if view.createBucket}{#include icons/add /}{#else}{#if view.upload}{#include icons/upload /}{#else}{#include icons/folder /}{/if}{/if}<span data-submit-label>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</span></button>
     </form>
     <p id="submission-status" class="request-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
     {#if !view.upload}<section class="resource-panel">
@@ -56,9 +61,8 @@
       <p>{ui.text('cliHelp')}</p>
       <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
     </section>{/if}
-    <a href="/?{ui.query}">{ui.text('dashboard')}</a>
     {#if view.upload}
-      <p><a href="{view.bucketHref}&{ui.query}">{ui.text('backToObjects')}</a> · <a href="{ui.page}&{ui.query}">{ui.text('reloadUploadForm')}</a></p>
+      <p><a class="button" href="{ui.page}&{ui.query}">{#include icons/refresh /}{ui.text('reloadUploadForm')}</a></p>
     </div>{/if}
   {/content}
 {/include}

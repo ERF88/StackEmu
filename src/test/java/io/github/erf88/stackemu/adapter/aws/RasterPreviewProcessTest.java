@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
@@ -201,7 +202,9 @@ class RasterPreviewProcessTest {
         System.err.write(new byte[1024 * 1024]);
         System.out.print("done");
       } else {
-        Files.writeString(Path.of("pid"), Long.toString(ProcessHandle.current().pid()));
+        // Publish readiness only after the complete PID is written in the fixture file.
+        Files.writeString(Path.of("pid-pending"), Long.toString(ProcessHandle.current().pid()));
+        Files.move(Path.of("pid-pending"), Path.of("pid"), StandardCopyOption.ATOMIC_MOVE);
         Thread.sleep(30000);
       }
     }

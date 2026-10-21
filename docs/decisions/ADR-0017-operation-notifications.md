@@ -21,6 +21,6 @@ Sem capacidade destrutiva/modal nesta fatia. ADR da capacidade deve definir vers
 
 ## Verification and limits / Verificação e limites
 
-Require fresh Java 25/local MiniStack, real native/enhanced operations, no-JS, languages/themes, keyboard dismissal, focus/live-region assertions, responsive/axe checks and baseline integrity. Retention policy is indefinite, not a screen-reader announcement guarantee. Human assistive-technology acceptance, legal/name validation and publication remain pending. Evidence: [UX-4 execution](../spikes/ux-4-results.md).
+Require fresh Java 25/local MiniStack, real native/enhanced operations, no-JS, languages/themes, keyboard dismissal, focus/live-region assertions, responsive/axe checks and baseline integrity. Retention policy is indefinite, not a screen-reader announcement guarantee. Human assistive-technology acceptance, legal/name validation and publication remain pending. Evidence: [UX-4 execution](../evidence/ux-4-results.md).
 
 Exigir evidência nova Java/MiniStack, operações reais, sem JS, idiomas/temas, teclado, foco/live, responsividade/axe e referências. Retenção indefinida não comprova anúncio por leitor de tela. Aceite humano, nome/jurídico e publicação pendentes.

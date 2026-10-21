@@ -38,11 +38,14 @@ public class S3ImagePreviewResource {
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String accept) {
-    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, density, "/s3");
     try {
       validateTarget(bucket, key);
-      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.imagePreviewPath(bucket, key));
+      ui =
+          UiContext.resolve(
+              lang, accept, theme, density, S3ViewMapper.imagePreviewPath(bucket, key));
       var view =
           new ImagePreviewPageView(
               bucket,
@@ -71,7 +74,7 @@ public class S3ImagePreviewResource {
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @HeaderParam("Accept-Language") String accept) {
-    UiContext ui = UiContext.resolve(lang, accept, null, "/");
+    UiContext ui = UiContext.resolve(lang, accept, null, "/s3");
     try {
       validateTarget(bucket, key);
       var preview = previewer.readImagePreview(bucket, key);

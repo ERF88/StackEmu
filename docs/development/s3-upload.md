@@ -24,6 +24,6 @@ Wrapper somente em upload; templates completos permanecem fallback. Marcador ape
 
 ## Evidence / Evidência
 
-The real 1 MiB transport spike and focused/full verification are tracked in [UX-3 execution](../spikes/ux-3-results.md). Use local MiniStack only. Distinguish real uploads/hash/MIME/CSRF/limits from held-response, shortened-timeout and synthetic-progress fixtures. Native no-JS, responsive/themes/languages, keyboard/axe, error recovery and baseline integrity are required. Automated checks do not replace human assistive-technology review. Preview, deletion, clipboard URL/ARN, signing and copy/move remain separate first-delivery work; legal/name validation is pending.
+The real 1 MiB transport spike and focused/full verification are tracked in [UX-3 execution](../evidence/ux-3-results.md). Use local MiniStack only. Distinguish real uploads/hash/MIME/CSRF/limits from held-response, shortened-timeout and synthetic-progress fixtures. Native no-JS, responsive/themes/languages, keyboard/axe, error recovery and baseline integrity are required. Automated checks do not replace human assistive-technology review. Preview, deletion, clipboard URL/ARN, signing and copy/move remain separate first-delivery work; legal/name validation is pending.
 
 Registro vinculado distingue upload real de simulações, exige fallback/idiomas/temas/teclado/axe/erros/baselines e não substitui revisão humana. Demais capacidades continuam no escopo com gates próprios; nome/jurídico pendentes.

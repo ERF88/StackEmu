@@ -109,16 +109,28 @@ class AwsS3PreviewAdapterTest {
   }
 
   private void assertBodyDeadline(boolean trickle, boolean image) throws Exception {
+    assertBodyDeadline(trickle, image, 200);
+  }
+
+  private void assertBodyDeadline(boolean trickle, boolean image, int status) throws Exception {
     var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     var release = new CountDownLatch(1);
     var executor = Executors.newVirtualThreadPerTaskExecutor();
+    var closeRequested = new AtomicBoolean();
     server.setExecutor(executor);
     server.createContext(
         "/",
         exchange -> {
           try {
+            closeRequested.set(
+                "close".equalsIgnoreCase(exchange.getRequestHeaders().getFirst("Connection")));
             exchange.getResponseHeaders().set("Content-Type", image ? "image/png" : "text/plain");
-            exchange.sendResponseHeaders(200, 65536);
+            if (status != 200) exchange.getResponseHeaders().set("Content-Type", "application/xml");
+            exchange.sendResponseHeaders(status, 65536);
+            if (status != 200)
+              exchange
+                  .getResponseBody()
+                  .write("<Error><Message>".getBytes(java.nio.charset.StandardCharsets.UTF_8));
             do {
               exchange.getResponseBody().write('x');
               exchange.getResponseBody().flush();
@@ -152,8 +164,94 @@ class AwsS3PreviewAdapterTest {
                       if (image) adapter.readImagePreview("bucket", "a.png");
                       else adapter.readTextPreview("bucket", "a.txt");
                     });
-            assertEquals(S3ReadException.Kind.UNAVAILABLE, failure.kind());
+            if (status == 200) assertEquals(S3ReadException.Kind.UNAVAILABLE, failure.kind());
+            else
+              assertTrue(
+                  failure.kind() == S3ReadException.Kind.FORBIDDEN
+                      || failure.kind() == S3ReadException.Kind.UNAVAILABLE,
+                  "A 403 or transport interruption must remain a sanitized failure");
           });
+      assertTrue(
+          closeRequested.get(), "Preview requests must ask the peer to close the connection");
+    } finally {
+      release.countDown();
+      server.stop(0);
+      executor.close();
+    }
+  }
+
+  @Test
+  void repeatedStalledAndTricklingBodiesKeepExistingDeadlines() throws Exception {
+    for (int iteration = 0; iteration < 2; iteration++) {
+      for (boolean image : new boolean[] {false, true}) {
+        assertBodyDeadline(false, image);
+        assertBodyDeadline(true, image);
+      }
+    }
+  }
+
+  @Test
+  void stalledAndTricklingErrorBodiesKeepExistingDeadlines() throws Exception {
+    assertBodyDeadline(false, false, 403);
+    assertBodyDeadline(true, true, 403);
+  }
+
+  @Test
+  void metadataRefusalDoesNotDrainAndOwnedClientClosePreservesConfiguredClient() throws Exception {
+    var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+    var release = new CountDownLatch(1);
+    var executor = Executors.newVirtualThreadPerTaskExecutor();
+    var closeRequested = new AtomicBoolean();
+    server.setExecutor(executor);
+    server.createContext(
+        "/",
+        exchange -> {
+          try {
+            if (exchange.getRequestURI().getPath().endsWith("rejected.html")) {
+              closeRequested.set(
+                  "close".equalsIgnoreCase(exchange.getRequestHeaders().getFirst("Connection")));
+              exchange.getResponseHeaders().set("Content-Type", "text/html");
+              exchange.sendResponseHeaders(200, 65536);
+              exchange.getResponseBody().write('x');
+              exchange.getResponseBody().flush();
+              release.await();
+            } else {
+              byte[] bytes = "original".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+              exchange.getResponseHeaders().set("Content-Type", "text/plain");
+              exchange.sendResponseHeaders(200, bytes.length);
+              exchange.getResponseBody().write(bytes);
+            }
+          } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+          } finally {
+            exchange.close();
+          }
+        });
+    server.start();
+    try (var configuredClient =
+        S3Client.builder()
+            .endpointOverride(URI.create("http://127.0.0.1:" + server.getAddress().getPort()))
+            .region(Region.US_EAST_1)
+            .forcePathStyle(true)
+            .credentialsProvider(
+                StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
+            .httpClientBuilder(
+                UrlConnectionHttpClient.builder().socketTimeout(Duration.ofSeconds(20)))
+            .build()) {
+      try (var adapter = new AwsS3PreviewAdapter(configuredClient, new RasterPreviewProcess())) {
+        assertTimeoutPreemptively(
+            Duration.ofSeconds(7),
+            () ->
+                assertEquals(
+                    S3PreviewPort.PreviewState.UNSUPPORTED,
+                    adapter.readTextPreview("bucket", "rejected.html").state()));
+        assertTrue(closeRequested.get());
+      }
+      assertEquals(
+          "original",
+          configuredClient
+              .getObjectAsBytes(request -> request.bucket("bucket").key("original.txt"))
+              .asUtf8String());
     } finally {
       release.countDown();
       server.stop(0);

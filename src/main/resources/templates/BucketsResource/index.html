@@ -1,20 +1,20 @@
 {#include layout}
-  {#title}{ui.text('dashboard')}{/title}
+  {#title}S3{/title}
   {#content}
     <div class="page-heading">
-      <div><p class="eyebrow">S3 · {ui.text('workspace')}</p><h1>{ui.text('dashboard')}</h1><p>{ui.text('scope')}</p></div>
+      <div><p class="eyebrow">{ui.text('services')}</p><h1>S3</h1><p>{ui.text('s3Description')}</p></div>
       <div class="page-actions">
     <a class="button primary" href="/s3/write?action=bucket&amp;{ui.query}">{#include icons/add /}{ui.text('createBucket')}</a>
     <a
       class="button"
-      href="/?{ui.query}"
+      href="/s3?{ui.query}"
       hx-get="/buckets?{ui.query}"
       hx-target="#bucket-panel"
       hx-swap="outerHTML"
       hx-indicator="#loading"
       hx-sync="this:drop"
       data-refresh-panel
-    >{#include icons/refresh /}{ui.text('refresh')}</a>
+    >{#include icons/refresh /}{ui.text('refreshList')}</a>
     <span id="loading" class="request-feedback" role="status" aria-live="polite" aria-atomic="true" data-loading-label="{ui.text('loading')}" data-failed-label="{ui.text('refreshFailed')}"></span>
       </div>
     </div>

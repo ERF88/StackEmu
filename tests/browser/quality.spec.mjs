@@ -70,6 +70,8 @@ for (const language of ["en", "pt-BR"]) {
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
         .toBe(true);
+      await page.locator(".service-card a").click();
+      await audit(page, testInfo, "s3-mobile");
       const refresh = page.locator("[hx-get]");
       const response = page.waitForResponse((r) => r.url().includes("/buckets?"));
       await refresh.focus();
@@ -103,10 +105,8 @@ for (const language of ["en", "pt-BR"]) {
         await expect(page.locator(".sidebar")).toHaveCSS("display", "flex");
         await audit(page, testInfo, scene);
         if (scene === "unavailable") {
-          await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
-            "data-bucket-count",
-            "unknown",
-          );
+          await expect(page.locator("[data-bucket-count]")).toHaveCount(0);
+          await expect(page.locator(".service-connection .error")).toBeVisible();
         }
         await page.unroute("**/*");
       }
@@ -205,7 +205,7 @@ test("browser S3 writes, original file download, validation and security", async
         await expect(quickDownload).toHaveAccessibleName(
           `${language === "en" ? "Download as attachment" : "Baixar como anexo"}: ${key}`,
         );
-        await expect(quickDownload).toHaveCSS("min-height", "44px");
+        await expect(quickDownload).toHaveCSS("min-height", "48px");
         await audit(page, testInfo, `e4-bucket-${language}-${theme}`);
         for (const width of [360, 390, 1440, 1920]) {
           await page.setViewportSize({ width, height: 900 });

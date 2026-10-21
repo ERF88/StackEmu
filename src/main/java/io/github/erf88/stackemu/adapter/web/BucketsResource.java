@@ -12,7 +12,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path("/")
+@Path("/s3")
 @Produces(MediaType.TEXT_HTML)
 public class BucketsResource {
   private final BucketListPort bucketList;
@@ -39,29 +39,16 @@ public class BucketsResource {
   }
 
   @GET
-  public TemplateInstance showDashboard(
+  public TemplateInstance showService(
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String accept) {
     BucketListSnapshot snapshot = bucketList.listBuckets();
     return Templates.index(
         snapshot.buckets(),
         snapshot.connected(),
-        UiContext.resolve(lang, accept, theme, "/"),
-        configuration);
-  }
-
-  @GET
-  @Path("buckets")
-  public TemplateInstance showBuckets(
-      @QueryParam("lang") String lang,
-      @QueryParam("theme") String theme,
-      @HeaderParam("Accept-Language") String accept) {
-    BucketListSnapshot snapshot = bucketList.listBuckets();
-    return Templates.buckets(
-        snapshot.buckets(),
-        snapshot.connected(),
-        UiContext.resolve(lang, accept, theme, "/"),
+        UiContext.resolve(lang, accept, theme, density, "/s3"),
         configuration);
   }
 }

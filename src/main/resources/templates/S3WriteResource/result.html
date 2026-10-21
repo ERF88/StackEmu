@@ -2,10 +2,11 @@
   {#title}{ui.text('writeCompleted')}{/title}
   {#content}
     {#if view.upload}<div id="mutation-workspace" tabindex="-1" data-page-title="{ui.text('writeCompleted')} · StackEmu">{/if}
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="/s3?{ui.query}">{#include icons/back /}{ui.text('backToS3')}</a></nav>
     <h1 data-operation-success>{#include icons/success /}{ui.text('writeCompleted')}</h1>
     <p>{ui.text('targetBucket')}: <code>{view.bucket}</code></p>
     {#if !view.createBucket}<p>{ui.text('targetKey')}: <code>{view.key}</code></p>{/if}
-    <a class="button primary" href="{destination}">{ui.text('openResource')}</a>
+    <a class="button primary" href="{destination}">{#include icons/chevron /}{ui.text('openResource')}</a>
     <h2>{ui.text('cliEquivalent')}</h2>
     <p>{ui.text('cliHelp')}</p>
     <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>

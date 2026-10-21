@@ -28,7 +28,7 @@ UID 10001, root somente leitura, tmpfs de 64 MiB, sem capabilities/escalada, mem
 
 ## CI and release gate / CI e gate
 
-The existing CI verifies Java/integration, style, container policy, real GUI writes, Chromium/axe and constrained streaming; then scans and stores selected reports for 14 days. Download reports from the run's artifacts. Image archives/cache and browser traces are not uploaded. Inspect scan results even when verification is green. See [release process](release.md), [ADR-0010](../decisions/ADR-0010-release-evidence.md) and [evidence](../spikes/phase-5-results.md).
+The existing CI verifies Java/integration, style, container policy, real GUI writes, Chromium/axe and constrained streaming; then scans and stores selected reports for 14 days. Download reports from the run's artifacts. Image archives/cache and browser traces are not uploaded. Inspect scan results even when verification is green. See [release process](release.md), [ADR-0010](../decisions/ADR-0010-release-evidence.md) and [evidence](../evidence/phase-5-results.md).
 
 CI verifica comportamento e política do container, escaneia e retém relatórios selecionados por 14 dias. Imagem exportada, cache e traces não são enviados. Ler achados mesmo com CI verde. Gate de publicação continua separado.
 

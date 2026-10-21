@@ -31,4 +31,4 @@ As rotas e o procedimento reproduzível acima valem para ambos os idiomas. Troca
 
 Execute a verificação Maven com Java 25 e `STACKEMU_INTEGRATION=true`. As fixtures usam nomes únicos e são removidas pelos testes. A prova adicional acima baixa 128 MiB com heap Java de 64 MiB e compara tamanho/SHA-256; não mede toda a memória do processo nem estabelece benchmark. Restaure o Compose normal no `finally`.
 
-Falhas antes dos cabeçalhos recebem mensagem segura localizada; falhas durante a transmissão interrompem o download sem acrescentar HTML. Range/retomada, seleção de versões e escritas pela GUI ainda não existem. Consulte as [evidências](../spikes/phase-2-results.md).
+Falhas antes dos cabeçalhos recebem mensagem segura localizada; falhas durante a transmissão interrompem o download sem acrescentar HTML. Range/retomada, seleção de versões e escritas pela GUI ainda não existem. Consulte as [evidências](../evidence/phase-2-results.md).

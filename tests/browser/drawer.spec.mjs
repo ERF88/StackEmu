@@ -82,6 +82,20 @@ for (const language of ["en", "pt-BR"]) {
       const drawer = page.getByRole("dialog");
       await expect(drawer).toBeVisible();
       await expect(drawer.locator(".object-key")).toHaveText(key);
+      const actions = drawer.locator(".object-panel-actions");
+      await expect(actions.locator('a[href^="/s3/download?"]')).toBeVisible();
+      await expect(actions.locator('a[href^="/s3/preview?"]')).toBeVisible();
+      await expect(actions.locator('a[href^="/s3/delete-object?"]')).toBeVisible();
+      for (const action of await actions.locator(".button").all())
+        expect((await action.boundingBox()).height).toBeGreaterThanOrEqual(48);
+      expect(
+        await actions.evaluate((element) =>
+          Boolean(
+            element.compareDocumentPosition(document.querySelector(".response-policy")) &
+              window.Node.DOCUMENT_POSITION_FOLLOWING,
+          ),
+        ),
+      ).toBe(true);
       await expect(drawer.locator("img, script, iframe")).toHaveCount(0);
       await expect(page.locator("[data-drawer-close]")).toBeFocused();
       await page.keyboard.press("Shift+Tab");
@@ -176,7 +190,7 @@ test("control-character keys keep exact API values and labelled encoded fallback
     });
   });
   await page.goto(`${bucketPath}&lang=en`);
-  await page.locator('a[data-object-detail][href*="line%0D%0Aend"]').click();
+  await page.locator('.object-name a[data-object-detail][href*="line%0D%0Aend"]').click();
   await expect(page.getByLabel("Object key", { exact: true })).toHaveValue(
     encodeURIComponent(controlKey),
   );
@@ -225,6 +239,7 @@ test("missing objects retain error state without old metadata", async ({ page })
   await page.getByRole("link", { name: otherKey, exact: true }).click();
   expect((await response).status()).toBe(404);
   await expect(page.locator("#drawer-status")).toContainText("Could not load");
+  await expect(page.locator(".drawer-feedback")).toBeVisible();
   await expect(page.locator("#object-drawer-content")).toBeEmpty();
   await expect(page.getByRole("button", { name: "Retry details", exact: true })).toBeVisible();
 });

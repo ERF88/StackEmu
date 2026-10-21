@@ -1,55 +1,61 @@
 # StackEmu
 
-> **Phase 5: delivery preparation.** StackEmu provides the S3 read/write slice, browser quality checks, a hardened local JVM container and SBOM/scan tooling. Public release remains gated; the MVP is still in development.
+A local cloud-service manager built with Java 25, Quarkus, Qute and htmx. S3 is the first implemented service.
 
-[Português (Brasil)](README.pt-BR.md)
+[Português (Brasil)](README.pt-BR.md) · [Documentation](docs/README.md) · [Current status](docs/status.md)
 
-## Status
+## Service entry — 2026-10-20
 
-The first current functional delivery now targets [full operational S3 management](docs/product/s3-management-scope.md), including preview, deletion, copy/move, clipboard and presigned download links. This is confirmed scope, not a claim those capabilities are already implemented; advanced bucket configuration is excluded.
+Home is now a service catalog without emulator calls. Open S3 at `/s3`; its bucket listing and `/connection` diagnostic run on demand. Status on Home is always “Not verified”, not global health. Existing `/#bucket-panel` bookmarks open Home, not buckets. Contributor gallery: `/components` remains directly accessible, outside product navigation. [Decision](docs/decisions/ADR-0020-service-catalog-navigation.md).
 
-The product name was selected on 13 October 2026, but legal/name validation is **pending**. The project repository is [ERF88/StackEmu](https://github.com/ERF88/StackEmu). Before a public release, validate package registries, Docker Hub, domain availability, and INPI records. StackEmu is not affiliated with AWS, MiniStack, LocalStack, or Moto.
+Current catalog implementation and local checks: [service-catalog evidence](docs/evidence/service-catalog-results.md). Final Linux/new-image comparison and maintainer acceptance remain pending.
 
-Phase 3 adds confirmed CSRF-protected forms and bounded uploads against MiniStack 1.5.25. See the [Phase 3 guide](docs/development/phase-3.md) and [executed evidence](docs/spikes/phase-3-results.md). There is no deletion, overwrite or resumable-upload UI; use only in trusted local development.
+Previous UI-only operational-shell refinement: [native preferences and contextual-action evidence](docs/evidence/quiet-shell-results.md). Existing actions are easier to reach; deletion, copy/move and presigning are still pending functional work, not completed by this UI slice.
 
-## Implemented stack
+## Single-object deletion — 2026-10-20
 
-UX-1 implements Slate/blue themes and a responsive shell with locally compiled Tailwind CSS, without Preflight; Node is build-only. See [CSS build rules](docs/development/frontend-build.md) and [verification and acceptance status](docs/spikes/ux-1-results.md). Pending UX stages are not implemented S3 capabilities.
+Object Actions, full details and the drawer now offer native exact-object deletion review. Confirmation is one-use, expires after five minutes and requires CSRF; versioned/unknown buckets and folder markers are refused. [Contract](docs/decisions/ADR-0021-single-object-deletion.md) · [Local evidence and remaining gates](docs/evidence/single-object-deletion-results.md). Bulk/prefix deletion, bucket empty/delete, copy/move and signing remain unfinished.
 
-Interface SVGs use [coolicons v4.1](https://coolicons.cool/) by Kryston Schwarze, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), not the application's MIT license. Selected icons are adapted into local Qute fragments; attribution, source revision and changes are recorded in [third-party notices](THIRD_PARTY_NOTICES.md).
+## Previous consolidated status — 2026-10-17
 
-Java 25, Quarkus 3.40.1, Qute, local htmx, CSS, Maven and AWS SDK for Java 2.x via the platform BOM. MiniStack 1.5.25 on amd64 is the tested baseline; other platforms/emulators are not certified.
+`0.1.0-SNAPSHOT`, in development; no release approval. Implemented: bucket/object browsing, prefixes/pagination, bucket/folder creation, bounded single-file upload, original attachment download, metadata drawer, bucket/key clipboard, upload progress, notifications and bounded text/PNG/JPEG previews. Deletion, copy/move and presigned URLs remain first-delivery requirements, not implemented capabilities.
 
-## Quick start — local development
+Latest consolidated verification: **107 Java tests and 157 pinned-Linux browser scenarios passed**, including 80 reviewed PNG comparisons against a fresh Linux/amd64 image, 128 MiB streaming with a 64 MiB heap and zero image-scan findings reported by the available databases. V4 was validated by the maintainer. [V6 evidence and limits](docs/evidence/visual-v6-results.md) preserve the initial failures, test-fixture fixes, database dates and pending human/immutable-commit/release gates. Daily execution is restored to host Java with only MiniStack in Docker; no release or publication is approved.
 
-Requires Docker Compose v2. The GUI connects to MiniStack through `http://ministack:4566`, published only at `127.0.0.1:8080`. The following was executed locally on Windows/amd64:
+## Preview
+
+Historical pre-catalog dashboard/bucket presentation fixtures from the versioned Linux visual baselines (not yet reconciled for the service-entry change), not live account data or screenshots of every current capability. Examples do not constitute human design/accessibility approval.
+
+![Dashboard presentation fixture, English dark theme](tests/browser/baselines/visual.spec.mjs/overview-en-dark-1440.png)
+
+![S3 bucket presentation fixture, English dark theme](tests/browser/baselines/visual.spec.mjs/bucket-en-dark-1440.png)
+
+## Quick start — local JVM
+
+From the repository root: install Java 25, Maven and Docker Desktop/Engine with Compose v2. Maven provisions pinned Node/npm build tools. Defaults: local MiniStack at `http://localhost:4566` and development-only `test` credentials. Remove any production `STACKEMU_*` overrides first.
 
 ```sh
-docker compose up --build -d --wait
+docker compose up -d --no-deps ministack --wait
+mvn -B -ntp package -DskipTests
+java -Xmx384m -XX:ActiveProcessorCount=2 -jar target/quarkus-app/quarkus-run.jar
 ```
 
-Open <http://127.0.0.1:8080/>. See [Phase 0 commands and tests](docs/development/phase-0.md) and [executed evidence and limitations](docs/spikes/phase-0-results.md). Stop using `docker compose down`; named volumes are retained.
+Open [StackEmu locally](http://127.0.0.1:8080/). The second command builds; it does **not** run tests. Daily development/testing uses the host JVM and local tools; Docker runs only the S3 emulator, with the GUI container stopped. New-image/container verification is reserved for the final stage. [Configuration](docs/configuration.md) · [Testing](docs/development/testing.md).
 
-## Documentation
+Stop Java with Ctrl+C; stop only the emulator with `docker compose stop ministack`. Named volumes retain development data. If 8080 is occupied, stop the previous local GUI first. The commands combine previously exercised operations; this exact three-command onboarding sequence still awaits an independent clean-user walkthrough. Linux/macOS onboarding is not claimed verified.
 
-- [Phase 4 quality evidence](docs/spikes/phase-4-results.md) and [human review checklist](docs/security-review.md)
-- [Phase 5 container/SBOM/scan](docs/development/phase-5.md) and [release gates](docs/development/release.md)
+## Limits and safety
 
-- [Naming and responsibility guidelines](docs/development/naming-and-responsibilities.md) and [class review](docs/architecture/naming-review.md)
+- Trusted local development only; no user authentication. Keep ports on loopback; never expose the GUI to the internet or target production resources.
+- MiniStack 1.5.25/amd64 is the tested reference; full S3, ARM64 and other emulator/browser compatibility are not certified.
+- Single-file upload defaults to 10 MiB; text preview to 64 KiB; static PNG/JPEG preview to 1 MiB input/output and documented image limits. No HTML/SVG/PDF/animated-image preview.
+- Deletion, overwrite, copy/move, presigning, versions and resumable transfers are not available in the GUI. Original download name/type/bytes remain separate from sanitized preview output.
+- Legal/name validation, human accessibility, independent onboarding, candidate-image scan/verification and explicit release approval remain pending.
 
-- [Phase 1 guide](docs/development/phase-1.md) and [validation](docs/spikes/phase-1-results.md)
+## Documentation and contribution
 
-- [Documentation inventory](docs/DOCUMENTATION_INVENTORY.md)
-- [Product roadmap](docs/product/roadmap.md) and [research hypotheses](docs/product/user-research.md)
-- [Architecture overview](docs/architecture/overview.md), [modules](docs/architecture/modules.md), and [emulator compatibility](docs/architecture/emulator-compatibility.md)
-- [Configuration](docs/configuration.md), [security](docs/security.md), [known limitations](docs/known-limitations.md), and [S3 scope](docs/services/s3.md)
-- [Design-system direction](docs/design-system.md)
-- [Development/testing](docs/development/testing.md), [release](docs/development/release.md), [ADRs](docs/decisions/)
+[Documentation index](docs/README.md) groups usage, contribution, decisions and evidence. [Status](docs/status.md) is the current snapshot; [history](docs/history.md) preserves phase context. See [S3 scope](docs/product/s3-management-scope.md), [limitations](docs/known-limitations.md), [SECURITY](SECURITY.md) and [CONTRIBUTING](CONTRIBUTING.md).
 
-## Safety
+Quarkus 3.40.1/Qute, AWS SDK through the platform BOM, local htmx and build-only Tailwind without Preflight; Node is not a production server. The application is MIT licensed; adapted coolicons use CC BY 4.0 separately. See [LICENSE](LICENSE), [third-party notices](THIRD_PARTY_NOTICES.md) and [code of conduct](CODE_OF_CONDUCT.md).
 
-The planned MVP has no user authentication and is intended only for a trusted local development environment. Bind published ports to loopback by default; never expose it to the internet. Read [SECURITY.md](SECURITY.md) before reporting a vulnerability.
-
-## Contributing and license
-
-See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and [LICENSE](LICENSE). The license is MIT; dependency licenses remain separate.
+`StackEmu` legal/registry/domain/INPI validation is pending. No affiliation with AWS, MiniStack, LocalStack or Moto is implied.

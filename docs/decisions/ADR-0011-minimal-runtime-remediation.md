@@ -24,4 +24,4 @@ Exigir suíte Java, GUI/S3/container, Chromium/axe e streaming, incluindo Unicod
 
 Reference: [official Temurin container variants](https://adoptium.net/installation/containers).
 
-Adoption evidence: [executed remediation results](../spikes/runtime-remediation-results.md), including final-image browser/streaming checks and a zero-finding scan retaining OS/Java inventories. / Adoção sustentada pelas evidências vinculadas, sem certificação de segurança completa.
+Adoption evidence: [executed remediation results](../evidence/runtime-remediation-results.md), including final-image browser/streaming checks and a zero-finding scan retaining OS/Java inventories. / Adoção sustentada pelas evidências vinculadas, sem certificação de segurança completa.

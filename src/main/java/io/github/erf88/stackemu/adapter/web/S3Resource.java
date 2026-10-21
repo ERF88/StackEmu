@@ -54,15 +54,18 @@ public class S3Resource {
       @QueryParam("token") String token,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String accept) {
     String prefix = requestedPrefix == null ? "" : requestedPrefix;
-    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, density, "/s3");
     try {
       validateBucket(bucket);
       validateKey(prefix, true);
       if (token != null && token.length() > 8192)
         throw new S3ReadException(S3ReadException.Kind.INVALID);
-      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.bucketPath(bucket, prefix, token));
+      ui =
+          UiContext.resolve(
+              lang, accept, theme, density, S3ViewMapper.bucketPath(bucket, prefix, token));
       int pageSize = Math.max(1, Math.min(1000, configuredPageSize));
       var details = reader.getBucketDetails(bucket);
       var listing =
@@ -82,12 +85,13 @@ public class S3Resource {
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String accept) {
-    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, density, "/s3");
     try {
       validateBucket(bucket);
       validateKey(key, false);
-      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.objectPath(bucket, key));
+      ui = UiContext.resolve(lang, accept, theme, density, S3ViewMapper.objectPath(bucket, key));
       return Templates.object(
           S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui), ui);
     } catch (S3ReadException failure) {
@@ -102,13 +106,14 @@ public class S3Resource {
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String accept,
       @HeaderParam("HX-Request") String hxRequest) {
-    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, density, "/s3");
     try {
       validateBucket(bucket);
       validateKey(key, false);
-      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.objectPath(bucket, key));
+      ui = UiContext.resolve(lang, accept, theme, density, S3ViewMapper.objectPath(bucket, key));
       var view = S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui);
       boolean fragment = "true".equals(hxRequest);
       var response =
@@ -134,7 +139,7 @@ public class S3Resource {
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @HeaderParam("Accept-Language") String accept) {
-    UiContext ui = UiContext.resolve(lang, accept, null, "/");
+    UiContext ui = UiContext.resolve(lang, accept, null, "/s3");
     try {
       validateBucket(bucket);
       validateKey(key, false);

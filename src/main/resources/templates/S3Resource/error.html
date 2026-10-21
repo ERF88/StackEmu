@@ -1,10 +1,10 @@
 {#include layout}
   {#title}{message}{/title}
   {#content}
-    <section role="alert">
+    <section class="resource-panel resource-state" role="alert">
       <h1 class="error">{#include icons/error /}{message}</h1>
-      <a href="/?{ui.query}">{ui.text('dashboard')}</a>
-      <a href="/connection?{ui.query}">{ui.text('connection')}</a>
+      <a class="button" href="/s3?{ui.query}">{#include icons/back /}{ui.text('backToS3')}</a>
+      <a class="button" href="/connection?{ui.query}">{#include icons/connection /}{ui.text('connectionDetails')}</a>
     </section>
   {/content}
 {/include}

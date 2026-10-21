@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="{ui.language}" data-theme="{ui.theme}">
+<html lang="{ui.language}" data-theme="{ui.theme}" data-density="{ui.density}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false,"includeIndicatorStyles":false}'>
     <meta name="color-scheme" content="{#if ui.theme == 'auto'}dark light{#else}{ui.theme}{/if}">
     {#if ui.theme == 'auto'}
-      <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-      <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+      <meta name="theme-color" content="#111113" media="(prefers-color-scheme: dark)">
+      <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
     {#else}
-      <meta name="theme-color" content="{#if ui.theme == 'light'}#f8fafc{#else}#0f172a{/if}">
+      <meta name="theme-color" content="{#if ui.theme == 'light'}#f5f5f7{#else}#111113{/if}">
     {/if}
     <title>{#insert title}{ui.text('workspace')}{/insert} · StackEmu</title>
     <link rel="icon" type="image/svg+xml" href="{inject:webAssets.faviconHref}">
@@ -26,58 +26,54 @@
             <rect width="48" height="48" rx="12" fill="#0f172a"/>
             <path d="m24 9 14 8-14 8-14-8 14-8Zm-14 15 14 8 14-8M10 31l14 8 14-8" stroke="#93c5fd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>StackEmu<small>{ui.text('consoleLabel')}</small></span>
+          <span>StackEmu</span>
         </a>
         <nav class="primary-navigation" aria-label="{ui.text('navigation')}">
-          <p class="nav-caption">{ui.text('workspace')}</p>
           <a href="/?{ui.query}" {#if ui.page == '/'}aria-current="page"{/if}>
-            {#include icons/dashboard /}<span>{ui.text('dashboard')}</span>
+            {#include icons/dashboard /}<span>{ui.text('home')}</span>
           </a>
           <p class="nav-caption">{ui.text('services')}</p>
-          <a href="/?{ui.query}#bucket-panel" {#if ui.page.startsWith('/s3')}aria-current="page"{/if}>
-            {#include icons/buckets /}<span>S3<small>{ui.text('objectStorage')}</small></span>
-          </a>
-          <a href="/connection?{ui.query}" {#if ui.page == '/connection'}aria-current="page"{/if}>
-            {#include icons/connection /}<span>{ui.text('connection')}</span>
+          <a href="/s3?{ui.query}" {#if ui.page.startsWith('/s3') || ui.page == '/connection'}aria-current="page"{/if}>
+            {#include icons/buckets /}<span>S3</span>
           </a>
         </nav>
-        <div class="sidebar-bottom">
-          <a class="tool-link" href="/components?{ui.query}" {#if ui.page == '/components'}aria-current="page"{/if}>
-            {#include icons/components /}<span>{ui.text('components')}</span>
-          </a>
-          <div class="local-notice">{#include icons/shield /}<p>{ui.text('local')}</p></div>
-        </div>
       </aside>
       <div class="workspace min-w-0">
-        <header class="workspace-header flex flex-wrap items-center justify-between gap-4 bg-panel">
+        <header class="workspace-header flex flex-wrap items-start justify-between gap-4 bg-panel">
           <div class="workspace-label">
-            <span class="eyebrow">{ui.text('consoleLabel')}</span>
-            <span>{ui.text('workspace')} <small>/ S3</small></span>
+            {#if ui.page != '/'}<span>{ui.contextLabel}</span>{/if}
+            {#if ui.page == '/'}
+              <a class="service-status-link" href="/connection?{ui.query}">S3 · {ui.text('notVerified')}</a>
+            {/if}
           </div>
-          <div class="preferences flex flex-wrap items-center gap-4">
-            <div class="language-controls" role="group" aria-label="{ui.text('languagePreferences')}">
-              {#include icons/language /}
-              <a href="{ui.english}" lang="en" {#if ui.language == 'en'}aria-current="true"{/if}>English</a>
-              <a href="{ui.portuguese}" lang="pt-BR" {#if ui.language == 'pt-BR'}aria-current="true"{/if}>Português</a>
-            </div>
-            <div class="theme-controls" role="group" aria-label="{ui.text('themePreferences')}">
-              <a href="{ui.themeLink('auto')}" title="{ui.text('themeAuto')}" {#if ui.theme == 'auto'}aria-current="true"{/if}>
-                {#include icons/system /}<span class="visually-hidden">{ui.text('themeAuto')}</span>
-              </a>
-              <a href="{ui.themeLink('light')}" title="{ui.text('themeLight')}" {#if ui.theme == 'light'}aria-current="true"{/if}>
-                {#include icons/sun /}<span class="visually-hidden">{ui.text('themeLight')}</span>
-              </a>
-              <a href="{ui.themeLink('dark')}" title="{ui.text('themeDark')}" {#if ui.theme == 'dark'}aria-current="true"{/if}>
-                {#include icons/moon /}<span class="visually-hidden">{ui.text('themeDark')}</span>
-              </a>
-            </div>
-          </div>
+          <button class="button preferences-trigger" type="button" popovertarget="preferences-panel">{#include icons/settings /}{ui.text('preferences')}</button>
+          <section id="preferences-panel" class="preferences preferences-panel" popover="auto" aria-labelledby="preferences-title">
+              <div class="preferences-heading"><h2 id="preferences-title">{ui.text('preferences')}</h2><button class="button preferences-close" type="button" popovertarget="preferences-panel" popovertargetaction="hide" aria-label="{ui.text('closePreferences')}">{#include icons/close /}</button></div>
+              <h3>{ui.text('languagePreferences')}</h3>
+              <div class="language-controls" role="group" aria-label="{ui.text('languagePreferences')}">
+                {#include icons/language /}
+                <a href="{ui.english}" lang="en" {#if ui.language == 'en'}aria-current="true"{/if}>English</a>
+                <a href="{ui.portuguese}" lang="pt-BR" {#if ui.language == 'pt-BR'}aria-current="true"{/if}>Português</a>
+              </div>
+              <h3>{ui.text('themePreferences')}</h3>
+              <div class="theme-controls" role="group" aria-label="{ui.text('themePreferences')}">
+                <a href="{ui.themeLink('auto')}" title="{ui.text('themeAuto')}" {#if ui.theme == 'auto'}aria-current="true"{/if}>
+                  {#include icons/system /}<span>{ui.text('themeAuto')}</span>
+                </a>
+                <a href="{ui.themeLink('light')}" title="{ui.text('themeLight')}" {#if ui.theme == 'light'}aria-current="true"{/if}>
+                  {#include icons/sun /}<span>{ui.text('themeLight')}</span>
+                </a>
+                <a href="{ui.themeLink('dark')}" title="{ui.text('themeDark')}" {#if ui.theme == 'dark'}aria-current="true"{/if}>
+                  {#include icons/moon /}<span>{ui.text('themeDark')}</span>
+                </a>
+              </div>
+          </section>
         </header>
         <main id="content" tabindex="-1">
           {#insert content /}
           <section class="operation-notice" data-operation-notice aria-label="{ui.text('operationNotification')}" hidden>
             <p data-notice-message aria-atomic="true"></p>
-            <button type="button" data-notice-dismiss>{ui.text('dismissNotification')}</button>
+            <button class="button" type="button" data-notice-dismiss>{#include icons/close /}{ui.text('dismissNotification')}</button>
           </section>
         </main>
         <footer>{ui.text('local')}</footer>

@@ -46,6 +46,6 @@ docker compose up -d --build gui
 ./scripts/verify-writes.ps1
 ```
 
-Use Java 25 and the established style checks. Tests create/remove only uniquely named fixtures; never run against production. See [evidence](../spikes/phase-3-results.md).
+Use Java 25 and the established style checks. Tests create/remove only uniquely named fixtures; never run against production. See [evidence](../evidence/phase-3-results.md).
 
 References: [Quarkus CSRF](https://quarkus.io/guides/security-csrf-prevention/), [REST uploads](https://quarkus.io/guides/rest/), [S3 conditional writes](https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html), [bucket naming](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).

@@ -1,5 +1,7 @@
 # Naming and responsibilities / Nomes e responsabilidades
 
+Scoped deletion lifecycle exception: [ADR-0021](../decisions/ADR-0021-single-object-deletion.md) owns an isolated no-retry client derived from public managed configuration, without altering the shared client/provider. This is required because installed SDK 2.54.13 has no request-level retry override. / Exceção delimitada para exclusão: cliente próprio sem retries, derivado da configuração pública, sem alterar cliente/provider compartilhado; SDK instalado não oferece override por requisição.
+
 Status: project baseline after Phase 2. These are StackEmu conventions, not a claim that one architecture is universally best. Read with [file conventions](code-style.md) and [ADR-0006](../decisions/ADR-0006-naming-responsibilities.md).
 
 ## English — naming

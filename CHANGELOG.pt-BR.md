@@ -6,22 +6,52 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ## [Não lançado]
 
+- Substituir expansores de Ações/Preferências por ações diretas e Preferências nativas não modais; padronizar botões com ícone/rótulo e retornos contextuais antes dos títulos. Preservar arquivo original, fallback e contratos de segurança. [Decisão](docs/decisions/ADR-0024-direct-actions-navigation.md) · [Checks locais](docs/evidence/direct-controls-results.md).
+
+- Iteração coesa de fluidez HIG pela ADR-0023: superfícies neutras sólidas, separadores discretos, navegação mobile compacta, breadcrumbs contínuos, metadados agrupados e feedback 100/200ms com redução de movimento. Substitui decoração V1 congelada; [checks novos e limites](docs/evidence/hig-fluidity-results.md), sem dispensar segurança ou alegar certificação.
+
+- Refinamento HIG do explorer: ajuda recolhível nativa, vazio acionável sem tabela sem linhas, ações existentes do drawer antes do conteúdo auxiliar e feedback sólido de carga/erro. Segurança, fallback e status HTTP preservados; [escopo e checks](docs/design/apple-hig-guidelines.md#explorer-and-state-slice--fatia-de-explorer-e-estados).
+
+- Primeira fatia HIG: botões de ação cápsula e variante destrutiva explícita na confirmação nativa de exclusão. Alvos, foco, rotas e gates preservados; [auditoria delimitada e verificação](docs/design/apple-hig-guidelines.md#first-controls-slice--primeira-fatia-de-controles), sem certificação HIG ou aceite do mantenedor.
+
+- Adotar a skill apple-hig-designer solicitada como padrão visual/UX, com adaptações para Qute/CSS, acessibilidade e segurança; instalação local sem dependência nova na GUI. [ADR-0022](docs/decisions/ADR-0022-apple-hig-design-baseline.md). É adoção de diretrizes, não migração visual concluída ou certificação HIG.
+
+- Exclusão individual exata com revisão nativa, confirmação limitada de uso único/cinco minutos, CSRF, recusa de versionamento e ETag condicional. Cliente SDK isolado e DELETE vazio de comprimento fixo impedem retries nos fixtures executados de 503/resposta perdida; incerteza permanece explícita. [Contrato e limites](docs/decisions/ADR-0021-single-object-deletion.md) · [Evidência local](docs/evidence/single-object-deletion-results.md).
+
+- Preferências nativas recolhidas, densidade nas listagens e ações por recurso; remoção de legendas/avisos repetidos. Spike local de condições de exclusão/versionamento, sem ativar operações destrutivas na GUI.
+
+- Início orientado a serviços sem consultas ao emulador; buckets em `/s3`, diagnóstico/status e atualização contextuais; galeria fora do menu de produto, ainda em `/components`. ADR-0020 preserva contratos de operações/segurança.
+
 ### Adicionado
 
-- UX-5B: preview S3 nativo bilíngue de PNG/JPEG estáticos limitados, validações/recusas e saída PNG nova em worker isolado; anexo original intacto, sem formatos ativos ou relaxar CSP. [Validação local e gates finais de imagem](docs/spikes/ux-5b-results.md).
+- Aceite visual V4 pelo mantenedor e validação local consolidada V6: imagem Linux/amd64 nova, 107 testes Java limpos no host, 157 casos completos Linux, 80 PNGs revisados/reconciliados deliberadamente, checks de contêiner/S3/CSRF, streaming 128 MiB/heap 64 MiB e zero achados reportados no scan de todas as severidades com inventários OS/Java. Fixtures de endpoint de densidade e seleção do shell corrigidas sem relaxar política/tolerâncias. [Execuções, comparação inicial com falhas e gates de release restantes](docs/evidence/visual-v6-results.md).
 
-- UX-5B: base de worker raster JDK isolado, entrada/saída limitadas, política de heap/espera e testes locais de ciclo de vida; sem ativar rota/UI de preview de imagens. [Contrato](docs/decisions/ADR-0019-raster-preview-isolation.md), [evidência](docs/spikes/ux-5b-worker-results.md).
+- V4 com entrada opcional de cards/transições CSS nativas entre documentos da mesma origem em 180ms, redução de movimento e feedback de clipboard confirmado com texto/borda persistentes em 120ms; navegação, skeletons estáticos, CSP e arquivos originais preservados. [Verificação nova e aceite pendente](docs/evidence/visual-v4-results.md).
 
-- UX-5A: preview separado de texto UTF-8/JSON-como-texto limitado, bytes estritos, página nativa escapada e fallback de anexo; sem conteúdo ativo/descompressão/imagens. [Contrato](docs/decisions/ADR-0018-bounded-text-preview.md), [verificação](docs/spikes/ux-5a-results.md).
+- Correção do transporte de preview: leitura/cleanup limitado sob um único owner no adaptador, socket 1s, regressões repetidas de corpo parado/lento e XML de erro incompleto, recusa de metadados e ciclo de vida do cliente comum; políticas de bytes/prazo/segurança preservadas. [Evidência nova e gates finais pendentes](docs/evidence/preview-transport-correction.md).
 
-- UX-4: avisos dispensáveis no fluxo, sem expiração, para resultados confirmados de bucket/pasta nativos e upload melhorado; fallback persistente sem JS e foco/live sem duplicidade. Contrato de diálogo destrutivo documentado, sem ativar exclusão/modal. [Verificação](docs/spikes/ux-4-results.md).
+- V3 com densidade confortável/compacta nativa por valores permitidos de URL/form, preservada na navegação e nos resultados; tokens de espaçamento, cabeçalhos/ícones mantidos, ações sempre visíveis com destaque no foco e regras de chave original/alvos 44px preservadas. [Verificação e aceite pendente](docs/evidence/visual-v3-results.md).
 
-- UX-3: drop/seletor individual e progresso nativo rotulado, separando transferência da confirmação do servidor; workspace verificado, proteção contra duplicidade e recuperação explícita sem retry automático do navegador. Preservados multipart nativo, CSRF, arquivo original e não sobrescrita. [Validação/aceite restante](docs/spikes/ux-3-results.md).
+- V2 com hierarquia do dashboard, diagnóstico nativo separado de Atualizar e skeleton estático do contador ligado ao estado real de carga. Fallback/avisos preservados, sem contagens inventadas ou API nova de saúde. [Execução e aceite pendente](docs/evidence/visual-v2-results.md).
+
+- V0 aceita com fontes do sistema/CSP atual; V1 com profundidade no canvas, brilho decorativo restrito, fallback de preferências acessíveis e moldura única de card/tabela. Checks locais e revisão Linux/aceite humano pendentes no [registro V1](docs/evidence/visual-v1-results.md). Densidade/movimento, D2–D6 e gates de release continuam pendentes.
+
+- Consolidação documental: READMEs pareados datados com capturas ilustrativas e início via JVM local, índice em quatro grupos, status/gates atuais, histórico e inventário de maturidade. Evidências movidas sem alterar conteúdo para `docs/evidence/`; checks locais de links/índice adicionados. Sem mudar runtime, política de idioma, decisões visuais ou aprovação de release.
+
+- UX-5B: preview S3 nativo bilíngue de PNG/JPEG estáticos limitados, validações/recusas e saída PNG nova em worker isolado; anexo original intacto, sem formatos ativos ou relaxar CSP. [Validação local e gates finais de imagem](docs/evidence/ux-5b-results.md).
+
+- UX-5B: base de worker raster JDK isolado, entrada/saída limitadas, política de heap/espera e testes locais de ciclo de vida; sem ativar rota/UI de preview de imagens. [Contrato](docs/decisions/ADR-0019-raster-preview-isolation.md), [evidência](docs/evidence/ux-5b-worker-results.md).
+
+- UX-5A: preview separado de texto UTF-8/JSON-como-texto limitado, bytes estritos, página nativa escapada e fallback de anexo; sem conteúdo ativo/descompressão/imagens. [Contrato](docs/decisions/ADR-0018-bounded-text-preview.md), [verificação](docs/evidence/ux-5a-results.md).
+
+- UX-4: avisos dispensáveis no fluxo, sem expiração, para resultados confirmados de bucket/pasta nativos e upload melhorado; fallback persistente sem JS e foco/live sem duplicidade. Contrato de diálogo destrutivo documentado, sem ativar exclusão/modal. [Verificação](docs/evidence/ux-4-results.md).
+
+- UX-3: drop/seletor individual e progresso nativo rotulado, separando transferência da confirmação do servidor; workspace verificado, proteção contra duplicidade e recuperação explícita sem retry automático do navegador. Preservados multipart nativo, CSRF, arquivo original e não sobrescrita. [Validação/aceite restante](docs/evidence/ux-3-results.md).
 
 - UX-2B: drawer modal nativo de metadados, fragmento Qute escapado/verificado, proteção contra resposta obsoleta, timeout/retry manual e clipboard de bucket/chave exatos com fallback selecionável. Sem preview, ARN, assinatura ou mutação implícitos; validação registrada separadamente.
 - Escopo operacional da primeira entrega ampliado pela ADR-0014, sem configurações avançadas. UX-2A implementa tamanhos IEC com bytes exatos, indícios de tipo pelo nome e download nativo; aprovação de escopo não comprova implementação de todas as capacidades.
 
-- UX-1: Tailwind fixado somente no build Maven/Docker, licença MIT empacotada, temas Slate/azul e utilitários delimitados no shell; sidebar desktop baixa acessível por teclado e preenchimento mobile restaurado. [Registro de validação/aceite](docs/spikes/ux-1-results.md); sem nova capacidade S3 ou publicação.
+- UX-1: Tailwind fixado somente no build Maven/Docker, licença MIT empacotada, temas Slate/azul e utilitários delimitados no shell; sidebar desktop baixa acessível por teclado e preenchimento mobile restaurado. [Registro de validação/aceite](docs/evidence/ux-1-results.md); sem nova capacidade S3 ou publicação.
 
 - UX-0: comparação isolada Tailwind/Pico com lockfile, fixtures Qute escapadas, build determinístico/relatórios e diagnóstico Chromium; Tailwind/CLI 4.3.3 sem Preflight selecionado para UX-1, sem alterar assets de produção.
 

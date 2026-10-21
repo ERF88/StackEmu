@@ -35,12 +35,13 @@ public class ConnectionResource {
   public TemplateInstance showConnection(
       @QueryParam("lang") String language,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String acceptLanguage) {
     var snapshot = bucketList.listBuckets();
     return Templates.connection(
         snapshot.buckets(),
         snapshot.connected(),
-        UiContext.resolve(language, acceptLanguage, theme, "/connection"),
+        UiContext.resolve(language, acceptLanguage, theme, density, "/connection"),
         configuration);
   }
 }

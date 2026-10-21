@@ -220,7 +220,9 @@ class S3ReadIntegrationTest {
     while (url != null) {
       String html =
           given().urlEncodingEnabled(false).get(url).then().statusCode(200).extract().asString();
-      var objects = Pattern.compile("href=\"(/s3/object[^\"]+)\"").matcher(html);
+      // Count resource entries, not the second Details link among the direct row actions.
+      var objects =
+          Pattern.compile("class=\"object-name\"><a href=\"(/s3/object\\?[^\"]+)\"").matcher(html);
       int entries = 0;
       while (objects.find()) {
         String link = objects.group(1).replace("&amp;", "&");

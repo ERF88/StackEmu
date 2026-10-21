@@ -2,6 +2,12 @@
 
 Read `docs/development/code-style.md`, `docs/development/naming-and-responsibilities.md` and applicable ADRs before changing code.
 
+Current visual authority: ADR-0023 explicitly permits cohesive HIG-driven redesign and supersedes frozen V1 decoration/visual recipes; do not treat historical colors, spacing or timings as permanent blockers. Security, accessibility, licensing and build contracts remain. / ADR-0023 autoriza reformulação coesa e substitui receitas visuais congeladas, sem dispensar segurança/acessibilidade/licenças/build.
+
+Current controls/navigation: read ADR-0024. It supersedes expanding Actions/Preferences with direct row actions, a native nonmodal Preferences popover, shared icon/label controls and contextual returns before titles. Preserve its no-JS/older-browser fallback and the service catalog. / ADR-0024 substitui expansores por ações diretas/popover e padroniza controles/retornos, mantendo fallback e catálogo.
+
+For visual/UX work, use the maintainer-requested `apple-hig-designer` skill and read `docs/design/apple-hig-guidelines.md` plus ADR-0022. Install/report an unavailable skill rather than ignoring it. Adapt to Qute/CSS, retaining project security, accessibility and build rules; do not import React, a global reset, Apple font/symbol assets or glass effects automatically. / Para visual/UX, usar a skill solicitada e o guia/ADR; adaptar à stack e preservar contratos, sem importar exemplos/efeitos indiscriminadamente.
+
 For visual/UX work also read `docs/product/visual-ux-evolution.md` and ADR-0013. UX stages are plans, not implemented capabilities. Keep current CSS conventions until UX-0 is accepted; preserve native fallbacks, CSP, CSRF, original-file policy and read/mutation boundaries. Preview, deletion and presigned URLs require their own documented gates; never infer working routes/bindings from the illustrative snippet. / Para UX, ler plano e ADR-0013; preservar fallback/segurança e não tratar exemplos como APIs implementadas.
 
 - Use English identifiers, purpose-revealing names and the documented role suffixes.

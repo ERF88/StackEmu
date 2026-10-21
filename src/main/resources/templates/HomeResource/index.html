@@ -1,0 +1,18 @@
+{#include layout}
+  {#title}{ui.text('home')}{/title}
+  {#content}
+    <div class="page-heading">
+      <div><h1>{ui.text('home')}</h1><p>{ui.text('homeDescription')}</p></div>
+    </div>
+    <section class="service-catalog" aria-labelledby="services-title">
+      <h2 id="services-title">{ui.text('availableServices')}</h2>
+      <div class="service-grid">
+        <article class="summary-card service-card">
+          <h3>{#include icons/buckets /}S3</h3>
+          <p>{ui.text('objectStorage')}</p>
+          <a class="button primary" href="/s3?{ui.query}">{ui.text('openS3')}{#include icons/chevron /}</a>
+        </article>
+      </div>
+    </section>
+  {/content}
+{/include}

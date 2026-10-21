@@ -15,9 +15,8 @@ for (const language of ["en", "pt-BR"]) {
       expect(bounds.y + bounds.height).toBeLessThanOrEqual(313);
       await page.keyboard.press("Tab");
     }
-    expect(await page.locator(".sidebar").evaluate((sidebar) => sidebar.scrollTop)).toBeGreaterThan(
-      0,
-    );
+    // Fewer links may fit without scrolling; keyboard visibility remains the contract.
+    await expect(page.locator(".sidebar a").last()).toBeVisible();
   });
 }
 
@@ -63,6 +62,7 @@ for (const scheme of ["dark", "light"]) {
     }
     await page.goto("/connection?lang=pt-BR&theme=auto");
     expect(await schemeValue()).toBe(scheme);
+    await page.locator(".preferences-trigger").click();
     await page.getByRole("link", { name: "English", exact: true }).click();
     await expect(page).toHaveURL(/lang=en&theme=auto/);
   });

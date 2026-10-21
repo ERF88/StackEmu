@@ -17,6 +17,10 @@ function refreshFeedback(event, busy) {
 document.addEventListener("htmx:beforeRequest", (event) => refreshFeedback(event, true));
 document.addEventListener("htmx:afterRequest", (event) => refreshFeedback(event, false));
 
+function submitLabel(button) {
+  return button.querySelector("[data-submit-label]") || button;
+}
+
 document.addEventListener("submit", (event) => {
   const form = event.target;
   if (!form.matches(".mutation-form") || event.defaultPrevented) return;
@@ -26,8 +30,8 @@ document.addEventListener("submit", (event) => {
   }
   form.setAttribute("aria-busy", "true");
   const button = form.querySelector('button[type="submit"]');
-  button.dataset.idleLabel = button.textContent;
-  button.textContent = form.dataset.submittingLabel;
+  button.dataset.idleLabel = submitLabel(button).textContent;
+  submitLabel(button).textContent = form.dataset.submittingLabel;
   button.disabled = true;
   document.getElementById("submission-status").textContent = form.dataset.submittingLabel;
 });
@@ -38,7 +42,7 @@ window.addEventListener("pageshow", () => {
     form.setAttribute("aria-busy", "false");
     const button = form.querySelector('button[type="submit"]');
     button.disabled = false;
-    if (button.dataset.idleLabel) button.textContent = button.dataset.idleLabel;
+    if (button.dataset.idleLabel) submitLabel(button).textContent = button.dataset.idleLabel;
   }
   const status = document.getElementById("submission-status");
   if (status) status.textContent = "";
@@ -184,16 +188,21 @@ document.addEventListener("click", async (event) => {
   const field = button.closest(".copy-field").querySelector("textarea");
   const status = panel.querySelector(".copy-status");
   status.textContent = "";
+  panel.dataset.copyState = "pending";
   button.disabled = true;
   try {
     if (!window.isSecureContext || !window.navigator.clipboard?.writeText) {
       throw new Error("Clipboard unavailable");
     }
     await window.navigator.clipboard.writeText(field.dataset.copyValue ?? field.value);
-    if (panel.isConnected) status.textContent = panel.dataset.copiedLabel;
+    if (panel.isConnected) {
+      status.textContent = panel.dataset.copiedLabel;
+      panel.dataset.copyState = "success";
+    }
   } catch {
     if (panel.isConnected) {
       status.textContent = panel.dataset.copyFailedLabel;
+      panel.dataset.copyState = "failure";
       field.focus();
       field.select();
     }
@@ -225,7 +234,7 @@ function initializeUploadEnhancement() {
     active = null;
     state.form.setAttribute("aria-busy", "false");
     for (const control of state.controls) control.disabled = false;
-    state.submit.textContent = state.idleLabel;
+    submitLabel(state.submit).textContent = state.idleLabel;
     state.form.querySelector('[name="confirm"]').checked = false;
     state.progress.removeAttribute("value");
     writeStatus(
@@ -291,7 +300,7 @@ function initializeUploadEnhancement() {
           form,
           submit,
           controls,
-          idleLabel: submit.textContent,
+          idleLabel: submitLabel(submit).textContent,
           status: form.querySelector("[data-upload-status]"),
           progress: form.querySelector("progress"),
           xhr: null,
@@ -327,7 +336,7 @@ function initializeUploadEnhancement() {
     state.form.querySelector("[data-upload-drop]").dataset.dragging = "false";
     state.progress.removeAttribute("value");
     writeStatus(state, state.form.dataset.submittingLabel);
-    state.submit.textContent = state.form.dataset.submittingLabel;
+    submitLabel(state.submit).textContent = state.form.dataset.submittingLabel;
     // htmx already captured FormData; disabling these controls cannot strip request fields.
     for (const control of state.controls) control.disabled = true;
     state.xhr.upload.addEventListener("progress", (native) => {

@@ -4,17 +4,47 @@ All notable changes will be documented in this file. This project intends to fol
 
 ## [Unreleased]
 
+- Replace expanding Actions/Preferences with direct resource actions and native nonmodal Preferences; standardize icon/label buttons and contextual returns before titles. Preserve original-file, native fallback and security contracts. [Decision](docs/decisions/ADR-0024-direct-actions-navigation.md) · [Local checks](docs/evidence/direct-controls-results.md).
+
+- Cohesive HIG fluidity iteration under ADR-0023: neutral solid surfaces, quieter separators, compact mobile navigation, continuous breadcrumbs, grouped metadata and 100/200ms feedback with reduced-motion fallback. Supersedes frozen V1 decoration; [fresh checks and limits](docs/evidence/hig-fluidity-results.md), without relaxing security or claiming certification.
+
+- HIG explorer refinement: native collapsible guidance, actionable empty-prefix state without an empty table, grouped existing drawer actions ahead of auxiliary content and solid loading/error surfaces. Security, native fallbacks and HTTP status contracts retained; [scope and checks](docs/design/apple-hig-guidelines.md#explorer-and-state-slice--fatia-de-explorer-e-estados).
+
+- First bounded HIG refinement: capsule action buttons and explicit semantic danger styling for native deletion confirmation. Existing targets, focus, routes and security gates retained; [scoped audit and verification](docs/design/apple-hig-guidelines.md#first-controls-slice--primeira-fatia-de-controles), not full HIG certification or maintainer acceptance.
+
+- Adopt the maintainer-requested apple-hig-designer skill as the visual/UX baseline, with project-specific Qute/CSS, accessibility and security adaptations; install locally without adding a GUI dependency. [ADR-0022](docs/decisions/ADR-0022-apple-hig-design-baseline.md). This is standards adoption, not a completed visual migration or HIG certification.
+
+- Single exact-object deletion with native review, bounded five-minute one-use confirmations, CSRF, version-state refusal and ETag-conditional mutation. Isolated SDK client plus explicit empty fixed-length DELETE prevent retries in tested 503/lost-response fixtures; uncertain outcomes remain explicit. [Contract and limits](docs/decisions/ADR-0021-single-object-deletion.md) · [Local evidence](docs/evidence/single-object-deletion-results.md).
+
+- Quieter native Preferences disclosure, listing-local density and per-resource action links; remove repeated captions/warnings. Add local conditional-delete/version-state readiness spike without enabling destructive GUI operations.
+
+- Service-oriented Home without emulator reads; dedicated `/s3` bucket workspace, contextual diagnostics/status and refresh; contributor gallery removed from product navigation, still available at `/components`. New ADR-0020 preserves existing operation/security contracts.
+
 ### Added
 
-- UX-5B native bilingual S3 image preview for bounded static PNG/JPEG, structural/refusal checks and isolated fresh-PNG output; original attachment unchanged, no active formats or CSP relaxation. [Local verification and remaining final-image gates](docs/spikes/ux-5b-results.md).
+- Maintainer V4 visual acceptance and V6 consolidated local validation: fresh Linux/amd64 image, 107 clean host Java tests, 157 full Linux browser cases, 80 deliberately reviewed/reconciled PNGs, container/S3/CSRF checks, 128 MiB/64 MiB heap streaming and zero reported all-severity scan findings with OS/Java inventories. Density endpoint and shell-selection test fixtures corrected, no product-policy/tolerance relaxation. [Execution, failed first comparison and remaining release gates](docs/evidence/visual-v6-results.md).
 
-- UX-5B isolated JDK raster-worker foundation with bounded input/output, heap/process-wait policy and local lifecycle tests; no image-preview route/UI enabled. [Contract](docs/decisions/ADR-0019-raster-preview-isolation.md), [evidence](docs/spikes/ux-5b-worker-results.md).
+- V4 optional 180ms card entry and CSS-only same-origin document transitions, reduced-motion opt-out and settled bucket/key clipboard feedback with persistent text/border (120ms); native navigation, static skeletons, CSP and original files unchanged. [Fresh verification and remaining acceptance](docs/evidence/visual-v4-results.md).
 
-- UX-5A separate bounded UTF-8 text/JSON-as-text preview with strict byte checks, escaped native page and attachment fallback; no active content, decompression or raster preview. [Contract](docs/decisions/ADR-0018-bounded-text-preview.md), [verification](docs/spikes/ux-5a-results.md).
+- Preview transport correction: one adapter-owned bounded response reader/cleanup owner, 1s socket timeout, repeated stalled/trickling and incomplete XML error-body regressions, metadata refusal and shared-client lifecycle checks; existing byte/deadline/security policies retained. [Fresh evidence and remaining final gates](docs/evidence/preview-transport-correction.md).
 
-- UX-4 dismissible, indefinitely retained in-flow notices for confirmed native bucket/folder and enhanced upload results; persistent no-JS fallback and nonduplicated focus/live behavior. Destructive-dialog contract documented, no deletion/modal enabled. [Verification](docs/spikes/ux-4-results.md).
+- V3 native comfortable/compact table-density preference through allowlisted URL/form values, preserved across navigation and outcomes; semantic spacing tokens, retained sticky headers/icons, always-visible focus-emphasized actions and unchanged original-key/44px target rules. [Verification and pending acceptance](docs/evidence/visual-v3-results.md).
 
-- UX-3 single-file drop/picker enhancement and native labelled upload progress, separating transfer from server-confirmed completion; checked upload workspace, duplicate guards and explicit recovery without browser auto-retry. Native multipart, CSRF, original-file and no-overwrite policies retained. [Execution/remaining acceptance](docs/spikes/ux-3-results.md).
+- V2 dashboard hierarchy, separate native connection-diagnostic link and refresh, and static count skeleton tied to the existing real busy state. Existing failure feedback/native fallback retained; no fabricated counts or new health API. [Execution and pending acceptance](docs/evidence/visual-v2-results.md).
+
+- V0 accepted with system fonts/current CSP; V1 canvas depth, restricted decorative glow, accessibility preference fallbacks and single card/table frame. Local verification and pending Linux baseline/human acceptance are tracked in the [V1 record](docs/evidence/visual-v1-results.md). Density/motion, D2–D6 and release gates remain pending.
+
+- Documentation consolidation: dated paired READMEs with illustrative baseline captures and host-JVM quick start, four-group index, current gate/status page, phase history and maturity inventory. Historical evidence relocated byte-for-byte to `docs/evidence/`; local link/index checks added. No runtime, language-policy, visual-decision or release approval changes.
+
+- UX-5B native bilingual S3 image preview for bounded static PNG/JPEG, structural/refusal checks and isolated fresh-PNG output; original attachment unchanged, no active formats or CSP relaxation. [Local verification and remaining final-image gates](docs/evidence/ux-5b-results.md).
+
+- UX-5B isolated JDK raster-worker foundation with bounded input/output, heap/process-wait policy and local lifecycle tests; no image-preview route/UI enabled. [Contract](docs/decisions/ADR-0019-raster-preview-isolation.md), [evidence](docs/evidence/ux-5b-worker-results.md).
+
+- UX-5A separate bounded UTF-8 text/JSON-as-text preview with strict byte checks, escaped native page and attachment fallback; no active content, decompression or raster preview. [Contract](docs/decisions/ADR-0018-bounded-text-preview.md), [verification](docs/evidence/ux-5a-results.md).
+
+- UX-4 dismissible, indefinitely retained in-flow notices for confirmed native bucket/folder and enhanced upload results; persistent no-JS fallback and nonduplicated focus/live behavior. Destructive-dialog contract documented, no deletion/modal enabled. [Verification](docs/evidence/ux-4-results.md).
+
+- UX-3 single-file drop/picker enhancement and native labelled upload progress, separating transfer from server-confirmed completion; checked upload workspace, duplicate guards and explicit recovery without browser auto-retry. Native multipart, CSRF, original-file and no-overwrite policies retained. [Execution/remaining acceptance](docs/evidence/ux-3-results.md).
 
 - UX-2B native modal object drawer, escaped checked metadata fragment, stale-response/timeout/manual-retry controls and exact bucket/key clipboard with selectable failure fallback. No preview, ARN, signing or mutation capability is implied; validation recorded separately.
 
@@ -23,7 +53,7 @@ All notable changes will be documented in this file. This project intends to fol
 - UX-2A explorer table: localized IEC sizes with exact byte counts, filename-type hints and native attachment downloads. Drawer and expanded operational capabilities remain pending their documented gates.
 - Tabela UX-2A: tamanhos IEC localizados com bytes exatos, indícios de tipo pelo nome e download nativo. Drawer e demais capacidades operacionais seguem pendentes dos gates documentados.
 
-- UX-1: locked build-only Tailwind generation for Maven/Docker, packaged MIT license, Slate/blue themes and scoped shell utilities; keyboard-reachable short desktop sidebar and restored mobile panel fill. [Validation/acceptance record](docs/spikes/ux-1-results.md); no new S3 capability or publication.
+- UX-1: locked build-only Tailwind generation for Maven/Docker, packaged MIT license, Slate/blue themes and scoped shell utilities; keyboard-reachable short desktop sidebar and restored mobile panel fill. [Validation/acceptance record](docs/evidence/ux-1-results.md); no new S3 capability or publication.
 
 - UX-0 isolated locked Tailwind/Pico comparison, escaped Qute fixtures, deterministic CSS build/size/license reports and Chromium diagnostics; Tailwind/CLI 4.3.3 without Preflight selected for staged UX-1 migration, production assets unchanged.
 

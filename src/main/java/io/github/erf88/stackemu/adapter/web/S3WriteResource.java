@@ -83,6 +83,7 @@ public class S3WriteResource {
       @QueryParam("prefix") String prefix,
       @QueryParam("lang") String language,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String acceptLanguage) {
     String selected = "bucket".equals(action) || "folder".equals(action) ? action : "upload";
     return Response.ok(
@@ -93,7 +94,11 @@ public class S3WriteResource {
                     "",
                     Map.of(),
                     UiContext.resolve(
-                        language, acceptLanguage, theme, formPath(selected, bucket, prefix)))
+                        language,
+                        acceptLanguage,
+                        theme,
+                        density,
+                        formPath(selected, bucket, prefix)))
                 .render())
         .header("Cache-Control", "no-store")
         .build();
@@ -106,8 +111,9 @@ public class S3WriteResource {
       @RestForm String bucket,
       @RestForm String confirm,
       @RestForm String lang,
-      @RestForm String theme) {
-    return mutate("bucket", bucket, "", confirm, null, lang, theme);
+      @RestForm String theme,
+      @RestForm String density) {
+    return mutate("bucket", bucket, "", confirm, null, lang, theme, density);
   }
 
   @POST
@@ -118,8 +124,9 @@ public class S3WriteResource {
       @RestForm String key,
       @RestForm String confirm,
       @RestForm String lang,
-      @RestForm String theme) {
-    return mutate("folder", bucket, key, confirm, null, lang, theme);
+      @RestForm String theme,
+      @RestForm String density) {
+    return mutate("folder", bucket, key, confirm, null, lang, theme, density);
   }
 
   @POST
@@ -131,10 +138,12 @@ public class S3WriteResource {
       @RestForm String confirm,
       @RestForm FileUpload file,
       @RestForm String lang,
-      @RestForm String theme)
+      @RestForm String theme,
+      @RestForm String density)
       throws IOException {
     try {
-      return Response.fromResponse(mutate("upload", bucket, prefix, confirm, file, lang, theme))
+      return Response.fromResponse(
+              mutate("upload", bucket, prefix, confirm, file, lang, theme, density))
           .header("X-StackEmu-Upload", "workspace")
           .build();
     } finally {
@@ -152,8 +161,9 @@ public class S3WriteResource {
       String confirm,
       FileUpload file,
       String language,
-      String theme) {
-    UiContext ui = UiContext.resolve(language, null, theme, formPath(action, bucket, key));
+      String theme,
+      String density) {
+    UiContext ui = UiContext.resolve(language, null, theme, density, formPath(action, bucket, key));
     try {
       if (!"yes".equals(confirm)) {
         throw new WriteValidationException("confirm", "confirmationRequired");

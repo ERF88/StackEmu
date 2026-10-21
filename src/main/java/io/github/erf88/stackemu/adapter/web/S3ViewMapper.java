@@ -27,7 +27,14 @@ public final class S3ViewMapper {
   public record Tag(String key, String value) {}
 
   public record ObjectRow(
-      String key, String size, String modified, String href, String downloadHref, String kind) {}
+      String key,
+      String size,
+      String modified,
+      String href,
+      String downloadHref,
+      String kind,
+      String previewHref,
+      String deleteHref) {}
 
   public record BucketPageView(
       String name,
@@ -54,7 +61,8 @@ public final class S3ViewMapper {
       String parentHref,
       String bucket,
       String previewHref,
-      String imagePreviewHref) {}
+      String imagePreviewHref,
+      String deleteHref) {}
 
   public static String encode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
@@ -67,6 +75,10 @@ public final class S3ViewMapper {
 
   public static String objectPath(String bucket, String key) {
     return "/s3/object?bucket=" + encode(bucket) + "&key=" + encode(key);
+  }
+
+  public static String deletionPath(String bucket, String key) {
+    return "/s3/delete-object?bucket=" + encode(bucket) + "&key=" + encode(key);
   }
 
   public static String downloadPath(String bucket, String key) {
@@ -140,7 +152,11 @@ public final class S3ViewMapper {
                         date(o.modified(), ui),
                         objectPath(details.name(), o.key()) + "&" + ui.query(),
                         downloadPath(details.name(), o.key()) + "&" + ui.query(),
-                        fileKind(o.key(), ui)))
+                        fileKind(o.key(), ui),
+                        previewPath(details.name(), o.key()) + "&" + ui.query(),
+                        o.key().endsWith("/")
+                            ? ""
+                            : deletionPath(details.name(), o.key()) + "&" + ui.query()))
             .toList(),
         listing.nextToken() == null || listing.nextToken().isEmpty()
             ? ""
@@ -177,7 +193,8 @@ public final class S3ViewMapper {
         previewPath(bucket, object.key()) + "&" + ui.query(),
         ImagePreviewPolicy.format(object.key(), object.contentType(), null).isEmpty()
             ? ""
-            : imagePreviewPath(bucket, object.key()) + "&" + ui.query());
+            : imagePreviewPath(bucket, object.key()) + "&" + ui.query(),
+        object.key().endsWith("/") ? "" : deletionPath(bucket, object.key()) + "&" + ui.query());
   }
 
   private static String optional(String value) {

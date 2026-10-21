@@ -21,7 +21,9 @@ public class ComponentsResource {
   public TemplateInstance showGallery(
       @QueryParam("lang") String language,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String acceptLanguage) {
-    return Templates.gallery(UiContext.resolve(language, acceptLanguage, theme, "/components"));
+    return Templates.gallery(
+        UiContext.resolve(language, acceptLanguage, theme, density, "/components"));
   }
 }

@@ -9,7 +9,7 @@ for (const language of ["en", "pt-BR"]) {
     const labels =
       language === "en"
         ? [
-            "Dashboard",
+            "Home",
             "Connection",
             "Component gallery",
             "Create bucket",
@@ -17,7 +17,7 @@ for (const language of ["en", "pt-BR"]) {
             "Upload new object",
           ]
         : [
-            "Visão geral",
+            "Início",
             "Conexão",
             "Galeria de componentes",
             "Criar bucket",
@@ -36,8 +36,14 @@ for (const language of ["en", "pt-BR"]) {
       for (const [index, path] of paths.entries()) {
         await page.goto(`${path}${path.includes("?") ? "&" : "?"}lang=${language}&theme=${theme}`);
         await expect(page).toHaveTitle(`${labels[index]} · StackEmu`);
-        await expect(page.locator(".preferences [aria-current=true]")).toHaveCount(2);
-        await expect(page.locator(".primary-navigation svg")).toHaveCount(3);
+        for (const controls of [".theme-controls", ".language-controls"]) {
+          await expect(page.locator(`${controls} a[aria-current=true]`)).toHaveCount(1);
+        }
+        await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
+        await expect(page.locator(".density-controls")).toHaveCount(0);
+        await expect(page.locator(".preferences-panel")).toBeHidden();
+        await expect(page.locator(".language-controls")).toBeHidden();
+        await expect(page.locator(".primary-navigation svg")).toHaveCount(2);
         for (const icon of await page.locator(".primary-navigation svg").all()) {
           await expect(icon).toHaveAttribute("aria-hidden", "true");
         }
@@ -69,6 +75,7 @@ for (const language of ["en", "pt-BR"]) {
     }
     await page.goto(`/connection?lang=${language}&theme=auto`);
     const themeLabel = language === "en" ? "Dark theme" : "Tema escuro";
+    await page.locator(".preferences-trigger").click();
     await page.getByRole("link", { name: themeLabel, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/connection\\?lang=${language}&theme=dark$`));
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");

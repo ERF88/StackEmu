@@ -1,12 +1,18 @@
 <section class="object-panel" aria-labelledby="drawer-object-key">
   <h3 id="drawer-object-key" class="object-key">{view.key}</h3>
-  <dl>
-    <dt>Bucket</dt><dd>{view.bucket}</dd>
-    <dt>{ui.text('size')}</dt><dd>{view.size}</dd>
-    <dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd>
-    <dt>ETag</dt><dd><code>{view.etag}</code></dd>
-    <dt>{ui.text('modified')}</dt><dd>{view.modified}</dd>
+  <dl class="object-facts">
+    <div class="fact-wide"><dt>Bucket</dt><dd>{view.bucket}</dd></div>
+    <div><dt>{ui.text('size')}</dt><dd>{view.size}</dd></div>
+    <div><dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd></div>
+    <div class="fact-wide"><dt>ETag</dt><dd><code>{view.etag}</code></dd></div>
+    <div class="fact-wide"><dt>{ui.text('modified')}</dt><dd>{view.modified}</dd></div>
   </dl>
+  <nav class="object-panel-actions" aria-label="{ui.text('objectActions')}">
+    <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
+    <a class="button" href="{view.previewHref}">{#include icons/file /}{ui.text('textPreview')}</a>
+    {#if view.imagePreviewHref != ''}<a class="button" href="{view.imagePreviewHref}">{#include icons/file /}{ui.text('imagePreview')}</a>{/if}
+    {#if view.deleteHref != ''}<a class="button danger" href="{view.deleteHref}">{#include icons/delete /}{ui.text('deleteObject')}</a>{/if}
+  </nav>
   <section class="response-policy" aria-labelledby="drawer-policy-title">
     <h3 id="drawer-policy-title">{ui.text('responsePolicy')}</h3>
     <p>{ui.text('responsePolicyNote')}</p>
@@ -20,14 +26,13 @@
     <div class="copy-field">
       <label for="drawer-copy-bucket">Bucket</label>
       <textarea id="drawer-copy-bucket" data-copy-param="bucket" rows="1" readonly spellcheck="false">{view.bucket}</textarea>
-      <button type="button" data-copy-field hidden>{ui.text('copyBucket')}</button>
+      <button class="button" type="button" data-copy-field hidden>{#include icons/copy /}{ui.text('copyBucket')}</button>
     </div>
     <div class="copy-field">
       <label for="drawer-copy-key">{ui.text('objectKey')}</label>
       <textarea id="drawer-copy-key" data-copy-param="key" rows="3" readonly spellcheck="false">{view.key}</textarea>
-      <button type="button" data-copy-field hidden>{ui.text('copyKey')}</button>
+      <button class="button" type="button" data-copy-field hidden>{#include icons/copy /}{ui.text('copyKey')}</button>
     </div>
     <p class="copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
   </section>
-  <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
 </section>

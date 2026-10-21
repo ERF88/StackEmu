@@ -9,9 +9,10 @@
     "lint:css": "stylelint \"src/main/resources/META-INF/resources/*.css\" src/main/frontend/input.css tools/ux0/input.css",
     "spike:css": "npm --prefix tools/ux0 ci --ignore-scripts --no-audit --no-fund && node tools/ux0/build.mjs",
     "check:contrast": "node --test scripts/check-contrast.test.mjs && node scripts/check-contrast.mjs",
+    "check:docs": "node --test scripts/check-docs.test.mjs && node scripts/check-docs.mjs",
     "lint:javascript": "eslint .",
     "test:browser": "playwright test",
-    "check": "npm run format:check && npm run lint:markdown && npm run lint:css && npm run lint:javascript && npm run check:contrast"
+    "check": "npm run format:check && npm run lint:markdown && npm run check:docs && npm run lint:css && npm run lint:javascript && npm run check:contrast"
   },
   "devDependencies": {
     "tailwindcss": "4.3.3",

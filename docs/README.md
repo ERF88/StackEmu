@@ -1,0 +1,147 @@
+# Documentation / Documentação
+
+Reviewed / Revisado: 2026-10-16. Start with the current status, then use these four groups. Every Markdown document at the repository root, under docs, in GitHub contribution templates or in the UX-0 tooling is listed exactly once below, except this navigation page itself. / Começar pelo status; todos os documentos desses locais, incluindo templates GitHub, aparecem uma vez nos quatro grupos, exceto esta própria página.
+
+Evidence is historical and version/environment-specific, not today's instructions or release approval. The archived Phase 0 checklist may still say Pending; consult status and actual results instead. Technical documents remain bilingual; D2 is not approved. / Evidências são históricas, não instruções atuais/aceite. Checklist inicial arquivado não define estado atual; política bilíngue preservada.
+
+## Use / Usar
+
+- [Project overview — English / Visão geral em inglês](../README.md)
+- [Project overview — pt-BR / Visão geral em português](../README.pt-BR.md)
+- [Configuration / Configuração](configuration.md)
+- [Known limitations / Limitações](known-limitations.md)
+- [Roadmap](product/roadmap.md)
+- [Operational S3 scope / Escopo operacional S3](product/s3-management-scope.md)
+- [Security design / Projeto de segurança](security.md)
+- [S3 service / Serviço S3](services/s3.md)
+- [Current status and release gates / Status e gates](status.md)
+
+## Contribute / Contribuir
+
+- [.github/ISSUE_TEMPLATE/bug_report](../.github/ISSUE_TEMPLATE/bug_report.md)
+- [.github/pull_request_template](../.github/pull_request_template.md)
+- [AGENTS](../AGENTS.md)
+- [CHANGELOG](../CHANGELOG.md)
+- [CHANGELOG.pt-BR](../CHANGELOG.pt-BR.md)
+- [CODE_OF_CONDUCT](../CODE_OF_CONDUCT.md)
+- [CODE_OF_CONDUCT.pt-BR](../CODE_OF_CONDUCT.pt-BR.md)
+- [CONTRIBUTING](../CONTRIBUTING.md)
+- [CONTRIBUTING.pt-BR](../CONTRIBUTING.pt-BR.md)
+- [SECURITY](../SECURITY.md)
+- [SECURITY.pt-BR](../SECURITY.pt-BR.md)
+- [THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md)
+- [Documentation maturity / Maturidade documental](DOCUMENTATION_INVENTORY.md)
+- [architecture/emulator-compatibility](architecture/emulator-compatibility.md)
+- [architecture/modules](architecture/modules.md)
+- [architecture/naming-review](architecture/naming-review.md)
+- [architecture/overview](architecture/overview.md)
+- [design-system](design-system.md)
+- [Apple HIG project guidelines / Diretrizes HIG do projeto](design/apple-hig-guidelines.md)
+- [design/icon-sources](design/icon-sources.md)
+- [Code style / Estilo de código](development/code-style.md)
+- [development/component-accessibility](development/component-accessibility.md)
+- [development/frontend-build](development/frontend-build.md)
+- [development/naming-and-responsibilities](development/naming-and-responsibilities.md)
+- [development/phase-0](development/phase-0.md)
+- [development/phase-1](development/phase-1.md)
+- [development/phase-2](development/phase-2.md)
+- [development/phase-3](development/phase-3.md)
+- [development/phase-4](development/phase-4.md)
+- [development/phase-5](development/phase-5.md)
+- [Release rules / Regras de release](development/release.md)
+- [development/s3-explorer](development/s3-explorer.md)
+- [development/s3-upload](development/s3-upload.md)
+- [Testing / Testes](development/testing.md)
+- [development/visual-regression](development/visual-regression.md)
+- [History / Histórico](history.md)
+- [product/user-research](product/user-research.md)
+- [product/visual-ux-evolution](product/visual-ux-evolution.md)
+- [security-review](security-review.md)
+- [security/runtime-remediation](security/runtime-remediation.md)
+- [tools/ux0/README](../tools/ux0/README.md)
+- [MIT license / Licença MIT](../LICENSE)
+
+## Decisions / Decisões
+
+- [Cohesive HIG fluidity / Fluidez HIG coesa](decisions/ADR-0023-hig-fluidity.md)
+- [Direct actions and navigation / Ações diretas e navegação](decisions/ADR-0024-direct-actions-navigation.md)
+
+- [Apple HIG visual baseline / Padrão visual HIG](decisions/ADR-0022-apple-hig-design-baseline.md)
+
+- [Single-object deletion / Exclusão individual](decisions/ADR-0021-single-object-deletion.md)
+
+- [decisions/ADR-0020-service-catalog-navigation](decisions/ADR-0020-service-catalog-navigation.md)
+
+- [decisions/ADR-0001-stack](decisions/ADR-0001-stack.md)
+- [decisions/ADR-0002-mvp-scope](decisions/ADR-0002-mvp-scope.md)
+- [decisions/ADR-0003-connection-config](decisions/ADR-0003-connection-config.md)
+- [decisions/ADR-0004-phase-1-boundaries](decisions/ADR-0004-phase-1-boundaries.md)
+- [decisions/ADR-0005-s3-read-streaming](decisions/ADR-0005-s3-read-streaming.md)
+- [decisions/ADR-0006-naming-responsibilities](decisions/ADR-0006-naming-responsibilities.md)
+- [decisions/ADR-0007-s3-mutation-boundary](decisions/ADR-0007-s3-mutation-boundary.md)
+- [decisions/ADR-0008-original-file-metadata](decisions/ADR-0008-original-file-metadata.md)
+- [decisions/ADR-0009-browser-quality-security](decisions/ADR-0009-browser-quality-security.md)
+- [decisions/ADR-0010-release-evidence](decisions/ADR-0010-release-evidence.md)
+- [decisions/ADR-0011-minimal-runtime-remediation](decisions/ADR-0011-minimal-runtime-remediation.md)
+- [decisions/ADR-0012-proposed-browser-follow-ups](decisions/ADR-0012-proposed-browser-follow-ups.md)
+- [decisions/ADR-0013-visual-ux-evolution](decisions/ADR-0013-visual-ux-evolution.md)
+- [decisions/ADR-0014-expanded-operational-s3-scope](decisions/ADR-0014-expanded-operational-s3-scope.md)
+- [decisions/ADR-0015-object-drawer-clipboard](decisions/ADR-0015-object-drawer-clipboard.md)
+- [decisions/ADR-0016-single-file-upload-progress](decisions/ADR-0016-single-file-upload-progress.md)
+- [decisions/ADR-0017-operation-notifications](decisions/ADR-0017-operation-notifications.md)
+- [decisions/ADR-0018-bounded-text-preview](decisions/ADR-0018-bounded-text-preview.md)
+- [decisions/ADR-0019-raster-preview-isolation](decisions/ADR-0019-raster-preview-isolation.md)
+
+## Evidence / Evidências
+
+- [HIG fluidity local results / Resultados locais da fluidez HIG](evidence/hig-fluidity-results.md)
+- [Direct controls local results / Resultados locais dos controles diretos](evidence/direct-controls-results.md)
+
+- [Single-object deletion local results / Resultados locais da exclusão individual](evidence/single-object-deletion-results.md)
+
+- [evidence/quiet-shell-results](evidence/quiet-shell-results.md)
+
+- [evidence/service-catalog-results](evidence/service-catalog-results.md)
+
+- [evidence/visual-v6-results](evidence/visual-v6-results.md)
+
+- [evidence/visual-v4-results](evidence/visual-v4-results.md)
+
+- [evidence/preview-transport-correction](evidence/preview-transport-correction.md)
+
+- [evidence/F0-01-s3-endpoint](evidence/F0-01-s3-endpoint.md)
+- [evidence/F0-02-compose-networking](evidence/F0-02-compose-networking.md)
+- [evidence/F0-03-qute-failure-state](evidence/F0-03-qute-failure-state.md)
+- [evidence/F0-04-toolchain](evidence/F0-04-toolchain.md)
+- [evidence/F0-05-htmx-assets-csrf](evidence/F0-05-htmx-assets-csrf.md)
+- [evidence/F0-06-emulator-baseline](evidence/F0-06-emulator-baseline.md)
+- [evidence/operational-workspace-results](evidence/operational-workspace-results.md)
+- [evidence/original-file-results](evidence/original-file-results.md)
+- [evidence/phase-0-results](evidence/phase-0-results.md)
+- [evidence/phase-0-spike-index](evidence/phase-0-spike-index.md)
+- [evidence/phase-1-results](evidence/phase-1-results.md)
+- [evidence/phase-2-results](evidence/phase-2-results.md)
+- [evidence/phase-3-results](evidence/phase-3-results.md)
+- [evidence/phase-4-results](evidence/phase-4-results.md)
+- [evidence/phase-5-results](evidence/phase-5-results.md)
+- [evidence/redesign-e1-results](evidence/redesign-e1-results.md)
+- [evidence/redesign-e2-results](evidence/redesign-e2-results.md)
+- [evidence/redesign-e3-results](evidence/redesign-e3-results.md)
+- [evidence/redesign-e4-results](evidence/redesign-e4-results.md)
+- [evidence/redesign-e5-results](evidence/redesign-e5-results.md)
+- [evidence/redesign-e6-results](evidence/redesign-e6-results.md)
+- [evidence/redesign-e7-results](evidence/redesign-e7-results.md)
+- [evidence/runtime-remediation-results](evidence/runtime-remediation-results.md)
+- [evidence/ux-0-css-results](evidence/ux-0-css-results.md)
+- [evidence/ux-1-results](evidence/ux-1-results.md)
+- [evidence/ux-2a-results](evidence/ux-2a-results.md)
+- [evidence/ux-2b-results](evidence/ux-2b-results.md)
+- [evidence/ux-3-results](evidence/ux-3-results.md)
+- [evidence/ux-4-results](evidence/ux-4-results.md)
+- [evidence/ux-5a-results](evidence/ux-5a-results.md)
+- [evidence/ux-5b-raster-spike](evidence/ux-5b-raster-spike.md)
+- [evidence/ux-5b-results](evidence/ux-5b-results.md)
+- [evidence/ux-5b-worker-results](evidence/ux-5b-worker-results.md)
+- [evidence/visual-v1-results](evidence/visual-v1-results.md)
+- [evidence/visual-v2-results](evidence/visual-v2-results.md)
+- [evidence/visual-v3-results](evidence/visual-v3-results.md)

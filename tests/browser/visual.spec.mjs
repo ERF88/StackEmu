@@ -10,12 +10,13 @@ if (process.platform !== "linux") {
 
 const scenes = {
   overview: "/",
+  service: "/s3",
   connection: "/connection",
   gallery: "/components",
   form: "/s3/write?action=bucket",
   bucket: "/s3/bucket?bucket=visual-example&prefix=samples%2F",
   object: "/s3/object?bucket=visual-example&key=samples%2Fa%C3%A7%C3%A3o%20%2B%25.txt",
-  unavailable: "/",
+  unavailable: "/s3",
   error: "/s3/bucket?bucket=visual-example",
 };
 

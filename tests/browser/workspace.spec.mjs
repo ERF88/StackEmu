@@ -3,16 +3,16 @@ import { test, expect } from "@playwright/test";
 for (const theme of ["dark", "light"]) {
   test(`operational workspace layout: ${theme}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(`/?lang=pt-BR&theme=${theme}`);
+    await page.goto(`/s3?lang=pt-BR&theme=${theme}`);
     await expect(page.locator(".sidebar")).toBeVisible();
-    await expect(page.locator(".primary-navigation [aria-current=page]")).toHaveText("Visão geral");
+    await expect(page.locator(".primary-navigation [aria-current=page]")).toContainText("S3");
     await expect(page.locator(".page-actions .primary")).toBeVisible();
     const listedBuckets = await page.locator("#bucket-list tbody tr").count();
     await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
       "data-bucket-count",
       String(listedBuckets),
     );
-    await expect(page.locator(".connection-facts")).toBeVisible();
+    await expect(page.locator(".service-connection .status")).toBeVisible();
     await page.locator("[hx-get]").click();
     await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
       "data-bucket-count",
@@ -26,7 +26,7 @@ for (const theme of ["dark", "light"]) {
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
       .toBe(true);
-    await expect(page.getByRole("heading", { name: "Visão geral", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "S3", exact: true })).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath(`workspace-mobile-${theme}.png`),
       fullPage: true,

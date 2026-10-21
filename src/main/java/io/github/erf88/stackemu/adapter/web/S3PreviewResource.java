@@ -44,8 +44,9 @@ public class S3PreviewResource {
       @QueryParam("key") String key,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
+      @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String accept) {
-    UiContext ui = UiContext.resolve(lang, accept, theme, "/");
+    UiContext ui = UiContext.resolve(lang, accept, theme, density, "/s3");
     try {
       // Same opaque read-target limits as the native detail/download routes.
       if (bucket == null
@@ -55,7 +56,7 @@ public class S3PreviewResource {
           || key.isEmpty()
           || key.getBytes(StandardCharsets.UTF_8).length > 1024)
         throw new S3ReadException(S3ReadException.Kind.INVALID);
-      ui = UiContext.resolve(lang, accept, theme, S3ViewMapper.previewPath(bucket, key));
+      ui = UiContext.resolve(lang, accept, theme, density, S3ViewMapper.previewPath(bucket, key));
       var preview = previewer.readTextPreview(bucket, key);
       String message =
           switch (preview.state()) {

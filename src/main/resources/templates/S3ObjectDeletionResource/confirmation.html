@@ -1,0 +1,33 @@
+{#include layout}
+  {#title}{ui.text('deleteObject')}{/title}
+  {#content}
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{view.backHref}">{#include icons/back /}{ui.text('backToObjects')}</a></nav>
+    <h1>{ui.text('deleteObject')}</h1>
+    <section class="resource-panel" aria-labelledby="delete-review-title">
+      <h2 id="delete-review-title">{ui.text('deleteReview')}</h2>
+      {#if view.bucket != ''}
+        <dl>
+          <dt>Bucket</dt><dd>{view.bucket}</dd>
+          <dt>{ui.text('objectKey')}</dt><dd class="object-key">{view.key}</dd>
+          <dt>ETag</dt><dd><code>{view.etag}</code></dd>
+        </dl>
+      {/if}
+      {#if view.message != ''}
+        <p role="status">{ui.text(view.message)}</p>
+      {/if}
+      {#if view.ticket != ''}
+        <p id="delete-warning">{ui.text('deleteWarning')}</p>
+        <p>{ui.text('deleteConcurrency')}</p>
+        <form method="post" action="/s3/delete-object">
+          <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+          <input type="hidden" name="ticket" value="{view.ticket}">
+          <input type="hidden" name="lang" value="{ui.language}">
+          <input type="hidden" name="theme" value="{ui.theme}">
+          <input type="hidden" name="density" value="{ui.density}">
+          <label class="confirmation-field"><input type="checkbox" name="confirm" value="yes" required aria-describedby="delete-warning"> {ui.text('deleteConsent')}</label>
+          <button class="button danger" type="submit">{#include icons/delete /}{ui.text('deleteObject')}</button>
+        </form>
+      {/if}
+    </section>
+  {/content}
+{/include}

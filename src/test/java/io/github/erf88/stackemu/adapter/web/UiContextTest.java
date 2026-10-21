@@ -8,6 +8,38 @@ import org.junit.jupiter.api.Test;
 
 class UiContextTest {
   @Test
+  void contextualBucketActionsEncodeNamesAndKeepPreferences() {
+    var ui = UiContext.resolve("pt-BR", null, "dark", "compact", "/s3");
+    String suffix = "&bucket=example%20%2B%25&lang=pt-BR&theme=dark&density=compact";
+    assertEquals("/s3/write?action=upload" + suffix, ui.bucketUploadLink("example +%"));
+    assertEquals("/s3/write?action=folder" + suffix, ui.bucketFolderLink("example +%"));
+  }
+
+  @Test
+  void densityDefaultsAndUntrustedValuesFallBackWithoutReflection() {
+    for (String value : new String[] {null, "comfortable", "COMPACT", "<script>", ""}) {
+      var ui = UiContext.resolve("en", null, "dark", value, "/connection");
+      assertEquals("comfortable", ui.density());
+      assertEquals("lang=en&theme=dark", ui.query());
+    }
+  }
+
+  @Test
+  void compactDensitySurvivesPreferencesAndOpaquePageStateWithoutDuplicates() {
+    String page = "/s3/bucket?bucket=example&prefix=a%2B%26%2F&token=opaque%2B%3D";
+    var ui = UiContext.resolve("pt-BR", null, "auto", "compact", page);
+    assertEquals("compact", ui.density());
+    assertEquals("lang=pt-BR&theme=auto&density=compact", ui.query());
+    assertEquals(page + "&lang=en&theme=auto&density=compact", ui.english());
+    assertEquals(page + "&lang=pt-BR&theme=auto&density=compact", ui.portuguese());
+    assertEquals(page + "&lang=pt-BR&theme=dark&density=compact", ui.themeLink("dark"));
+    assertEquals(page + "&lang=pt-BR&theme=dark&density=compact", ui.toggleTheme());
+    assertEquals(
+        page + "&lang=pt-BR&theme=auto&density=comfortable", ui.densityLink("comfortable"));
+    assertThrows(IllegalArgumentException.class, () -> ui.densityLink("<script>"));
+  }
+
+  @Test
   void malformedPreferencesFallBackAndCannotEnterLinks() {
     var ui = UiContext.resolve("<script>", "invalid;q=no", "<script>", "/connection");
     assertEquals("en", ui.language());

@@ -5,6 +5,7 @@ import static io.restassured.RestAssured.given;
 import io.github.erf88.stackemu.adapter.web.BucketsResource;
 import io.github.erf88.stackemu.adapter.web.ConnectionResource;
 import io.github.erf88.stackemu.adapter.web.ConnectionSettingsView;
+import io.github.erf88.stackemu.adapter.web.HomeResource;
 import io.github.erf88.stackemu.adapter.web.S3Resource;
 import io.github.erf88.stackemu.adapter.web.S3ViewMapper;
 import io.github.erf88.stackemu.adapter.web.UiContext;
@@ -27,12 +28,18 @@ final class VisualPageFixtures {
     Files.createDirectories(directory);
     var settings = new ConnectionSettingsView(URI.create("http://ministack:4566"), "us-east-1");
     var ui = UiContext.resolve(language, null, theme, "/");
+    save(directory, "overview", language, theme, HomeResource.Templates.index(ui).render());
     save(
         directory,
-        "overview",
+        "service",
         language,
         theme,
-        BucketsResource.Templates.index(List.of("visual-example"), true, ui, settings).render());
+        BucketsResource.Templates.index(
+                List.of("visual-example"),
+                true,
+                UiContext.resolve(language, null, theme, "/s3"),
+                settings)
+            .render());
     save(
         directory,
         "connection",
@@ -93,7 +100,7 @@ final class VisualPageFixtures {
                 "form",
                 "/s3/write?action=bucket",
                 "unavailable",
-                "/",
+                "/s3",
                 "error",
                 "/s3/bucket?bucket=visual-example")
             .entrySet()) {

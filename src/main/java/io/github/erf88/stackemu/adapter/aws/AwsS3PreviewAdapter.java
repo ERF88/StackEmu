@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.time.Duration;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -39,7 +40,7 @@ public class AwsS3PreviewAdapter implements S3PreviewPort, S3ImagePreviewPort, A
             .httpClientBuilder(
                 UrlConnectionHttpClient.builder()
                     .connectionTimeout(Duration.ofSeconds(1))
-                    .socketTimeout(Duration.ofSeconds(2)))
+                    .socketTimeout(Duration.ofSeconds(1)))
             .build();
   }
 
@@ -53,11 +54,21 @@ public class AwsS3PreviewAdapter implements S3PreviewPort, S3ImagePreviewPort, A
             .overrideConfiguration(
                 options ->
                     options
+                        // Ask for closure; body ownership below, not this header, bounds cleanup.
+                        .putHeader("Connection", "close")
                         .apiCallTimeout(Duration.ofSeconds(3))
                         .apiCallAttemptTimeout(Duration.ofSeconds(2)))
             .build();
     try {
-      input = client.getObject(request, (metadata, body) -> readImageBody(key, metadata, body));
+      var response = client.getObject(request, ResponseTransformer.toInputStream());
+      input =
+          readImageBody(
+              key, response.response(), AbortableInputStream.create(response, response::abort));
+    } catch (InterruptedException failure) {
+      Thread.currentThread().interrupt();
+      throw new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
+    } catch (IOException failure) {
+      throw new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
     } catch (SdkClientException failure) {
       throw new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
     } catch (S3Exception failure) {
@@ -141,12 +152,21 @@ public class AwsS3PreviewAdapter implements S3PreviewPort, S3ImagePreviewPort, A
             .overrideConfiguration(
                 options ->
                     options
+                        // Ask for closure without relying on a possibly no-op transport abort.
+                        .putHeader("Connection", "close")
                         .apiCallTimeout(Duration.ofSeconds(3))
                         .apiCallAttemptTimeout(Duration.ofSeconds(2)))
             .build();
     try {
-      // A managed transformer keeps body consumption inside the SDK operation's timeout.
-      return client.getObject(request, (metadata, body) -> readBody(key, metadata, body));
+      // End SDK timers before consuming the body: one caller owns reads and abort/close.
+      var response = client.getObject(request, ResponseTransformer.toInputStream());
+      return readBody(
+          key, response.response(), AbortableInputStream.create(response, response::abort));
+    } catch (InterruptedException failure) {
+      Thread.currentThread().interrupt();
+      throw new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
+    } catch (IOException failure) {
+      throw new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
     } catch (SdkClientException failure) {
       throw new S3ReadException(S3ReadException.Kind.UNAVAILABLE);
     } catch (S3Exception failure) {

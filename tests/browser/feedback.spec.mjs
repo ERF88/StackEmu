@@ -6,7 +6,7 @@ for (const language of ["en", "pt-BR"]) {
     test(`progressive request feedback: ${language}, ${theme}`, async ({ page }, testInfo) => {
       const loading = language === "en" ? "Loading…" : "Carregando…";
       const failed = language === "en" ? "Refresh failed." : "Falha ao atualizar.";
-      for (const path of ["/", "/connection"]) {
+      for (const path of ["/s3"]) {
         await page.goto(`${path}?lang=${language}&theme=${theme}`);
         let release;
         let requests = 0;

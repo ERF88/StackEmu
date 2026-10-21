@@ -2,9 +2,9 @@
 
 ## Current state / Estado atual
 
-Phase 5 prepares a JVM container, SBOM and scan evidence in [CI](https://github.com/ERF88/StackEmu/actions), with reproducible [commands](phase-5.md). No public image, tag or GitHub Release has been created by this phase. A successful build is not release approval.
+Reviewed 2026-10-17: development snapshot, not an approved release. [V6](../evidence/visual-v6-results.md) passed automated checks on the current uncommitted local tree/new Linux-amd64 image: clean host Java, full Linux browser with reviewed references, container/S3 controls, constrained streaming and zero reported scan findings (database-age caveat recorded). This is not exact immutable-candidate-commit verification, human accessibility, independent quick start or legal/name approval. [Current status](../status.md) retains those gates. Phase 5's [commands](phase-5.md) and earlier CI remain historical, not a new GitHub CI run. Daily host JVM/only S3 in Docker was restored. No version/tag/registry publication is authorized.
 
-A Fase 5 prepara container JVM, SBOM e scan no CI. Não publica imagem, tag ou GitHub Release. Build aprovado não aprova release.
+Revisado em 2026-10-17: checks automáticos V6 passaram na árvore local não commitada/imagem Linux-amd64 nova, com referência visual revisada, controles, streaming e scan sem achados reportados/limite da base registrado. Não equivale a verificar commit candidato imutável nem concluir revisão humana, início rápido independente ou nome legal. Status preserva gates; CI anterior continua histórico. Fluxo JVM local/somente S3 no Docker restaurado. Sem versão/tag/publicação autorizada.
 
 ## Required gates / Gates obrigatórios
 

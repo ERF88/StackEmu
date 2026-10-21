@@ -20,4 +20,4 @@ No full materialization, global counts or guessed previous cursors. Optional fai
 
 Sem materialização completa, contagem global ou cursor inventado. Falhas opcionais não ocultam buckets. Após cabeçalhos, interromper falhas sem HTML. Retomada/versões adiadas; a prova de heap não certifica desempenho.
 
-Reference: [AWS pagination](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/pagination.html), [evidence](../spikes/phase-2-results.md).
+Reference: [AWS pagination](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/pagination.html), [evidence](../evidence/phase-2-results.md).

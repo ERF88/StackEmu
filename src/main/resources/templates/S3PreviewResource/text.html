@@ -1,6 +1,7 @@
 {#include layout}
   {#title}{ui.text('textPreview')}{/title}
   {#content}
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{view.objectHref}">{#include icons/back /}{ui.text('backToDetails')}</a></nav>
     <h1>{ui.text('textPreview')}</h1>
     <p>{ui.text('targetBucket')}: <code>{view.bucket}</code></p>
     <h2 class="object-key">{view.key}</h2>
@@ -9,8 +10,7 @@
       <pre class="text-preview" tabindex="0" role="region" aria-label="{ui.text('previewContent')}"><code>{view.text}</code></pre>
     {/if}
     <nav class="preview-navigation" aria-label="{ui.text('objectActions')}">
-      <a class="button primary" href="{view.downloadHref}">{ui.text('download')}</a>
-      <a href="{view.objectHref}">{ui.text('backToDetails')}</a>
+      <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
     </nav>
   {/content}
 {/include}

@@ -19,7 +19,7 @@ class MinistackTest {
     String bucket = "stackemu-spike-" + java.util.UUID.randomUUID();
     s3.createBucket(b -> b.bucket(bucket));
     try {
-      given().get("/").then().statusCode(200).body(containsString(bucket));
+      given().get("/s3").then().statusCode(200).body(containsString(bucket));
       given().get("/buckets").then().statusCode(200).body(containsString(bucket));
     } finally {
       // Delete only the empty test bucket created by this test.

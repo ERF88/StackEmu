@@ -52,17 +52,16 @@ class BucketsResourceTest {
   }
 
   @Test
-  void unavailableIsAnUnderstandablePage() {
+  void unavailableServiceIsAnUnderstandablePage() {
     given()
-        .get("/")
+        .get("/s3")
         .then()
         .statusCode(200)
         .body(
-            containsString("Emulator unavailable"),
+            containsString("Could not verify S3"),
             not(containsString("SdkException")),
-            containsString("data-bucket-count=\"unknown\""),
-            containsString("http://127.0.0.1:1"),
-            containsString("sa-east-1"),
+            not(containsString("data-bucket-count=")),
+            containsString("/connection?"),
             not(containsString("hidden-test-value")),
             not(containsString("data-bucket-count=\"0\"")));
   }
@@ -75,7 +74,7 @@ class BucketsResourceTest {
         .then()
         .statusCode(200)
         .body(
-            containsString("<title>Visão geral · StackEmu</title>"),
+            containsString("<title>Início · StackEmu</title>"),
             containsString("rel=\"icon\""),
             containsString("/app.css?v="),
             containsString("aria-hidden=\"true\""),
@@ -109,7 +108,7 @@ class BucketsResourceTest {
         .get("/buckets")
         .then()
         .statusCode(200)
-        .body(containsString("Emulador indisponível"), not(containsString("<!doctype")));
+        .body(containsString("Não foi possível verificar S3"), not(containsString("<!doctype")));
   }
 
   @Test
@@ -128,7 +127,7 @@ class BucketsResourceTest {
         .body(
             containsString("http://127.0.0.1:1"),
             containsString("sa-east-1"),
-            containsString("Emulator unavailable"),
+            containsString("Could not verify S3"),
             not(containsString("hidden-test-value")));
   }
 

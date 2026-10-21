@@ -19,4 +19,4 @@ Locale and theme preferences travel through links at this stage. Cookie persiste
 
 ## Evidence
 
-See [Phase 1 validation](../spikes/phase-1-results.md). Framework mechanics follow [Qute](https://quarkus.io/guides/qute-reference/) and [ArchUnit](https://www.archunit.org/userguide/html/000_Index.html) documentation.
+See [Phase 1 validation](../evidence/phase-1-results.md). Framework mechanics follow [Qute](https://quarkus.io/guides/qute-reference/) and [ArchUnit](https://www.archunit.org/userguide/html/000_Index.html) documentation.

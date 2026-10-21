@@ -104,6 +104,17 @@ for (const language of ["en", "pt-BR"])
             errors.push(message.text());
         });
         await page.goto(
+          `/s3/bucket?bucket=${bucket}&prefix=folder%2F&lang=${language}&theme=${theme}`,
+        );
+        await page.getByRole("link", { name: key, exact: true }).click();
+        const drawerPreview = page.locator('.object-panel-actions a[href^="/s3/preview/image?"]');
+        await expect(drawerPreview).toBeVisible();
+        const drawerURL = new URL(await drawerPreview.getAttribute("href"), page.url());
+        expect(drawerURL.searchParams.get("lang")).toBe(language);
+        expect(drawerURL.searchParams.get("theme")).toBe(theme);
+        expect(contentRequests).toBe(0);
+        await page.locator("[data-drawer-close]").click();
+        await page.goto(
           `/s3/object?bucket=${bucket}&key=${encodeURIComponent(key)}&lang=${language}&theme=${theme}`,
         );
         expect(contentRequests).toBe(0);

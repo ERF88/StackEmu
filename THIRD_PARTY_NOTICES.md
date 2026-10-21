@@ -10,6 +10,8 @@ Sources / Fontes: [Tailwind](https://github.com/tailwindlabs/tailwindcss/blob/ma
 
 ## coolicons SVG subset / Subconjunto SVG coolicons
 
+The subset below remains twenty third-party files. New `settings`, `close`, `back`, `delete` and `copy` Qute fragments are separate first-party MIT geometric drawings; no Apple font/SF Symbols assets are included. / Subconjunto externo abaixo permanece de vinte arquivos; cinco fragmentos novos são desenhos geométricos próprios MIT, sem assets Apple.
+
 © Kryston Schwarze. coolicons v4.1, Line icons, licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). Source: [official coolicons repository, tag v4.1](https://github.com/krystonschwarze/coolicons/tree/v4.1), pinned commit `42d70477683a0c44cd1732b32a9def8a94469c5a`; author/site: [coolicons.cool](https://coolicons.cool/). License declaration verified at [official legal disclosure](https://coolicons.cool/impress); terms reviewed at [CC BY 4.0 legal code](https://creativecommons.org/licenses/by/4.0/legalcode.en). The icons are provided without warranties under that license; this attribution does not imply endorsement.
 
 Twenty selected SVGs are distributed as `src/main/resources/templates/icons/*.html`. Changes: root class/accessibility attributes added, repeated SVG group IDs removed, whitespace/indentation adapted for Qute. Original path geometry and currentColor strokes retained. No webfont, external sprite or CDN runtime request. The original StackEmu favicon is separate first-party MIT artwork. [Source mapping](docs/design/icon-sources.md) identifies each original filename. Keep this notice and license link when redistributing the subset; these third-party icons are not relicensed as MIT.

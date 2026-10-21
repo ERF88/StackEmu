@@ -1,20 +1,21 @@
 {#include layout}
   {#title}{view.name}{/title}
   {#content}
-    <div class="page-heading">
-    <div><p class="eyebrow">S3 · Bucket</p><h1>{view.name}</h1></div>
-    <div class="page-actions">
-    <a class="button primary" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
-    <a class="button" href="{view.folderHref}">{#include icons/folder /}{ui.text('createFolder')}</a>
-    </div>
-    </div>
     <nav class="resource-breadcrumb" aria-label="{ui.text('breadcrumb')}">
       <ol class="breadcrumbs">
+        <li><a href="/s3?{ui.query}">S3</a></li>
         {#for crumb in view.breadcrumbs}
           <li>{#if crumb_hasNext}<a href="{crumb.href}"><code>{crumb.label}</code></a>{#else}<span aria-current="page"><code>{crumb.label}</code></span>{/if}</li>
         {/for}
       </ol>
     </nav>
+    <div class="page-heading">
+      <h1>{view.name}</h1>
+      <div class="page-actions">
+        <a class="button primary" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
+        <a class="button" href="{view.folderHref}">{#include icons/folder /}{ui.text('createFolder')}</a>
+      </div>
+    </div>
     <details class="bucket-metadata">
       <summary>{ui.text('bucketDetails')}</summary>
     <div class="metadata-panel">
@@ -43,15 +44,22 @@
       {/if}
     </div>
     </details>
-    <section class="resource-panel">
-      <h2>{ui.text('objects')}</h2>
+    <section class="resource-panel object-list-panel">
+      <div class="section-heading"><h2>{ui.text('objects')}</h2>{#include tableDensity /}</div>
       <div class="resource-context"><p class="context-chip">{ui.text('prefix')}: <code>{view.prefix}</code></p>
       <p class="context-chip">{ui.text('pageLimit')}: {view.pageSize}</p></div>
-      <p>{ui.text('prefixNote')}</p>
-      <p>{ui.text('fileTypeHintNote')}</p>
-      {#if view.folders.isEmpty}
-        {#if view.objects.isEmpty}<p>{ui.text('emptyObjects')}</p>{/if}
-      {/if}
+      <details class="explorer-help">
+        <summary>{ui.text('listingGuidance')}</summary>
+        <p>{ui.text('prefixNote')}</p>
+        <p>{ui.text('fileTypeHintNote')}</p>
+      </details>
+      {#if view.folders.isEmpty && view.objects.isEmpty}
+      <div class="resource-state">
+        <h3>{ui.text('emptyObjects')}</h3>
+        <p>{ui.text('emptyObjectsHelp')}</p>
+        <a class="button" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
+      </div>
+      {#else}
       <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('objects')}">
       <table class="resource-table object-table">
         <caption class="visually-hidden">{ui.text('objects')}</caption>
@@ -67,14 +75,21 @@
               <th scope="row"><div class="object-name"><a href="{object.href}" data-object-detail>{#include icons/file /}<code>{object.key}</code></a><span class="file-kind">{object.kind}</span></div></th>
               <td>{object.size}</td>
               <td>{object.modified}</td>
-              <td><a class="table-action" href="{object.downloadHref}" aria-label="{ui.text('download')}: {object.key}">{#include icons/download /}<span>{ui.text('download')}</span></a></td>
+              <td>
+                <div class="resource-action-links" role="group" aria-label="{ui.text('objectActions')}: {object.key}">
+                  <a class="button table-action" href="{object.downloadHref}" aria-label="{ui.text('download')}: {object.key}">{#include icons/download /}<span>{ui.text('download')}</span></a>
+                  <a class="button" href="{object.href}" data-object-detail>{#include icons/info /}{ui.text('details')}</a>
+                  {#if object.deleteHref != ''}<a class="button danger" href="{object.deleteHref}">{#include icons/delete /}{ui.text('deleteObject')}</a>{/if}
+                </div>
+              </td>
             </tr>
           {/for}
         </tbody>
       </table>
       </div>
+      {/if}
       <nav class="resource-pagination" aria-label="{ui.text('pagination')}">
-        <a class="button" href="{view.rootHref}">{ui.text('firstPage')}</a>
+        <a class="button" href="{view.rootHref}">{#include icons/back /}{ui.text('firstPage')}</a>
         {#if !view.nextHref.isEmpty}
           <a id="next-page" class="button" href="{view.nextHref}">{ui.text('nextPage')}{#include icons/chevron /}</a>
         {/if}
@@ -84,12 +99,12 @@
       data-loading-label="{ui.text('drawerLoading')}" data-failed-label="{ui.text('drawerFailed')}">
       <div class="drawer-heading">
         <h2 id="drawer-title">{ui.text('objectDetails')}</h2>
-        <button type="button" data-drawer-close autofocus>{ui.text('closeDetails')}</button>
+        <button class="button" type="button" data-drawer-close autofocus>{#include icons/close /}{ui.text('closeDetails')}</button>
       </div>
-      <p id="drawer-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <p id="drawer-status" class="drawer-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
       <div class="drawer-navigation">
-        <button type="button" data-drawer-retry hidden>{ui.text('retryDetails')}</button>
-        <a data-drawer-page>{ui.text('openFullDetails')}</a>
+        <button class="button" type="button" data-drawer-retry hidden>{#include icons/refresh /}{ui.text('retryDetails')}</button>
+        <a class="button" data-drawer-page>{#include icons/file /}{ui.text('openFullDetails')}</a>
       </div>
       <div id="object-drawer-content" aria-busy="false"></div>
     </dialog>

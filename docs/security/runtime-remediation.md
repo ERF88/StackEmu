@@ -29,4 +29,4 @@ Only libfreetype6 and libpng16-16t64 had fixed-version metadata in the original 
 
 Acceptance and current evidence: [ADR-0011](../decisions/ADR-0011-minimal-runtime-remediation.md). Historical Phase 5 evidence remains unchanged. / Aceitação e evidências no ADR; histórico preservado.
 
-The corrected final runtime reports zero findings with all OS/Java inventories retained; see [executed evidence](../spikes/runtime-remediation-results.md). All baseline pairs are absent from the new scan; required PNG/zlib functionality was retained with corrected packages rather than removed. / Runtime corrigido: zero achados no scan, inventários preservados e bibliotecas necessárias mantidas; evidências vinculadas.
+The corrected final runtime reports zero findings with all OS/Java inventories retained; see [executed evidence](../evidence/runtime-remediation-results.md). All baseline pairs are absent from the new scan; required PNG/zlib functionality was retained with corrected packages rather than removed. / Runtime corrigido: zero achados no scan, inventários preservados e bibliotecas necessárias mantidas; evidências vinculadas.

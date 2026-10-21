@@ -38,7 +38,7 @@ try {
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
         try {
             $page = Invoke-WebRequest "$BaseUrl/connection?lang=en" -TimeoutSec 5
-            if ($page.StatusCode -eq 200 -and $page.Content -match 'Connected') { $ready = $true; break }
+            if ($page.StatusCode -eq 200 -and $page.Content -match 'S3 accessible') { $ready = $true; break }
         } catch { $ready = $false }
         Start-Sleep -Seconds 1
     }
