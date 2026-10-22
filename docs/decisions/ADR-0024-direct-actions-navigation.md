@@ -5,6 +5,8 @@
 
 ## Decision / Decisão
 
+2026-10-21: [ADR-0025](ADR-0025-action-dialogs.md) supersedes listing-local density and generic checkbox/native-only mutation presentation. JavaScript-driven action windows are authorized; density/diagnostics/local-only notice move into Preferences. Existing service navigation and independent security gates remain. / Nova direção autoriza janelas com JS, sem checkbox, e controles secundários em Preferências; contratos reais preservados.
+
 Maintainer feedback rejects the in-flow Actions/Preferences expansions and inconsistent controls. Under ADR-0022/0023 and apple-hig-designer, explicitly supersede ADR-0020's quiet-shell disclosure interaction, not its service-centered information architecture. Previous results remain historical.
 
 Feedback do mantenedor rejeita expansões de Ações/Preferências e controles inconsistentes. Com ADR-0022/0023 e a skill, substituir explicitamente a interação em disclosure da ADR-0020, sem mudar a arquitetura centrada em serviços. Resultados anteriores continuam históricos.

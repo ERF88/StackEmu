@@ -1580,6 +1580,73 @@
   }
 }
 
+@layer components {
+  .action-dialog {
+    width: min(40rem, calc(100% - 2rem));
+    max-height: calc(100dvh - 2rem);
+    box-sizing: border-box;
+    padding: var(--space-4);
+    overflow: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: var(--color-surface-1);
+    color: var(--color-text);
+  }
+
+  .action-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  .action-dialog-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--color-separator);
+  }
+
+  .action-dialog-heading h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .action-dialog .back-navigation,
+  .action-dialog h1 {
+    display: none;
+  }
+
+  .action-dialog .resource-panel {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .action-dialog .mutation-form {
+    max-width: none;
+  }
+
+  .action-dialog [data-action-status]:empty {
+    display: none;
+  }
+
+  .action-help {
+    margin-block: var(--space-4);
+  }
+
+  .action-help summary {
+    display: list-item;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .preferences-note {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+  }
+}
+
 @layer utilities {
   .visually-hidden {
     position: absolute;

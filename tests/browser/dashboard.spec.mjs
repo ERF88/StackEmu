@@ -24,13 +24,7 @@ for (const language of ["en", "pt-BR"]) {
         await expect(
           page.locator("#bucket-panel, [data-refresh-panel], [data-bucket-count]"),
         ).toHaveCount(0);
-        await expect(page.locator(".service-status-link")).toHaveText(
-          language === "en" ? "S3 · Not verified" : "S3 · Não verificado",
-        );
-        await expect(page.locator(".service-status-link")).toHaveAttribute(
-          "href",
-          `/connection?${query}`,
-        );
+        await expect(page.locator(".service-status-link")).toHaveCount(0);
         for (const width of [390, 1440]) {
           await page.setViewportSize({ width, height: 1000 });
           expect(
@@ -50,9 +44,7 @@ for (const language of ["en", "pt-BR"]) {
         await expect(page).toHaveURL((url) => url.pathname === "/s3" && url.search === `?${query}`);
         await expect(page.locator("html")).toHaveAttribute("data-density", density);
         await expect(page.locator(".primary-navigation [aria-current=page]")).toContainText("S3");
-        await expect(page.locator(".service-connection .status")).toHaveText(
-          language === "en" ? "S3 accessible" : "S3 acessível",
-        );
+        await expect(page.locator(".service-connection .status")).toHaveCount(0);
         const trigger = page.locator("[data-refresh-panel]");
         await expect(trigger).toHaveText(language === "en" ? "Refresh list" : "Atualizar lista");
         let release;
@@ -115,14 +107,13 @@ for (const language of ["en", "pt-BR"]) {
           ).toEqual([]);
           await page.screenshot({ path: testInfo.outputPath(`s3-${width}.png`), fullPage: true });
         }
-        await page.locator(".service-connection a").click();
+        await page.locator(".preferences-trigger").click();
+        await page.locator('.preferences a[href^="/connection?"]').click();
         await expect(page).toHaveURL((url) => url.pathname === "/connection");
         await expect(page.locator(".connection-facts")).toBeVisible();
         await expect(page.locator("#bucket-list")).toHaveCount(0);
         await page.locator(".primary-navigation a").first().click();
-        await expect(page.locator(".service-status-link")).toContainText(
-          language === "en" ? "Not verified" : "Não verificado",
-        );
+        await expect(page.locator(".service-status-link")).toHaveCount(0);
       });
     }
 
@@ -178,12 +169,11 @@ for (const language of ["en", "pt-BR"]) {
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
       await page.locator("[data-refresh-panel]").click();
       await expect(page.locator("#bucket-panel")).toHaveAttribute("aria-busy", "false");
-      await page.locator(".service-connection a").click();
+      await page.locator(".preferences-trigger").click();
+      await page.locator('.preferences a[href^="/connection?"]').click();
       await expect(page.locator(".connection-facts")).toBeVisible();
       await page.locator(".primary-navigation a").first().click();
-      await expect(page.locator(".service-status-link")).toContainText(
-        language === "en" ? "Not verified" : "Não verificado",
-      );
+      await expect(page.locator(".service-status-link")).toHaveCount(0);
     } finally {
       await context.close();
     }

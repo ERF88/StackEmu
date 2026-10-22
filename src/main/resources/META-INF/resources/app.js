@@ -21,6 +21,215 @@ function submitLabel(button) {
   return button.querySelector("[data-submit-label]") || button;
 }
 
+// ADR-0025: htmx alone renders checked same-origin action workspaces; never emulator HTML.
+function initializeActionDialog() {
+  const dialog = document.getElementById("action-dialog");
+  if (!dialog?.showModal || !window.htmx?.ajax) return;
+  const content = document.getElementById("action-dialog-content");
+  const status = dialog.querySelector("[data-action-status]");
+  const close = dialog.querySelector("[data-action-close]");
+  const title = document.getElementById("action-dialog-title");
+  const managed = new WeakSet();
+  let active = null;
+  let trigger = null;
+  let mutationPending = false;
+  let completed = false;
+  let returnHref = null;
+
+  function pending(value) {
+    mutationPending = value;
+    close.disabled = value;
+    content.setAttribute("aria-busy", String(value));
+  }
+  function fail(mutating) {
+    pending(false);
+    status.textContent = mutating ? dialog.dataset.uncertainLabel : dialog.dataset.failedLabel;
+    close.querySelector("span").textContent = dialog.dataset.closeLabel;
+    // An unmarked/network response is not a safe invitation to repeat a mutation.
+    for (const button of content.querySelectorAll('button[type="submit"]')) {
+      button.disabled = true;
+      if (button.dataset.idleLabel) submitLabel(button).textContent = button.dataset.idleLabel;
+    }
+    for (const form of content.querySelectorAll("form")) {
+      form.dataset.actionBlocked = "true";
+      form.setAttribute("aria-busy", "false");
+    }
+  }
+  function request(method, url, source) {
+    status.textContent =
+      method === "GET" ? dialog.dataset.loadingLabel : source.dataset.submittingLabel;
+    content.setAttribute("aria-busy", "true");
+    active = { xhr: null, mutating: method === "POST", path: new window.URL(url).pathname };
+    window.htmx
+      .ajax(method, url, {
+        source,
+        target: content,
+        select: "#action-workspace",
+        swap: "innerHTML ignoreTitle:true swap:0s settle:0s",
+      })
+      .catch(() => {
+        // Matching afterRequest handles failure; never automatically repeat a POST.
+      });
+  }
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href]");
+    if (
+      !link ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    // Keep canonical form reloads native; nesting another copy would duplicate form IDs.
+    if (
+      link.closest("#action-workspace") ||
+      link.hasAttribute("download") ||
+      (link.target && link.target !== "_self")
+    )
+      return;
+    const url = new window.URL(link.href);
+    if (
+      url.origin !== window.location.origin ||
+      !["/s3/write", "/s3/delete-object"].includes(url.pathname)
+    )
+      return;
+    if (dialog.open) return;
+    event.preventDefault();
+    trigger = link;
+    completed = false;
+    returnHref = null;
+    close.querySelector("span").textContent = dialog.dataset.cancelLabel;
+    title.textContent = link.textContent.trim();
+    content.replaceChildren();
+    dialog.showModal();
+    close.focus();
+    request("GET", link.href, dialog);
+  });
+  document.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (
+      !dialog.open ||
+      !content.contains(form) ||
+      !form.matches(".mutation-form") ||
+      form.matches("[data-upload-form]")
+    )
+      return;
+    event.preventDefault();
+    if (
+      mutationPending ||
+      active ||
+      form.dataset.actionBlocked === "true" ||
+      !form.reportValidity()
+    )
+      return;
+    request("POST", form.action, form);
+  });
+  document.addEventListener("htmx:configRequest", (event) => {
+    if (event.detail.elt === dialog || content.contains(event.detail.elt))
+      event.detail.timeout =
+        active?.mutating || event.detail.elt.matches("[data-upload-form]") ? 120000 : 10000;
+  });
+  document.addEventListener("htmx:beforeRequest", (event) => {
+    const source = event.detail.elt;
+    if (source !== dialog && !content.contains(source)) return;
+    if (source.matches("[data-upload-form]")) {
+      pending(true);
+      return;
+    }
+    if (!active) return;
+    active.xhr = event.detail.xhr;
+    managed.add(active.xhr);
+    if (active.mutating) {
+      pending(true);
+      source.setAttribute("aria-busy", "true");
+      const button = source.querySelector('button[type="submit"]');
+      button.dataset.idleLabel = submitLabel(button).textContent;
+      button.disabled = true;
+      submitLabel(button).textContent = source.dataset.submittingLabel;
+    }
+  });
+  document.addEventListener("htmx:beforeSwap", (event) => {
+    const xhr = event.detail.xhr;
+    if (!managed.has(xhr)) return;
+    if (!dialog.open || active?.xhr !== xhr || event.detail.target !== content) {
+      event.preventDefault();
+      return;
+    }
+    const response = new window.URL(xhr.responseURL, window.location.href);
+    if (
+      response.origin !== window.location.origin ||
+      response.pathname !== active.path ||
+      ![200, 403, 404, 409, 422, 429, 500, 502, 503].includes(xhr.status) ||
+      xhr.getResponseHeader("X-StackEmu-Action") !== "workspace" ||
+      !xhr.getResponseHeader("Content-Type")?.startsWith("text/html") ||
+      !xhr.responseText.includes('id="action-workspace"')
+    ) {
+      event.preventDefault();
+      fail(active.mutating);
+      return;
+    }
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+    event.detail.ignoreTitle = true;
+    event.detail.selectOverride = "#action-workspace";
+  });
+  document.addEventListener("htmx:afterSwap", (event) => {
+    if (!dialog.open || !content.contains(event.detail.target)) return;
+    if (event.detail.target === content && event.detail.xhr !== active?.xhr) return;
+    const wasGet = active && !active.mutating;
+    active = null;
+    pending(false);
+    status.textContent = "";
+    completed = Boolean(content.querySelector("[data-operation-success], [data-action-completed]"));
+    if (completed || !content.querySelector("form"))
+      close.querySelector("span").textContent = dialog.dataset.closeLabel;
+    if (content.querySelector("[data-action-completed]"))
+      returnHref = content.querySelector(".back-navigation a")?.href;
+    const heading = content.querySelector("h1");
+    if (heading) title.textContent = heading.textContent.trim();
+    const focus =
+      content.querySelector('[aria-invalid="true"]') ||
+      (wasGet && !content.querySelector('form[action="/s3/delete-object"]')
+        ? content.querySelector('input:not([type="hidden"]):not([readonly])')
+        : null);
+    (focus || close).focus();
+  });
+  document.addEventListener("htmx:afterRequest", (event) => {
+    if (event.detail.elt?.matches("[data-upload-form]") && content.contains(event.detail.elt)) {
+      pending(false);
+      close.querySelector("span").textContent = dialog.dataset.closeLabel;
+    }
+    if (active?.xhr !== event.detail.xhr) return;
+    fail(active.mutating);
+    active = null;
+  });
+  close.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("cancel", (event) => {
+    if (mutationPending) event.preventDefault();
+  });
+  dialog.addEventListener("close", () => {
+    if (dialog.open) return;
+    const xhr = active?.xhr;
+    active = null;
+    xhr?.abort();
+    pending(false);
+    content.replaceChildren();
+    status.textContent = "";
+    if (completed) window.location.assign(returnHref || window.location.href);
+    else if (trigger?.isConnected) trigger.focus();
+  });
+  window.addEventListener("pagehide", () => {
+    // Leaving never promises cancellation or rollback of a server-side mutation.
+    completed = false;
+    if (dialog.open) dialog.close();
+  });
+}
+
+initializeActionDialog();
+
 document.addEventListener("submit", (event) => {
   const form = event.target;
   if (!form.matches(".mutation-form") || event.defaultPrevented) return;
@@ -235,7 +444,6 @@ function initializeUploadEnhancement() {
     state.form.setAttribute("aria-busy", "false");
     for (const control of state.controls) control.disabled = false;
     submitLabel(state.submit).textContent = state.idleLabel;
-    state.form.querySelector('[name="confirm"]').checked = false;
     state.progress.removeAttribute("value");
     writeStatus(
       state,
@@ -416,6 +624,8 @@ function initializeUploadEnhancement() {
     active = null;
     prepareForms();
     const workspace = document.getElementById("mutation-workspace");
+    // The action-window controller owns modal focus/title, not the underlying document.
+    if (workspace.closest("#action-dialog")) return;
     document.title = workspace.dataset.pageTitle;
     const focus = workspace.querySelector('[aria-invalid="true"]') ?? workspace.querySelector("h1");
     if (focus) {
@@ -432,6 +642,7 @@ function initializeUploadEnhancement() {
     restoreUnconfirmed(active);
     request?.abort(); // Navigation is not a rollback or server cancellation guarantee.
   });
+  document.addEventListener("htmx:afterSwap", prepareForms);
   prepareForms();
 }
 
@@ -444,7 +655,7 @@ function initializeOperationNotice() {
   let resultHeading = null;
   function showResult(announce) {
     const heading = document.querySelector("h1[data-operation-success]");
-    if (!heading || heading === resultHeading) return;
+    if (!heading || heading === resultHeading || heading.closest("#action-dialog")) return;
     resultHeading = heading;
     message.setAttribute("aria-live", announce ? "polite" : "off");
     if (announce) message.setAttribute("role", "status");

@@ -12,7 +12,7 @@ for (const theme of ["dark", "light"]) {
       "data-bucket-count",
       String(listedBuckets),
     );
-    await expect(page.locator(".service-connection .status")).toBeVisible();
+    await expect(page.locator(".service-connection .status")).toHaveCount(0);
     await page.locator("[hx-get]").click();
     await expect(page.locator("[data-bucket-count]")).toHaveAttribute(
       "data-bucket-count",

@@ -65,6 +65,7 @@ Evidence is historical and version/environment-specific, not today's instruction
 
 - [Cohesive HIG fluidity / Fluidez HIG coesa](decisions/ADR-0023-hig-fluidity.md)
 - [Direct actions and navigation / Ações diretas e navegação](decisions/ADR-0024-direct-actions-navigation.md)
+- [Action windows / Janelas de ação](decisions/ADR-0025-action-dialogs.md)
 
 - [Apple HIG visual baseline / Padrão visual HIG](decisions/ADR-0022-apple-hig-design-baseline.md)
 
@@ -96,6 +97,7 @@ Evidence is historical and version/environment-specific, not today's instruction
 
 - [HIG fluidity local results / Resultados locais da fluidez HIG](evidence/hig-fluidity-results.md)
 - [Direct controls local results / Resultados locais dos controles diretos](evidence/direct-controls-results.md)
+- [Action windows local checkpoint / Checkpoint local das janelas](evidence/action-dialogs-results.md)
 
 - [Single-object deletion local results / Resultados locais da exclusão individual](evidence/single-object-deletion-results.md)
 

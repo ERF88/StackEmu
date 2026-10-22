@@ -31,7 +31,7 @@ for (const language of ["en", "pt-BR"]) {
         await page.goto(`/s3/write?action=bucket&lang=${language}&theme=${theme}`);
         await expect(notice).toBeHidden();
         await page.locator("#mutation-bucket").fill(bucket);
-        await page.getByRole("checkbox").check();
+        await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
         await page.locator('button[type="submit"]').click();
         await expect(notice).toBeVisible();
         await expect(message).toHaveText(completed);
@@ -65,6 +65,7 @@ for (const language of ["en", "pt-BR"]) {
         await expect(notice).toBeHidden();
         await expect(heading).toBeFocused();
         await expect(page.locator("#content")).toContainText(bucket);
+        await page.locator(".action-help summary").click();
         await expect(page.locator(".command-preview")).toBeVisible();
         await page.evaluate(() =>
           window.dispatchEvent(new window.PageTransitionEvent("pageshow", { persisted: true })),
@@ -73,7 +74,7 @@ for (const language of ["en", "pt-BR"]) {
 
         await page.goto(`/s3/write?action=folder&bucket=${bucket}&lang=${language}&theme=${theme}`);
         await page.locator("#mutation-key").fill("notice/");
-        await page.getByRole("checkbox").check();
+        await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
         await page.locator('button[type="submit"]').click();
         await expect(message).toHaveText(completed);
         await expect(message).toHaveAttribute("aria-live", "polite");
@@ -86,7 +87,7 @@ for (const language of ["en", "pt-BR"]) {
           mimeType: "text/plain",
           buffer: Buffer.from("notice bytes"),
         });
-        await page.getByRole("checkbox").check();
+        await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
         await page.locator('button[type="submit"]').click();
         await expect(message).toHaveText(completed);
         await expect(message).toHaveAttribute("aria-live", "off");
@@ -116,11 +117,12 @@ test("native success without JavaScript retains authoritative result without toa
     const page = await context.newPage();
     await page.goto("/s3/write?action=bucket&lang=en");
     await page.locator("#mutation-bucket").fill(bucket);
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.locator('button[type="submit"]').click();
     await expect(page.getByRole("heading", { name: "Operation completed" })).toBeVisible();
     await expect(page.locator("#content")).toContainText(bucket);
     await expect(page.locator("[data-operation-notice]")).toBeHidden();
+    await page.locator(".action-help summary").click();
     await expect(page.locator(".command-preview")).toBeVisible();
   } finally {
     await context.close();

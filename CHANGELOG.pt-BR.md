@@ -6,6 +6,8 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ## [Não lançado]
 
+- Adicionar janelas de criação/upload/revisão de exclusão com JavaScript e botões explícitos, sem checkbox genérico; mover densidade, diagnóstico e aviso local para Preferências. Preservar validação e gates de exclusão no servidor. [Decisão e limites](docs/decisions/ADR-0025-action-dialogs.md); verificação local do runtime permanece separada.
+
 - Substituir expansores de Ações/Preferências por ações diretas e Preferências nativas não modais; padronizar botões com ícone/rótulo e retornos contextuais antes dos títulos. Preservar arquivo original, fallback e contratos de segurança. [Decisão](docs/decisions/ADR-0024-direct-actions-navigation.md) · [Checks locais](docs/evidence/direct-controls-results.md).
 
 - Iteração coesa de fluidez HIG pela ADR-0023: superfícies neutras sólidas, separadores discretos, navegação mobile compacta, breadcrumbs contínuos, metadados agrupados e feedback 100/200ms com redução de movimento. Substitui decoração V1 congelada; [checks novos e limites](docs/evidence/hig-fluidity-results.md), sem dispensar segurança ou alegar certificação.

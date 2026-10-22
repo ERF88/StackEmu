@@ -46,12 +46,12 @@ for (const language of ["en", "pt-BR"]) {
       const preferencesTrigger = page.locator(".preferences-trigger");
       await expect(preferences).toBeHidden();
       await expect(page.locator(".language-controls")).toBeHidden();
-      await expect(page.locator(".workspace-header .density-controls")).toHaveCount(0);
-      await expect(page.locator(".density-controls")).toHaveCount(0);
+      await expect(page.locator(".preferences .density-controls")).toBeHidden();
+      await expect(page.locator(".density-controls")).toHaveCount(1);
       await expect(
         page.locator(".sidebar .local-notice, .brand small, .workspace-label .eyebrow"),
       ).toHaveCount(0);
-      await expect(page.locator("footer")).toBeVisible();
+      await expect(page.locator("footer")).toHaveCount(0);
       for (const width of [390, 1440]) {
         await page.setViewportSize({ width, height: 1000 });
         if (width === 390) {
@@ -118,7 +118,7 @@ for (const language of ["en", "pt-BR"]) {
         `/s3/bucket?bucket=${bucket}&prefix=&${query}`,
       );
       await page.goto(`/s3/bucket?bucket=${bucket}&prefix=samples%2F&${query}`);
-      await expect(page.locator(".object-list-panel .density-controls")).toHaveCount(1);
+      await expect(page.locator(".object-list-panel .density-controls")).toHaveCount(0);
       const objectRow = page.locator(".object-table tbody tr").filter({ hasText: key });
       await expect(objectRow.locator(".table-action")).toBeVisible();
       await expect(objectRow.locator("summary")).toHaveCount(0);

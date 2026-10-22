@@ -79,7 +79,7 @@ for (const language of ["en", "pt-BR"]) {
 
       await page.goto(`/s3/write?action=bucket&lang=${language}&theme=${theme}`);
       await page.locator("#mutation-bucket").fill("INVALID");
-      await page.getByRole("checkbox").check();
+      await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
       // Test-only listener runs after the application's listener, keeping the transient UI
       // observable without stalling a native navigation. A fresh real POST is verified below.
       await page.evaluate(() => {
@@ -95,7 +95,7 @@ for (const language of ["en", "pt-BR"]) {
       });
       await page.reload();
       await page.locator("#mutation-bucket").fill("INVALID");
-      await page.getByRole("checkbox").check();
+      await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
       const posted = page.waitForRequest(
         (request) => request.method() === "POST" && request.url().endsWith("/s3/write/bucket"),
       );
@@ -128,7 +128,7 @@ test("native validation remains usable without JavaScript", async ({ browser, ba
     const page = await context.newPage();
     await page.goto("/s3/write?action=bucket&lang=en");
     await page.locator("#mutation-bucket").fill("INVALID");
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.getByRole("button", { name: "Create bucket", exact: true }).click();
     await expect(page.locator("#bucket-error")).toBeVisible();
     await expect(page.locator("#mutation-bucket")).toHaveAttribute("aria-invalid", "true");

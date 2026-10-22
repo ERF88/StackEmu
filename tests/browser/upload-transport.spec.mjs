@@ -28,7 +28,7 @@ test("real htmx multipart transport distinguishes upload and response progress",
     await page
       .locator("#mutation-file")
       .setInputFiles({ name: filename, mimeType: "text/plain", buffer: bytes });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     const evidence = await page.evaluate(async () => {
       const form = document.querySelector(".mutation-form");
       form.setAttribute("hx-encoding", "multipart/form-data");

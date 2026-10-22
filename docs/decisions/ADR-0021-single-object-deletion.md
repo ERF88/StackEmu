@@ -5,6 +5,8 @@
 
 ## Contract / Contrato
 
+2026-10-21: [ADR-0025](ADR-0025-action-dialogs.md) supersedes native-page-only/no-modal presentation and the generic checkbox. Explicit Delete in a reviewed action window expresses consent; one-use tickets, CSRF, exact server-held targets, version/ETag gates and uncertainty remain unchanged. / Modal e envio explícito substituem apresentação anterior, sem dispensar os gates de exclusão.
+
 Implement only one exact non-marker key in a never-versioned bucket. No traversal, batch, prefix cleanup, bucket deletion, explicit version IDs or retention bypass. GET `/s3/delete-object?bucket=…&key=…` reads version state and HEAD metadata; it cannot delete. POST to the same path requires framework CSRF, explicit confirmation and a random 256-bit opaque ticket. The bounded process-local store holds the reviewed target/ETag for five minutes, at most 128 pending tickets. The POST atomically consumes a ticket before any service I/O, including failures. Restart invalidates tickets. No browser storage, signing secret, application session or new dependency is introduced. Tokens are not authentication; localhost/trusted-emulator restrictions remain.
 
 Implementar apenas uma chave exata que não termine em `/`, em bucket nunca versionado. Sem percorrer prefixos, lotes, limpeza/exclusão de buckets, IDs de versão ou bypass de retenção. GET consulta estado e HEAD, sem excluir. POST exige CSRF, confirmação e ticket opaco aleatório de 256 bits. Servidor guarda alvo/ETag por cinco minutos, máximo de 128 confirmações; consumo atômico antes de I/O, inclusive falhas. Reinício invalida tickets. Sem armazenamento no navegador, segredo de assinatura, sessão ou dependência nova. Ticket não autentica; restrição local permanece.

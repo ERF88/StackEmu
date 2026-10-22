@@ -58,6 +58,7 @@ for (const language of ["en", "pt-BR"]) {
         path: testInfo.outputPath("comfortable-long-key.png"),
         fullPage: true,
       });
+      await page.locator(".preferences-trigger").click();
       await page.locator('[data-density-choice="compact"]').click();
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
       expect((await row.boundingBox()).height).toBeLessThan(comfortableHeight);
@@ -104,7 +105,9 @@ for (const language of ["en", "pt-BR"]) {
           fullPage: true,
         });
       }
-      for (const link of await page.locator(".preferences a").all()) {
+      for (const link of await page
+        .locator(".language-controls a, .theme-controls a, .density-controls a")
+        .all()) {
         const href = new URL(await link.getAttribute("href"), page.url());
         expect(href.searchParams.getAll("density")).toHaveLength(1);
         expect(href.searchParams.get("prefix")).toBe("samples/");
@@ -113,9 +116,11 @@ for (const language of ["en", "pt-BR"]) {
       await next.click();
       const token = new URL(page.url()).searchParams.get("token");
       expect(token).toBeTruthy();
+      await page.locator(".preferences-trigger").click();
       await page.locator('[data-density-choice="comfortable"]').click();
       expect(new URL(page.url()).searchParams.get("token")).toBe(token);
       await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
+      await page.locator(".preferences-trigger").click();
       await page.locator('[data-density-choice="compact"]').click();
       await page.goto(`${bucketPath}&lang=${language}&theme=${theme}&density=compact`);
       const object = page.locator("[data-object-detail]").filter({ hasText: longKey });
@@ -138,7 +143,7 @@ for (const language of ["en", "pt-BR"]) {
         `/s3/write?action=folder&bucket=${bucket}&prefix=${encodeURIComponent(prefix)}&lang=${language}&theme=${theme}&density=compact`,
       );
       await expect(page.locator('input[name="density"]')).toHaveValue("compact");
-      await page.getByRole("checkbox").check();
+      await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
       await page.locator('button[type="submit"]').click();
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
       await expect(page.locator("main a.button.primary")).toHaveAttribute(
@@ -156,6 +161,7 @@ for (const language of ["en", "pt-BR"]) {
       const page = await context.newPage();
       await page.goto(`/s3?lang=${language}&theme=light&density=untrusted`);
       await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
+      await page.locator(".preferences-trigger").click();
       await page.locator('[data-density-choice="compact"]').click();
       await page.locator("[data-refresh-panel]").click();
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
@@ -166,7 +172,7 @@ for (const language of ["en", "pt-BR"]) {
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
       await page.goto(`/s3/write?action=bucket&lang=${language}&theme=light&density=compact`);
       await page.locator("#mutation-bucket").fill("INVALID");
-      await page.getByRole("checkbox").check();
+      await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
       await page.locator('button[type="submit"]').click();
       await expect(page.locator("#mutation-bucket")).toHaveAttribute("aria-invalid", "true");
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");

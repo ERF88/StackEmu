@@ -143,7 +143,7 @@ for (const language of ["en", "pt-BR"]) {
           await zone.dispatchEvent("drop", { dataTransfer: selected });
           expect(await input.evaluate((element) => element.files[0].name)).toBe(filename);
           expect(requests).toBe(0);
-          await page.getByRole("checkbox").check();
+          await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
           await page.locator('button[type="submit"]').click();
           await expect
             .poll(async () => {
@@ -158,7 +158,7 @@ for (const language of ["en", "pt-BR"]) {
           await expect(page.locator("progress")).toHaveJSProperty("value", 100);
           await expect(page.locator("[data-operation-notice]")).toBeHidden();
           await expect(input).toBeDisabled();
-          await expect(page.getByRole("checkbox")).toBeDisabled();
+          await expect(page.locator('button[type="submit"]')).toBeDisabled();
           await expect(page.locator('button[type="submit"]')).toBeDisabled();
           await page.locator("form").dispatchEvent("submit");
           await zone.dispatchEvent("drop", {
@@ -224,7 +224,7 @@ test("server validation reselects the file and explicit retry succeeds without o
       mimeType: "text/plain",
       buffer: Buffer.alloc(10485761, "x"),
     });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     const failed = page.waitForResponse((response) => response.url().endsWith("/s3/write/upload"));
     await page.locator('button[type="submit"]').click();
     expect((await failed).status()).toBe(422);
@@ -238,7 +238,7 @@ test("server validation reselects the file and explicit retry succeeds without o
     await page
       .locator("#mutation-file")
       .setInputFiles({ name: "size.txt", mimeType: "text/plain", buffer: Buffer.from(payload) });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.locator('button[type="submit"]').click();
     await expect(page.getByRole("heading", { name: "Operation completed" })).toBeVisible();
     await page.reload();
@@ -247,7 +247,7 @@ test("server validation reselects the file and explicit retry succeeds without o
       mimeType: "text/plain",
       buffer: Buffer.from("must not overwrite"),
     });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     const conflict = page.waitForResponse((response) =>
       response.url().endsWith("/s3/write/upload"),
     );
@@ -310,14 +310,14 @@ test("unmarked, network, size and shortened-timeout failures never retry automat
           mimeType: "text/plain",
           buffer: Buffer.from(payload),
         });
-        await page.getByRole("checkbox").check();
+        await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
         await page.locator('button[type="submit"]').click();
         await expect(page.locator("[data-upload-status]")).toContainText(
           failure === "size" ? "rejected" : "could not be confirmed",
         );
         await expect(page.locator("form")).toHaveAttribute("aria-busy", "false");
         await expect(page.locator("[data-operation-notice]")).toBeHidden();
-        await expect(page.getByRole("checkbox")).not.toBeChecked();
+        await expect(page.locator(".mutation-form")).toHaveAttribute("aria-busy", "false");
         await expect(page.locator('button[type="submit"]')).toBeEnabled();
         expect(requests).toBe(1);
         await expect(page.locator("#mutation-workspace")).not.toContainText(
@@ -375,7 +375,7 @@ test("synthetic progress edge cases stay indeterminate or monotonic and ignore r
     await page
       .locator("#mutation-file")
       .setInputFiles({ name: "edges.txt", mimeType: "text/plain", buffer: Buffer.from(payload) });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.locator('button[type="submit"]').click();
     await expect(page.locator("[data-upload-status]")).toContainText("could not be confirmed");
     expect(await page.evaluate(() => window.uploadProgressEdges)).toEqual([
@@ -396,7 +396,7 @@ test("real upload CSRF rejection never produces a success workspace", async ({ p
     await page
       .locator("#mutation-file")
       .setInputFiles({ name: "csrf.txt", mimeType: "text/plain", buffer: Buffer.from(payload) });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.locator('input[name="csrf-token"]').evaluate((element) => {
       element.value = "invalid-fixture";
     });
@@ -407,7 +407,7 @@ test("real upload CSRF rejection never produces a success workspace", async ({ p
     expect((await rejected).status()).toBe(400);
     await expect(page.locator("[data-operation-notice]")).toBeHidden();
     await expect(page.locator("[data-upload-status]")).toContainText("could not be confirmed");
-    await expect(page.getByRole("checkbox")).not.toBeChecked();
+    await expect(page.locator(".mutation-form")).toHaveAttribute("aria-busy", "false");
     expect(
       (
         await request.head(`${emulatorURL}/${bucket}/${encodeURIComponent("ux3/csrf.txt")}`)
@@ -432,7 +432,7 @@ test("native upload without JavaScript keeps original bytes and server confirmat
       await page
         .locator("#mutation-file")
         .setInputFiles({ name: filename, mimeType: "text/plain", buffer: Buffer.from(payload) });
-      await page.getByRole("checkbox").check();
+      await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
       await page.getByRole("button", { name: "Upload new object", exact: true }).click();
       await expect(page.getByRole("heading", { name: "Operation completed" })).toBeVisible();
       expect(

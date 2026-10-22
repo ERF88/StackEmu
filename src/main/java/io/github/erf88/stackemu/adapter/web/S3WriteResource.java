@@ -101,6 +101,7 @@ public class S3WriteResource {
                         formPath(selected, bucket, prefix)))
                 .render())
         .header("Cache-Control", "no-store")
+        .header("X-StackEmu-Action", "workspace")
         .build();
   }
 
@@ -209,6 +210,7 @@ public class S3WriteResource {
                       destination + "&" + ui.query())
                   .render())
           .header("Cache-Control", "no-store")
+          .header("X-StackEmu-Action", "workspace")
           .build();
     } catch (WriteValidationException invalid) {
       return page(422, action, bucket, key, "", invalid.errors(), ui);
@@ -245,6 +247,7 @@ public class S3WriteResource {
     return Response.status(status)
         .type(MediaType.TEXT_HTML_TYPE)
         .header("Cache-Control", "no-store")
+        .header("X-StackEmu-Action", "workspace")
         .entity(form(action, value(bucket), value(key), message, errors, ui).render())
         .build();
   }

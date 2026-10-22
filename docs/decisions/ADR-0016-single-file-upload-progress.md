@@ -5,6 +5,8 @@
 
 ## Boundaries / Limites
 
+2026-10-21: [ADR-0025](ADR-0025-action-dialogs.md) allows this form inside an action window and replaces the checkbox with explicit submission. Existing multipart/progress/CSRF/original-file/no-retry contracts remain. Complete no-JS parity is no longer a UX blocker; the existing native form remains available. / Formulário pode abrir em janela, sem checkbox; demais contratos preservados e JavaScript autorizado.
+
 Enhance only the existing single-file upload form. Keep native file input/keyboard/touch picker, multipart POST route, explicit required confirmation, CSRF, server-generated temporaries, no-overwrite, basename/extension/MIME policy and separate read/write ports. Drop selects exactly one regular file and never submits. Reject multi-file, directory and text drops without replacing a prior selection. During an active upload prevent selection/confirmation changes and duplicate submits. No multi-upload, resume, cancel guarantee, preview, signing or deletion is added.
 
 Melhorar só upload individual existente, preservando input nativo/teclado/toque, POST multipart, confirmação, CSRF, temporários seguros, não sobrescrita e nome/extensão/MIME. Drop seleciona um arquivo comum sem enviar; rejeitar múltiplos/pastas/texto sem alterar seleção anterior. Bloquear alterações/duplicidade enquanto envia. Sem novas capacidades além desta fatia.

@@ -4,6 +4,8 @@ All notable changes will be documented in this file. This project intends to fol
 
 ## [Unreleased]
 
+- Add JavaScript-driven creation/upload/deletion-review windows with explicit action buttons instead of generic checkboxes; move density, diagnostics and the local-only notice into Preferences. Preserve server validation and deletion gates. [Decision and limits](docs/decisions/ADR-0025-action-dialogs.md); local runtime verification remains separate.
+
 - Replace expanding Actions/Preferences with direct resource actions and native nonmodal Preferences; standardize icon/label buttons and contextual returns before titles. Preserve original-file, native fallback and security contracts. [Decision](docs/decisions/ADR-0024-direct-actions-navigation.md) · [Local checks](docs/evidence/direct-controls-results.md).
 
 - Cohesive HIG fluidity iteration under ADR-0023: neutral solid surfaces, quieter separators, compact mobile navigation, continuous breadcrumbs, grouped metadata and 100/200ms feedback with reduced-motion fallback. Supersedes frozen V1 decoration; [fresh checks and limits](docs/evidence/hig-fluidity-results.md), without relaxing security or claiming certification.

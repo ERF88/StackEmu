@@ -140,13 +140,13 @@ test("browser S3 writes, original file download, validation and security", async
     const rejected = await request.post("/s3/write/bucket", { form: { bucket, confirm: "yes" } });
     expect(rejected.status()).toBe(400);
     await page.getByLabel("Target bucket", { exact: true }).fill("INVALID");
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.getByRole("button", { name: "Create bucket", exact: true }).click();
     await expect(page.locator("#mutation-bucket")).toHaveAttribute("aria-invalid", "true");
     await expect(page.locator("#bucket-error")).toBeVisible();
     await audit(page, testInfo, "validation");
     await page.getByLabel("Target bucket", { exact: true }).fill(bucket);
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.getByRole("button", { name: "Create bucket", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Operation completed" })).toBeVisible();
     created = true;
@@ -154,7 +154,7 @@ test("browser S3 writes, original file download, validation and security", async
     await audit(page, testInfo, "empty-bucket");
     await page.getByRole("link", { name: "Create folder marker", exact: true }).click();
     await page.getByLabel("Folder marker prefix").fill(prefix);
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.getByRole("button", { name: "Create folder marker", exact: true }).click();
     await page.getByRole("link", { name: "Open created resource" }).click();
     await page.getByRole("link", { name: "Upload new object", exact: true }).click();
@@ -163,7 +163,7 @@ test("browser S3 writes, original file download, validation and security", async
     await page
       .getByLabel("Select a file", { exact: true })
       .setInputFiles({ name: filename, mimeType: "text/plain", buffer: bytes });
-    await page.getByRole("checkbox").check();
+    await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
     await page.getByRole("button", { name: "Upload new object", exact: true }).click();
     await page.getByRole("link", { name: "Open created resource" }).click();
     await expect(page.locator(".object-key")).toHaveText(key);

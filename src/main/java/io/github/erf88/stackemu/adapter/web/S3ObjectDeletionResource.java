@@ -121,6 +121,7 @@ public class S3ObjectDeletionResource {
     return Response.status(status)
         .type(MediaType.TEXT_HTML_TYPE)
         .header("Cache-Control", "no-store")
+        .header("X-StackEmu-Action", "workspace")
         .entity(
             Templates.confirmation(
                     new DeletionPageView(

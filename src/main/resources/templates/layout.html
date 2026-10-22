@@ -42,9 +42,6 @@
         <header class="workspace-header flex flex-wrap items-start justify-between gap-4 bg-panel">
           <div class="workspace-label">
             {#if ui.page != '/'}<span>{ui.contextLabel}</span>{/if}
-            {#if ui.page == '/'}
-              <a class="service-status-link" href="/connection?{ui.query}">S3 · {ui.text('notVerified')}</a>
-            {/if}
           </div>
           <button class="button preferences-trigger" type="button" popovertarget="preferences-panel">{#include icons/settings /}{ui.text('preferences')}</button>
           <section id="preferences-panel" class="preferences preferences-panel" popover="auto" aria-labelledby="preferences-title">
@@ -67,6 +64,11 @@
                   {#include icons/moon /}<span>{ui.text('themeDark')}</span>
                 </a>
               </div>
+              <h3>{ui.text('densityPreferences')}</h3>
+              {#include tableDensity /}
+              <h3>{ui.text('diagnostics')}</h3>
+              <a class="button" href="/connection?{ui.query}">{#include icons/info /}{ui.text('connectionDetails')}</a>
+              <p class="preferences-note">{ui.text('local')}</p>
           </section>
         </header>
         <main id="content" tabindex="-1">
@@ -76,8 +78,17 @@
             <button class="button" type="button" data-notice-dismiss>{#include icons/close /}{ui.text('dismissNotification')}</button>
           </section>
         </main>
-        <footer>{ui.text('local')}</footer>
       </div>
     </div>
+    <dialog id="action-dialog" class="action-dialog" aria-labelledby="action-dialog-title"
+      data-loading-label="{ui.text('actionLoading')}" data-failed-label="{ui.text('actionLoadFailed')}"
+      data-uncertain-label="{ui.text('actionUncertain')}" data-cancel-label="{ui.text('cancelAction')}" data-close-label="{ui.text('closeAction')}">
+      <div class="action-dialog-heading">
+        <h2 id="action-dialog-title">{ui.text('resourceActions')}</h2>
+        <button class="button" type="button" data-action-close autofocus>{#include icons/close /}<span>{ui.text('cancelAction')}</span></button>
+      </div>
+      <p data-action-status role="status" aria-live="polite" aria-atomic="true"></p>
+      <div id="action-dialog-content" aria-busy="false"></div>
+    </dialog>
   </body>
 </html>

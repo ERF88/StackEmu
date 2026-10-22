@@ -84,7 +84,7 @@ class ServiceCatalogTest {
     assertEquals(0, Emulator.requests.get());
     Emulator.server.stop(0);
     try {
-      given().get("/").then().statusCode(200).body(containsString("Not verified"));
+      given().get("/").then().statusCode(200).body(not(containsString("service-status-link")));
       assertEquals(0, Emulator.requests.get());
     } finally {
       Emulator.listen(Emulator.port);
@@ -99,7 +99,7 @@ class ServiceCatalogTest {
         .get("/s3")
         .then()
         .statusCode(200)
-        .body(containsString("data-bucket-count=\"0\""), containsString("S3 accessible"));
+        .body(containsString("data-bucket-count=\"0\""), not(containsString("service-connection")));
     Emulator.buckets = "<Bucket><Name>catalog-example</Name></Bucket>";
     given()
         .get("/s3")
@@ -136,7 +136,8 @@ class ServiceCatalogTest {
         .body(
             containsString("<title>Início · StackEmu</title>"),
             containsString("/s3?lang=pt-BR&amp;theme=light&amp;density=compact"),
-            containsString("S3 · Não verificado"),
+            not(containsString("S3 · Não verificado")),
+            containsString("id=\"action-dialog\""),
             not(containsString("id=\"bucket-panel\"")));
   }
 }

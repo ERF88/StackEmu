@@ -1,15 +1,13 @@
 <div id="bucket-panel" class="service-resources" aria-live="polite" aria-atomic="true" aria-busy="false">
-  <div class="service-connection">
-    {#if connected}
-      <p class="status">{#include icons/success /}{ui.text('s3Accessible')}</p>
-    {#else}
+  {#if !connected}
+    <div class="service-connection">
       <p class="error">{#include icons/error /}{ui.text('s3VerificationFailed')}</p>
-    {/if}
-    <a href="/connection?{ui.query}">{ui.text('connectionDetails')}</a>
-  </div>
+      <a href="/connection?{ui.query}">{ui.text('connectionDetails')}</a>
+    </div>
+  {/if}
   <section id="bucket-list" class="summary-card bucket-list-card" aria-labelledby="bucket-list-title">
     <div class="section-heading"><h2 id="bucket-list-title">{#include icons/buckets /}Buckets {#if connected}<small data-bucket-count="{buckets.size}">({buckets.size})</small>{/if}</h2>
-    {#include tableDensity /}</div>
+    </div>
     {#if connected}
       {#if buckets.isEmpty}
         <div class="resource-state">

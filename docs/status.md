@@ -1,5 +1,7 @@
 # Current project status / Status atual do projeto
 
+Action-window source checkpoint — 2026-10-21: [ADR-0025](decisions/ADR-0025-action-dialogs.md) authorizes interactive forms without generic checkboxes and moves secondary controls into Preferences. Separate Java 25 packaging, 31 selected non-network Java tests and static tools passed; loopback/Docker restrictions block functional integration and the open GUI was not updated. [Results and remaining gates](evidence/action-dialogs-results.md). / Janelas implementadas em fonte, com build/testes delimitados aprovados; integração e aceite visual pendentes por bloqueio de ambiente, sem atualizar a instância aberta.
+
 Current control/navigation correction — 2026-10-20: [ADR-0024](decisions/ADR-0024-direct-actions-navigation.md) replaces in-flow Actions/Preferences expansion, unifies action controls and puts contextual returns before titles. [Fresh execution and remaining gates](evidence/direct-controls-results.md); earlier counts are not new evidence. / Correção atual de expansores, controles e navegação; verificações e gates separados, sem reaproveitar contagens antigas.
 
 Cohesive HIG continuation — 2026-10-20: maintainer-authorized fluidity iteration under ADR-0023 replaces earlier visual recipes without waiving functional/security gates. [Current execution and remaining acceptance](evidence/hig-fluidity-results.md); preceding explorer/control counts are historical, not evidence for this composition. / Iteração coesa autorizada, com evidência nova separada e gates preservados.

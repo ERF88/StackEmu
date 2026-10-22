@@ -40,7 +40,7 @@ for (const language of ["en", "pt-BR"]) {
           await expect(page.locator(`${controls} a[aria-current=true]`)).toHaveCount(1);
         }
         await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
-        await expect(page.locator(".density-controls")).toHaveCount(0);
+        await expect(page.locator(".preferences .density-controls")).toBeHidden();
         await expect(page.locator(".preferences-panel")).toBeHidden();
         await expect(page.locator(".language-controls")).toBeHidden();
         await expect(page.locator(".primary-navigation svg")).toHaveCount(2);

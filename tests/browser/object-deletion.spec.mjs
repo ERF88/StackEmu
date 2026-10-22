@@ -56,26 +56,35 @@ for (const javaScriptEnabled of [true, false]) {
           const row = page.locator("tbody tr").filter({ hasText: key });
           await expect(row.locator("summary")).toHaveCount(0);
           await row.locator('a[href^="/s3/delete-object?"]').click();
-          await expect(page).toHaveURL(/\/s3\/delete-object\?/);
-          await expect(page.locator(".object-key")).toHaveText(key);
+          if (javaScriptEnabled) {
+            await expect(page.locator("#action-dialog")).toBeVisible();
+            await expect(page.locator("[data-action-close]")).toBeFocused();
+            await expect(page).toHaveURL(/\/s3\/bucket\?/);
+          } else await expect(page).toHaveURL(/\/s3\/delete-object\?/);
+          const review = javaScriptEnabled
+            ? page.locator("#action-dialog")
+            : page.locator("#action-workspace");
+          await expect(review.locator(".object-key")).toHaveText(key);
           await expect(page.locator('input[name="density"]')).toHaveValue("compact");
           await expect(page.locator('input[name="lang"]')).toHaveValue(language);
           await expect(page.locator('input[name="theme"]')).toHaveValue(theme);
-          await expect(page.locator('input[name="confirm"]')).not.toBeChecked();
-          const deletionButton = page.locator("form .button.danger");
+          await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
+          await expect(page.getByRole("checkbox")).toHaveCount(0);
+          const deletionButton = review.locator("form .button.danger");
           await expect(deletionButton).toHaveCSS("border-top-left-radius", "999px");
           await expect(deletionButton).toHaveCSS("box-shadow", "none");
           const dangerColor = await deletionButton.evaluate(
             (element) => window.getComputedStyle(element).borderTopColor,
           );
           await expect(deletionButton).toHaveCSS("color", dangerColor);
-          const neutralSurface = await page
+          const neutralSurface = await review
             .locator(".resource-panel")
             .evaluate((element) => window.getComputedStyle(element).backgroundColor);
           await expect(deletionButton).toHaveCSS("background-color", neutralSurface);
           expect((await request.get(objectURL)).status()).toBe(200);
           // Read-only cancel must not mutate either exact target or neighbor.
-          await page.locator('.back-navigation a[href^="/s3/bucket?"]').click();
+          if (javaScriptEnabled) await page.locator("[data-action-close]").click();
+          else await page.locator('.back-navigation a[href^="/s3/bucket?"]').click();
           expect((await request.get(objectURL)).status()).toBe(200);
           await page.goto(
             `/s3/object?bucket=${bucket}&key=${encodeURIComponent(key)}&${preferences}`,
@@ -100,8 +109,8 @@ for (const javaScriptEnabled of [true, false]) {
               fullPage: true,
             });
           }
-          await page.locator('input[name="confirm"]').focus();
-          await page.keyboard.press("Space");
+          await deletionButton.focus();
+          await page.keyboard.press("Shift+Tab");
           await page.keyboard.press("Tab");
           await expect(page.locator('form button[type="submit"]')).toBeFocused();
           await expect(deletionButton).toHaveCSS("outline-style", "solid");
@@ -114,7 +123,8 @@ for (const javaScriptEnabled of [true, false]) {
           await expect(page.locator('form[action="/s3/delete-object"]')).toHaveCount(0);
           expect((await request.get(objectURL)).status()).toBe(404);
           expect((await request.get(guardURL)).status()).toBe(200);
-          await page.locator('.back-navigation a[href^="/s3/bucket?"]').click();
+          if (javaScriptEnabled) await page.locator("[data-action-close]").click();
+          else await page.locator('.back-navigation a[href^="/s3/bucket?"]').click();
           const returned = new URL(page.url());
           expect(returned.searchParams.get("bucket")).toBe(bucket);
           expect(returned.searchParams.get("prefix")).toBe("samples/");

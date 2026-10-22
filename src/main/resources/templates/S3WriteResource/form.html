@@ -1,13 +1,13 @@
 {#include layout}
   {#title}{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}{/title}
   {#content}
+    <div id="action-workspace">
     {#if view.upload}<div id="mutation-workspace" tabindex="-1" data-page-title="{ui.text('uploadObject')} · StackEmu">{/if}
     <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}">
       {#if view.createBucket}<a href="/s3?{ui.query}">{#include icons/back /}{ui.text('backToS3')}</a>
       {#else}<a href="{view.bucketHref}&{ui.query}">{#include icons/back /}{ui.text('backToObjects')}</a>{/if}
     </nav>
     <h1>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</h1>
-    <p>{#include icons/warning /}{ui.text('writeSafety')}</p>
     {#if !view.message.isEmpty}<p role="alert" class="error">{ui.text(view.message)}</p>{/if}
     <form class="mutation-form" aria-busy="false" data-submitting-label="{ui.text('submitting')}" action="/s3/write/{view.action}" method="post" accept-charset="UTF-8" enctype="{#if view.upload}multipart/form-data{#else}application/x-www-form-urlencoded{/if}"
       {#if view.upload}data-upload-form hx-encoding="multipart/form-data"
@@ -51,18 +51,19 @@
           <p data-upload-status role="status" aria-live="polite" aria-atomic="true"></p>
         </div>
       {/if}
-      <label class="confirmation-field"><input type="checkbox" name="confirm" value="yes" required {#if view.errors.containsKey('confirm')}aria-invalid="true" aria-describedby="confirm-error"{/if}> {ui.text('confirmMutation')}</label>
+      <input type="hidden" name="confirm" value="yes">
       {#if view.errors.containsKey('confirm')}<p id="confirm-error" class="error" role="alert">{ui.text(view.errors.get('confirm'))}</p>{/if}
       <button class="button primary" type="submit">{#if view.createBucket}{#include icons/add /}{#else}{#if view.upload}{#include icons/upload /}{#else}{#include icons/folder /}{/if}{/if}<span data-submit-label>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</span></button>
     </form>
     <p id="submission-status" class="request-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-    {#if !view.upload}<section class="resource-panel">
-      <h2>{ui.text('cliEquivalent')}</h2>
+    {#if !view.upload}<details class="resource-panel action-help">
+      <summary>{ui.text('cliEquivalent')}</summary>
       <p>{ui.text('cliHelp')}</p>
       <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
-    </section>{/if}
+    </details>{/if}
     {#if view.upload}
       <p><a class="button" href="{ui.page}&{ui.query}">{#include icons/refresh /}{ui.text('reloadUploadForm')}</a></p>
     </div>{/if}
+    </div>
   {/content}
 {/include}

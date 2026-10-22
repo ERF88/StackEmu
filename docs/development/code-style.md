@@ -22,6 +22,8 @@ First-party JavaScript includes development tooling (`.mjs`) and the small progr
 
 ## Java and architecture review
 
+Action-window exception: [ADR-0025](../decisions/ADR-0025-action-dialogs.md) allows bundled htmx to select the checked same-origin action workspace after request/response gates. JavaScript may drive forms; complete no-JS parity is not a blocker. Keep canonical pages where practical, local external scripts, server validation and independent mutation security. / Exceção delimitada para janelas de ação; JS autorizado, sem dispensar validação/segurança ou importar HTML arbitrário.
+
 UX-2B exception: [ADR-0015](../decisions/ADR-0015-object-drawer-clipboard.md) allows the bundled htmx to swap only the checked, escaped same-origin object-detail fragment after active-request/status/marker checks. First-party code still must not assign innerHTML, evaluate strings, inject scripts or interpret emulator HTML. Local JavaScript also handles native dialog/focus and user-initiated Clipboard API promises with selectable fallback. / Exceção UX-2B: swap htmx restrito ao fragmento local Qute escapado/verificado; sem innerHTML próprio, eval, scripts ou HTML do emulador. JS local controla diálogo/foco e clipboard por gesto, com fallback selecionável.
 
 Detailed naming/role rules and review checklist: [naming and responsibilities](naming-and-responsibilities.md). / Regras detalhadas de nomenclatura, papéis e revisão no guia vinculado.
