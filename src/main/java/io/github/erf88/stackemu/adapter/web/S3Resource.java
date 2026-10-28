@@ -23,11 +23,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Produces(MediaType.TEXT_HTML)
 public class S3Resource {
   private final S3ReadPort reader;
-  private final ConnectionSettingsView configuration;
 
-  public S3Resource(S3ReadPort reader, ConnectionSettingsView configuration) {
+  public S3Resource(S3ReadPort reader) {
     this.reader = reader;
-    this.configuration = configuration;
   }
 
   @ConfigProperty(name = "stackemu.page-size", defaultValue = "50")
@@ -35,10 +33,11 @@ public class S3Resource {
 
   @CheckedTemplate
   public static class Templates {
-    public static native TemplateInstance bucket(
-        S3ViewMapper.BucketPageView view, UiContext ui, ConnectionSettingsView configuration);
+    public static native TemplateInstance bucket(S3ViewMapper.BucketPageView view, UiContext ui);
 
     public static native TemplateInstance object(S3ViewMapper.ObjectPageView view, UiContext ui);
+
+    public static native TemplateInstance metadata(S3ViewMapper.ObjectPageView view, UiContext ui);
 
     public static native TemplateInstance objectPanel(
         S3ViewMapper.ObjectPageView view, UiContext ui);
@@ -48,7 +47,7 @@ public class S3Resource {
 
   @GET
   @Path("bucket")
-  public TemplateInstance showBucket(
+  public Response showBucket(
       @QueryParam("bucket") String bucket,
       @QueryParam("prefix") String requestedPrefix,
       @QueryParam("token") String token,
@@ -67,12 +66,15 @@ public class S3Resource {
           UiContext.resolve(
               lang, accept, theme, density, S3ViewMapper.bucketPath(bucket, prefix, token));
       int pageSize = Math.max(1, Math.min(1000, configuredPageSize));
-      var details = reader.getBucketDetails(bucket);
       var listing =
           reader.listObjects(
               bucket, prefix, token == null || token.isEmpty() ? null : token, pageSize);
-      return Templates.bucket(
-          S3ViewMapper.toBucketPage(details, listing, prefix, pageSize, ui), ui, configuration);
+      return Response.ok(
+              Templates.bucket(S3ViewMapper.toBucketPage(bucket, listing, prefix, token, ui), ui)
+                  .render())
+          .header("X-StackEmu-Fragment", "object-list")
+          .header("Cache-Control", "no-store")
+          .build();
     } catch (S3ReadException failure) {
       throw pageError(failure, ui);
     }
@@ -94,6 +96,40 @@ public class S3Resource {
       ui = UiContext.resolve(lang, accept, theme, density, S3ViewMapper.objectPath(bucket, key));
       return Templates.object(
           S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui), ui);
+    } catch (S3ReadException failure) {
+      throw pageError(failure, ui);
+    }
+  }
+
+  @GET
+  @Path("object-metadata")
+  public Response showMetadata(
+      @QueryParam("bucket") String bucket,
+      @QueryParam("key") String key,
+      @QueryParam("lang") String lang,
+      @QueryParam("theme") String theme,
+      @QueryParam("density") String density) {
+    var ui =
+        UiContext.resolve(
+            lang,
+            null,
+            theme,
+            density,
+            "/s3/object-metadata?bucket="
+                + S3ViewMapper.encode(bucket == null ? "" : bucket)
+                + "&key="
+                + S3ViewMapper.encode(key == null ? "" : key));
+    try {
+      validateBucket(bucket);
+      validateKey(key, false);
+      return Response.ok(
+              Templates.metadata(
+                      S3ViewMapper.toObjectPage(bucket, reader.getObjectDetails(bucket, key), ui),
+                      ui)
+                  .render())
+          .header("X-StackEmu-Fragment", "object-inspector")
+          .header("Cache-Control", "no-store")
+          .build();
     } catch (S3ReadException failure) {
       throw pageError(failure, ui);
     }

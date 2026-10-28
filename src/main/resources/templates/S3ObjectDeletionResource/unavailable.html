@@ -1,0 +1,11 @@
+{#include layout}
+  {#title}{ui.text('operationKindDELETE_VERSION')}{/title}
+  {#content}
+    <div id="action-workspace">
+      <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{ui.objectLink(bucket, key)}">{#include icons/back /}{ui.text('objectDetails')}</a></nav>
+      <h1>{ui.text('operationKindDELETE_VERSION')}</h1>
+      <p class="object-key">{key}</p>
+      <p role="alert">{ui.text(message)}</p>
+    </div>
+  {/content}
+{/include}

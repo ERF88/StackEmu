@@ -52,7 +52,7 @@ class ArchitectureTest {
         .that()
         .haveSimpleNameEndingWith("Adapter")
         .should()
-        .resideInAPackage("..adapter.aws..")
+        .resideInAnyPackage("..adapter.aws..", "..adapter.persistence..")
         .check(production);
   }
 

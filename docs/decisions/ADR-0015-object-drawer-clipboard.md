@@ -5,6 +5,8 @@
 
 ## Decision / Decisão
 
+2026-10-22 presentation refinement: [ADR-0026](ADR-0026-bucket-workspace-deletion.md#relative-folders-and-focused-object-details--pastas-relativas-e-detalhes-objetivos) supersedes expanded policy/repeated values with one shared drawer/page component, adjacent exact-value copy controls and closed technical metadata/policy. Full key/bucket, HTTP/swap/race/focus/security and truthful clipboard contracts below remain. / Refinamento substitui política expandida/valores repetidos por componente único, cópia junto aos campos e detalhes técnicos recolhidos; chave/bucket completos e contratos reais permanecem.
+
 Enhance unmodified primary object-link clicks only when native dialog and the bundled htmx API are available. Use a modal right-side native dialog, full width on narrow screens. Name it with a persistent heading; focus Close on entry, retain native focus containment/inert background and Escape, and restore the exact triggering link on close. Do not put modal semantics on a nonmodal aside. Keep the ordinary object href for no-JavaScript, modified clicks, new tabs and direct navigation.
 
 Melhorar apenas clique primário sem modificadores quando diálogo nativo e htmx estiverem disponíveis. Drawer modal à direita, largura total mobile, título persistente, foco em Fechar, contenção/inert/Escape nativos e retorno ao link exato. Preservar href normal para fallback, nova aba e navegação direta.

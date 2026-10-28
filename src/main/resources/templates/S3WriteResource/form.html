@@ -32,16 +32,21 @@
         {/if}
       {/if}
       {#if view.upload}
+        {#if view.errors.containsKey('replacementTicket')}
+          <input type="hidden" name="replacementTicket" value="{view.errors.get('replacementTicket')}">
+          <label for="upload-filename">{ui.text('destinationName')}</label><input id="upload-filename" name="filename" value="{view.errors.get('replacementName')}" required>
+          <label for="upload-decision">{ui.text('existingDestination')}</label>
+          <select id="upload-decision" name="decision"><option value="keep">{ui.text('useAnotherName')}</option><option value="replace">{ui.text('replaceExisting')}</option></select>
+        {/if}
         <p id="upload-policy">{ui.text('uploadNamePolicy')}</p>
         <p>{ui.text('targetPrefix')}: <code>{view.key}</code></p>
         <input type="hidden" name="prefix" value="{view.key}">
         {#if view.errors.containsKey('prefix')}<p id="prefix-error" class="error" role="alert">{ui.text(view.errors.get('prefix'))}</p>{/if}
-        <label for="mutation-file">{ui.text('selectFile')}</label>
-        <input id="mutation-file" type="file" name="file" required aria-describedby="upload-policy file-help{#if view.errors.containsKey('file')} file-error{/if}{#if view.errors.containsKey('prefix')} prefix-error{/if}" {#if view.errors.containsKey('file')}aria-invalid="true"{/if}>
-        <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUpload} B. {ui.text('fileReselect')}</p>
-        <div class="upload-dropzone" data-upload-drop hidden>
-          <p id="upload-drop-hint">{ui.text('dropHint')}</p>
-          <button class="button" type="button" data-upload-picker aria-describedby="upload-drop-hint">{#include icons/upload /}{ui.text('chooseUploadFile')}</button>
+        <div class="upload-dropzone" data-upload-drop>
+          <label for="mutation-file">{ui.text('selectFile')}</label>
+          <input id="mutation-file" type="file" name="file" required aria-describedby="upload-policy file-help{#if view.errors.containsKey('file')} file-error{/if}{#if view.errors.containsKey('prefix')} prefix-error{/if}" {#if view.errors.containsKey('file')}aria-invalid="true"{/if}>
+          <p id="upload-drop-hint" data-upload-drop-hint hidden>{ui.text('dropHint')}</p>
+          <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUpload} B. {ui.text('fileReselect')}</p>
         </div>
         <p data-drop-status role="status" aria-live="polite" aria-atomic="true"></p>
         {#if view.errors.containsKey('file')}<p id="file-error" class="error" role="alert">{ui.text(view.errors.get('file'))}</p>{/if}
@@ -56,11 +61,6 @@
       <button class="button primary" type="submit">{#if view.createBucket}{#include icons/add /}{#else}{#if view.upload}{#include icons/upload /}{#else}{#include icons/folder /}{/if}{/if}<span data-submit-label>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</span></button>
     </form>
     <p id="submission-status" class="request-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-    {#if !view.upload}<details class="resource-panel action-help">
-      <summary>{ui.text('cliEquivalent')}</summary>
-      <p>{ui.text('cliHelp')}</p>
-      <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
-    </details>{/if}
     {#if view.upload}
       <p><a class="button" href="{ui.page}&{ui.query}">{#include icons/refresh /}{ui.text('reloadUploadForm')}</a></p>
     </div>{/if}

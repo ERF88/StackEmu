@@ -16,7 +16,9 @@ public interface S3ObjectDeletionPort {
     public Target {
       S3WriteValidation.validateBucketName(bucket);
       S3WriteValidation.validateObjectKey(key);
-      if (key.endsWith("/") || etag == null || !etag.matches("\"[^\"\\p{Cntrl}]{1,200}\"")) {
+      if ((key.endsWith("/") && size != 0)
+          || etag == null
+          || !etag.matches("\"[^\"\\p{Cntrl}]{1,200}\"")) {
         throw new ObjectDeletionException(ObjectDeletionException.Kind.UNSAFE);
       }
     }

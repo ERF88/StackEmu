@@ -1,10 +1,12 @@
 # Architecture overview / Visão de arquitetura
 
+Current operation architecture follows [ADR-0029](../decisions/ADR-0029-minimal-workspace-operations.md): web resources use application operation contracts, a bounded AWS worker executes reviewed mutations, and `adapter.persistence` commits inventories/results to embedded H2. Status reads use the local journal, not emulator health calls. The application remains one Maven module; [operation contracts](../development/s3-operations.md) describe restart, endpoint binding and concurrency. / Arquitetura atual usa contratos de operações, worker AWS limitado e persistência H2; status consulta histórico local. Um módulo Maven, com reinício/vínculo ao endpoint/concorrência documentados.
+
 ## Logical design / Desenho lógico
 
 Current web entry, 2026-10-20: [ADR-0020](../decisions/ADR-0020-service-catalog-navigation.md) separates `HomeResource` (catalog, no service I/O), `BucketsResource` (`/s3` page) and `BucketListFragmentResource` (existing `/buckets` read fragment). The latter two use the existing bucket-list port; no generic registry or application module is introduced. `/connection` remains S3-specific, not a global health service. The proposed logical diagram below is not a map of implemented Maven modules. / Entrada atual separa catálogo sem I/O, página S3 e fragmento existente, reutilizando o port sem novo módulo/catálogo genérico. Diagnóstico é S3, não saúde global; diagrama proposto abaixo não representa módulos implementados.
 
-The proposed application uses Quarkus REST and Qute for server rendering; htmx is limited to useful partial interactions. The browser talks to the app, not directly to the emulator. The app composes connection configuration, S3 use cases, UI, and an AWS SDK adapter. This is a logical boundary map, not proof that each component should be a Maven module on day one.
+The application uses Quarkus REST and Qute for server rendering, with htmx/JavaScript for partial interactions. Normal GUI traffic goes through the application; an explicitly generated presigned download addresses the configured emulator directly when used. The app composes connection configuration, S3 use cases, UI, and an AWS SDK adapter. The historical diagram below is a logical proposal, not the implemented Maven module tree.
 
 ```mermaid
 flowchart TB
@@ -18,7 +20,7 @@ flowchart TB
   Adapter --> Emulator[MiniStack / LocalStack / Moto]
 ```
 
-O navegador conversa com a aplicação, não diretamente com o emulador. A aplicação compõe configuração, casos de uso S3, UI e adaptador AWS. Esse é um mapa lógico; a separação em módulos Maven depende do spike da Fase 0.
+A GUI conversa com a aplicação; usar um download assinado gerado explicitamente acessa diretamente o emulador configurado. A aplicação compõe configuração, casos de uso S3, UI e adaptador AWS. O diagrama histórico é proposta lógica, não a árvore atual de módulos.
 
 ## Rules / Regras
 

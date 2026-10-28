@@ -62,7 +62,7 @@ class S3DownloadTest {
             return new Download(input, input.remaining);
           }
         };
-    return new S3Resource(reader, null);
+    return new S3Resource(reader);
   }
 
   @Test

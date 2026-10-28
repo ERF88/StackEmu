@@ -9,50 +9,23 @@
         {/for}
       </ol>
     </nav>
-    <div class="page-heading">
+    <div class="page-heading bucket-explorer-heading">
       <h1>{view.name}</h1>
       <div class="page-actions">
-        <a class="button primary" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
-        <a class="button" href="{view.folderHref}">{#include icons/folder /}{ui.text('createFolder')}</a>
+        <a class="button danger icon-action" href="{ui.bucketDeletionLink(view.name)}" aria-label="{ui.text('deleteBucket')}: {view.name}" title="{ui.text('deleteBucket')}">{#include icons/delete /}<span class="action-tooltip" aria-hidden="true">{ui.text('deleteBucket')}</span></a>
       </div>
     </div>
-    <details class="bucket-metadata">
-      <summary>{ui.text('bucketDetails')}</summary>
-    <div class="metadata-panel">
-      <dl>
-        <dt>{ui.text('region')}</dt>
-        <dd>{configuration.region}</dd>
-        <dt>{ui.text('reportedRegion')}</dt>
-        <dd>{view.region}</dd>
-      </dl>
-      <p>{ui.text('regionNote')}</p>
-      <h2>{ui.text('tags')}</h2>
-      {#if view.tags.isEmpty}
-        <p>{view.tagsMessage}</p>
-      {#else}
-        <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('tags')}">
-        <table class="resource-table">
-          <caption class="visually-hidden">{ui.text('tags')}</caption>
-          <thead><tr><th scope="col">{ui.text('tagKey')}</th><th scope="col">{ui.text('tagValue')}</th></tr></thead>
-          <tbody>
-            {#for tag in view.tags}
-              <tr><th scope="row">{tag.key}</th><td>{tag.value}</td></tr>
-            {/for}
-          </tbody>
-        </table>
-        </div>
-      {/if}
-    </div>
-    </details>
-    <section class="resource-panel object-list-panel">
-      <div class="section-heading"><h2>{ui.text('objects')}</h2></div>
-      <div class="resource-context"><p class="context-chip">{ui.text('prefix')}: <code>{view.prefix}</code></p>
-      <p class="context-chip">{ui.text('pageLimit')}: {view.pageSize}</p></div>
-      <details class="explorer-help">
-        <summary>{ui.text('listingGuidance')}</summary>
-        <p>{ui.text('prefixNote')}</p>
-        <p>{ui.text('fileTypeHintNote')}</p>
-      </details>
+    <section id="object-list-panel" class="resource-panel object-list-panel" data-resource-browser data-loading-label="{ui.text('loading')}" data-failed-label="{ui.text('refreshFailed')}">
+      <div class="section-heading s3-resource-toolbar">
+      <h2>{ui.text('objects')}</h2>
+      <div class="page-actions">
+        <a class="button primary" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
+        <a class="button" href="{view.folderHref}" aria-label="{ui.text('createFolder')}" title="{ui.text('createFolder')}">{#include icons/folder /}{ui.text('createFolder')}</a>
+        <a class="button icon-action" data-refresh-objects href="{ui.page}&amp;{ui.query}" aria-label="{ui.text('refreshList')}" title="{ui.text('refreshList')}">{#include icons/refresh /}<span class="action-tooltip" aria-hidden="true">{ui.text('refreshList')}</span></a>
+        <span id="object-loading" class="request-feedback" role="status" aria-live="polite"></span>
+        <a class="button icon-action" href="{ui.bucketVersionsLink(view.name)}" aria-label="{ui.text('versions')}" title="{ui.text('versions')}">{#include icons/history /}<span class="action-tooltip" aria-hidden="true">{ui.text('versions')}</span></a>
+      </div>
+      </div>
       {#if view.folders.isEmpty && view.objects.isEmpty}
       <div class="resource-state">
         <h3>{ui.text('emptyObjects')}</h3>
@@ -60,6 +33,7 @@
         <a class="button" href="{view.uploadHref}">{#include icons/upload /}{ui.text('uploadObject')}</a>
       </div>
       {#else}
+      {#include resourceFilter filterId='object-filter' filterLabel=ui.text('filterObjects') /}
       <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('objects')}">
       <table class="resource-table object-table">
         <caption class="visually-hidden">{ui.text('objects')}</caption>
@@ -68,7 +42,7 @@
         </thead>
         <tbody>
           {#for folder in view.folders}
-            <tr><th scope="row"><a href="{folder.href}">{#include icons/folder /}<code>{folder.label}</code></a> ({ui.text('prefix')})</th><td>—</td><td>—</td><td>—</td></tr>
+            <tr><th scope="row"><a href="{folder.href}">{#include icons/folder /}<code>{folder.label}</code></a></th><td>—</td><td>—</td><td><div class="resource-action-links folder-action-links" role="group" aria-label="{ui.text('objectActions')}: {folder.label}"><a class="button danger icon-action" href="{folder.deleteHref}" aria-label="{ui.text('deleteFolder')}: {folder.label}" title="{ui.text('deleteFolder')}">{#include icons/delete /}<span class="action-tooltip" aria-hidden="true">{ui.text('deleteFolder')}</span></a></div></td></tr>
           {/for}
           {#for object in view.objects}
             <tr>
@@ -77,9 +51,9 @@
               <td>{object.modified}</td>
               <td>
                 <div class="resource-action-links" role="group" aria-label="{ui.text('objectActions')}: {object.key}">
-                  <a class="button table-action" href="{object.downloadHref}" aria-label="{ui.text('download')}: {object.key}">{#include icons/download /}<span>{ui.text('download')}</span></a>
-                  <a class="button" href="{object.href}" data-object-detail>{#include icons/info /}{ui.text('details')}</a>
-                  {#if object.deleteHref != ''}<a class="button danger" href="{object.deleteHref}">{#include icons/delete /}{ui.text('deleteObject')}</a>{/if}
+                  <a class="button icon-action" href="{object.downloadHref}" aria-label="{ui.text('download')}: {object.key}" title="{ui.text('download')}">{#include icons/download /}<span class="action-tooltip" aria-hidden="true">{ui.text('download')}</span></a>
+                  <a class="button icon-action" href="{object.href}" data-object-detail aria-label="{ui.text('details')}: {object.key}" title="{ui.text('details')}">{#include icons/info /}<span class="action-tooltip" aria-hidden="true">{ui.text('details')}</span></a>
+                  {#if object.deleteHref != ''}<a class="button danger icon-action" href="{object.deleteHref}" aria-label="{ui.text('deleteObject')}: {object.key}" title="{ui.text('deleteObject')}">{#include icons/delete /}<span class="action-tooltip" aria-hidden="true">{ui.text('deleteObject')}</span></a>{/if}
                 </div>
               </td>
             </tr>
@@ -88,24 +62,25 @@
       </table>
       </div>
       {/if}
+      {#if view.previousPage || !view.nextHref.isEmpty}
       <nav class="resource-pagination" aria-label="{ui.text('pagination')}">
-        <a class="button" href="{view.rootHref}">{#include icons/back /}{ui.text('firstPage')}</a>
+        {#if view.previousPage}<a class="button" href="{view.rootHref}">{#include icons/back /}{ui.text('firstPage')}</a>{/if}
         {#if !view.nextHref.isEmpty}
           <a id="next-page" class="button" href="{view.nextHref}">{ui.text('nextPage')}{#include icons/chevron /}</a>
         {/if}
       </nav>
+      {/if}
     </section>
     <dialog id="object-drawer" class="object-drawer" aria-labelledby="drawer-title" aria-modal="true"
       data-loading-label="{ui.text('drawerLoading')}" data-failed-label="{ui.text('drawerFailed')}">
       <div class="drawer-heading">
         <h2 id="drawer-title">{ui.text('objectDetails')}</h2>
-        <button class="button" type="button" data-drawer-close autofocus>{#include icons/close /}{ui.text('closeDetails')}</button>
+        <div class="drawer-header-actions">
+          <button class="button icon-action" type="button" data-drawer-close autofocus aria-label="{ui.text('closeDetails')}" title="{ui.text('closeDetails')}">{#include icons/close /}<span class="action-tooltip" aria-hidden="true">{ui.text('closeDetails')}</span></button>
+        </div>
       </div>
       <p id="drawer-status" class="drawer-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-      <div class="drawer-navigation">
-        <button class="button" type="button" data-drawer-retry hidden>{#include icons/refresh /}{ui.text('retryDetails')}</button>
-        <a class="button" data-drawer-page>{#include icons/file /}{ui.text('openFullDetails')}</a>
-      </div>
+      <button class="button drawer-retry" type="button" data-drawer-retry hidden>{#include icons/refresh /}{ui.text('retryDetails')}</button>
       <div id="object-drawer-content" aria-busy="false"></div>
     </dialog>
   {/content}

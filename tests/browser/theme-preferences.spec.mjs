@@ -44,7 +44,7 @@ for (const scheme of ["dark", "light"]) {
         width <= 900 ? "stretch" : "start",
       );
       if (width > 900) {
-        await expect(page.locator(".sidebar")).toHaveCSS("width", "256px");
+        await expect(page.locator(".sidebar")).toHaveCSS("width", "208px");
       }
       await expect
         .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))

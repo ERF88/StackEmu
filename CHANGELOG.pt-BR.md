@@ -6,6 +6,26 @@ Todas as mudanças relevantes serão registradas neste arquivo. O projeto preten
 
 ## [Não lançado]
 
+- Corrigir navegação contextual: metadados/versões/prévias no inspector com histórico delimitado e restauração da listagem; preferências preservam alvo/marcadores, formulários têm retorno e descarte explícito, e prévias textuais inelegíveis deixam de ser oferecidas. [Contrato](docs/decisions/ADR-0032-contextual-navigation.md).
+
+- Corrigir seleção duplicada no upload: manter um único campo nativo na área de envio, sem botão paralelo, preservando teclado, arrastar/soltar e envio sem JavaScript.
+
+- Adaptar os controles S3 à referência Stackport: barra contextual do explorer, criação de pasta explícita, filtros locais de nomes com limpeza/estado sem resultados e ícones próprios de mover/compartilhar. Preservar rotas, segurança e tipografia; sem React/Cloudscape ou controles de lote especulativos. [Escopo](docs/decisions/ADR-0031-s3-reference-controls.md).
+
+- Introduzir diálogos mínimos com retorno automático no sucesso, metadados/operações em páginas próprias e execução S3 persistente em H2. Adicionar limpeza revisada de prefixos/versões além de 25 entradas, interrupção/reconciliação, cópia/movimentação individual, substituição condicional de upload e download assinado explícito. Registros de limpeza limitada abaixo descrevem fatias anteriores substituídas pela [ADR-0029](docs/decisions/ADR-0029-minimal-workspace-operations.md).
+
+- Adicionar Esvaziar e excluir em revisão separada, até 25 entradas em bucket nunca versionado, com confirmação do nome, ticket independente/CSRF, inventário revalidado, resultado por chave e sem retry destrutivo automático. Simplificar diálogos nos dois idiomas, preservando detalhes técnicos recolhidos e gates de arquivo original.
+
+- Corrigir pasta criada sem ação de remoção: revisão explícita de pasta vazia e exclusão condicional exata após verificar novamente prefixo/tamanho/versão. Preservar filhos, CSRF e ticket único. Renomear criação para Criar pasta e centralizar cabeçalhos de ações. Sem limpeza recursiva.
+
+- Exibir apenas a próxima pasta nas linhas de prefixos, preservando alvos e breadcrumbs. Simplificar detalhes compartilhados do objeto: nome do arquivo, ações agrupadas, cópia ao lado dos valores exatos e metadados/política técnica recolhíveis; manter páginas canônicas e gates das operações.
+
+- Focar o explorer nas operações: remover blocos de região/tags/ajuda e suas consultas; alinhar nomes/ícones/ações das tabelas e controles do título. Ocultar paginação redundante, mantendo retorno de páginas com cursor. Segurança e fluxos de arquivo original preservados.
+
+- Aplicar o padrão compacto orientado pela skill HIG ao explorer do bucket: ícones rotulados, atualização contextual, coluna de ações menor e metadados/orientações após a lista. Preservar chaves completas, rotas, prévias/downloads e gates independentes de exclusão. [Contrato](docs/decisions/ADR-0026-bucket-workspace-deletion.md#explorer-continuation--continuação-do-explorer).
+
+- Ações de bucket com ícones rotulados, shell mais estreito e espaçamento único; remover seletor de densidade, mantendo URLs antigas. Adicionar revisão/exclusão de bucket vazio e nunca versionado, com CSRF, ticket único e sem retry automático. Esvaziar e excluir mapeado, não habilitado. [Contrato](docs/decisions/ADR-0026-bucket-workspace-deletion.md) · [Verificação](docs/evidence/bucket-workspace-results.md).
+
 - Adicionar janelas de criação/upload/revisão de exclusão com JavaScript e botões explícitos, sem checkbox genérico; mover densidade, diagnóstico e aviso local para Preferências. Preservar validação e gates de exclusão no servidor. [Decisão e limites](docs/decisions/ADR-0025-action-dialogs.md); verificação local do runtime permanece separada.
 
 - Substituir expansores de Ações/Preferências por ações diretas e Preferências nativas não modais; padronizar botões com ícone/rótulo e retornos contextuais antes dos títulos. Preservar arquivo original, fallback e contratos de segurança. [Decisão](docs/decisions/ADR-0024-direct-actions-navigation.md) · [Checks locais](docs/evidence/direct-controls-results.md).

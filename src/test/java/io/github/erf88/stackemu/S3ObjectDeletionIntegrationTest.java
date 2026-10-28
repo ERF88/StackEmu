@@ -2,15 +2,15 @@ package io.github.erf88.stackemu;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.erf88.stackemu.application.S3OperationPort;
+import io.github.erf88.stackemu.application.S3OperationPort.State;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +23,9 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @EnabledIfEnvironmentVariable(named = "STACKEMU_INTEGRATION", matches = "true")
 class S3ObjectDeletionIntegrationTest {
   @Inject S3Client client;
+  @Inject S3OperationPort operations;
   private String bucket;
   private final String key = "samples/ação +% file.txt";
-
-  private record Form(String ticket, String csrf, Map<String, String> cookies) {}
 
   @BeforeEach
   void createOwnedFixture() {
@@ -42,175 +41,103 @@ class S3ObjectDeletionIntegrationTest {
   }
 
   @AfterEach
-  void removeOnlyExactOwnedFixtures() {
-    for (String name : new String[] {key, "neighbor.txt", "marker/"}) {
+  void removeOwnedFixture() {
+    for (String name : new String[] {key, "neighbor.txt", "marker/", "marker/child.txt"})
       client.deleteObject(r -> r.bucket(bucket).key(name));
-    }
     client.deleteBucket(r -> r.bucket(bucket));
   }
 
-  private Form review() {
-    var response =
-        given()
-            .queryParam("bucket", bucket)
-            .queryParam("key", key)
-            .queryParam("lang", "en")
-            .queryParam("theme", "dark")
-            .queryParam("density", "compact")
-            .get("/s3/delete-object")
-            .then()
-            .statusCode(200)
-            .header("Cache-Control", "no-store")
-            .extract()
-            .response();
-    return new Form(
-        field(response.asString(), "ticket"),
-        field(response.asString(), "csrf-token"),
-        response.cookies());
+  private OperationHttpFixtures.Form review(String name) {
+    return OperationHttpFixtures.review(operations, "/s3/delete-object", bucket, name);
   }
 
-  private static String field(String html, String name) {
-    var matcher = Pattern.compile("name=\"" + name + "\" value=\"([^\"]+)\"").matcher(html);
-    assertTrue(matcher.find(), name);
-    return matcher.group(1);
-  }
-
-  private io.restassured.response.ValidatableResponse submit(
-      Form form, String ticket, String confirm) {
+  private io.restassured.response.ValidatableResponse submit(OperationHttpFixtures.Form form) {
     return given()
         .cookies(form.cookies())
         .formParam("csrf-token", form.csrf())
-        .formParam("ticket", ticket)
-        .formParam("confirm", confirm)
-        .formParam("lang", "en")
-        .formParam("theme", "dark")
-        .formParam("density", "compact")
-        // Must not override the reviewed server-held target.
+        .formParam("ticket", form.id())
         .formParam("bucket", "unrelated-bucket")
         .formParam("key", "neighbor.txt")
         .formParam("etag", "*")
+        .formParam("lang", "en")
+        .formParam("theme", "dark")
+        .formParam("density", "compact")
         .post("/s3/delete-object")
         .then();
   }
 
-  private void assertNeighbor() {
-    assertEquals(
-        "guard", client.getObjectAsBytes(r -> r.bucket(bucket).key("neighbor.txt")).asUtf8String());
-  }
-
   @Test
-  void signedSdkDeletesOnlyReviewedExactTargetAndRejectsReplay() {
-    var form = review();
-    assertEquals(
-        "original", client.getObjectAsBytes(r -> r.bucket(bucket).key(key)).asUtf8String());
-    submit(form, form.ticket(), "yes")
+  void reviewedTargetIsAuthoritativeAndReplaysReturnSameOperation() {
+    var form = review(key);
+    submit(form)
         .statusCode(200)
-        .body(
-            containsString("acknowledged the conditional deletion"),
-            containsString("density=compact"));
+        .body(containsString("data-action-accepted"), not(containsString("<details")));
+    assertEquals(State.SUCCEEDED, OperationHttpFixtures.await(operations, form.id()).state());
     assertEquals(
         404,
         assertThrows(S3Exception.class, () -> client.headObject(r -> r.bucket(bucket).key(key)))
             .statusCode());
-    assertNeighbor();
+    assertEquals(
+        "guard", client.getObjectAsBytes(r -> r.bucket(bucket).key("neighbor.txt")).asUtf8String());
     put(key, "recreated");
-    submit(form, form.ticket(), "yes").statusCode(409).body(containsString("already used"));
+    submit(form).statusCode(200);
     assertEquals(
         "recreated", client.getObjectAsBytes(r -> r.bucket(bucket).key(key)).asUtf8String());
   }
 
   @Test
-  void replacementConflictsAndDoesNotDeleteEitherObject() {
-    var form = review();
+  void changedObjectFailsWithoutDeletingTheReplacement() {
+    var form = review(key);
     put(key, "replacement");
-    submit(form, form.ticket(), "yes").statusCode(409).body(containsString("object changed"));
+    submit(form).statusCode(200);
+    var result = OperationHttpFixtures.await(operations, form.id());
+    assertEquals(State.FAILED, result.state());
+    assertEquals("CHANGED", result.message());
     assertEquals(
         "replacement", client.getObjectAsBytes(r -> r.bucket(bucket).key(key)).asUtf8String());
-    assertNeighbor();
-    submit(form, form.ticket(), "yes").statusCode(409);
   }
 
   @Test
-  void consentTicketAndCsrfAreIndependentGates() {
-    var form = review();
+  void csrfAndServerOperationIdentityAreIndependent() {
+    var form = review(key);
     given()
         .cookies(form.cookies())
-        .formParam("ticket", form.ticket())
-        .formParam("confirm", "yes")
+        .formParam("ticket", form.id())
         .post("/s3/delete-object")
         .then()
         .statusCode(400);
-    submit(form, "A".repeat(43), "yes").statusCode(409);
-    submit(form, form.ticket(), "no").statusCode(422);
-    submit(form, form.ticket(), "yes").statusCode(409);
-    assertEquals(
-        "original", client.getObjectAsBytes(r -> r.bucket(bucket).key(key)).asUtf8String());
-    assertNeighbor();
-  }
-
-  @Test
-  void markerAndMissingObjectDoNotProduceConfirmation() {
-    put("marker/", "");
+    assertEquals(State.READY, operations.get(form.id()).state());
     given()
-        .queryParam("bucket", bucket)
-        .queryParam("key", "marker/")
-        .get("/s3/delete-object")
-        .then()
-        .statusCode(409);
-    given()
-        .queryParam("bucket", bucket)
-        .queryParam("key", "absent.txt")
-        .get("/s3/delete-object")
+        .cookies(form.cookies())
+        .formParam("csrf-token", form.csrf())
+        .formParam("ticket", UUID.randomUUID().toString())
+        .post("/s3/delete-object")
         .then()
         .statusCode(404);
-    assertNeighbor();
+    assertEquals(
+        "original", client.getObjectAsBytes(r -> r.bucket(bucket).key(key)).asUtf8String());
   }
 
   @Test
-  void enabledAndSuspendedBucketsAreRefusedBeforeAndAfterConfirmation() {
-    // Versioning fixture remains empty: never create/delete object versions during cleanup.
-    String versionBucket = "stackemu-delete-version-" + UUID.randomUUID();
-    client.createBucket(r -> r.bucket(versionBucket));
-    try {
-      // Obtain a ticket on a separate object, then change state without writing object versions.
-      String ownKey = "never-versioned.txt";
-      client.putObject(r -> r.bucket(versionBucket).key(ownKey), RequestBody.fromString("guard"));
-      var response =
-          given()
-              .queryParam("bucket", versionBucket)
-              .queryParam("key", ownKey)
-              .get("/s3/delete-object")
-              .then()
-              .statusCode(200)
-              .extract()
-              .response();
-      var form =
-          new Form(
-              field(response.asString(), "ticket"),
-              field(response.asString(), "csrf-token"),
-              response.cookies());
-      // Remove only our null-version object before enabling; versioned bucket stays empty.
-      client.deleteObject(r -> r.bucket(versionBucket).key(ownKey));
-      for (String state : new String[] {"Enabled", "Suspended"}) {
-        client.putBucketVersioning(
-            r -> r.bucket(versionBucket).versioningConfiguration(c -> c.status(state)));
-        given()
-            .queryParam("bucket", versionBucket)
-            .queryParam("key", ownKey)
-            .get("/s3/delete-object")
-            .then()
-            .statusCode(409);
-        if (state.equals("Enabled"))
-          submit(form, form.ticket(), "yes")
-              .statusCode(409)
-              .body(containsString("versioning must be verifiably never enabled"));
-        assertTrue(client.listObjectVersions(r -> r.bucket(versionBucket)).versions().isEmpty());
-        assertTrue(
-            client.listObjectVersions(r -> r.bucket(versionBucket)).deleteMarkers().isEmpty());
-      }
-    } finally {
-      client.deleteBucket(r -> r.bucket(versionBucket));
-    }
-    assertNeighbor();
+  void folderReviewAuthorizesOnlyItsPersistedContents() {
+    put("marker/", "");
+    put("marker/child.txt", "child");
+    var form = review("marker/");
+    submit(form).statusCode(200);
+    assertEquals(State.SUCCEEDED, OperationHttpFixtures.await(operations, form.id()).state());
+    assertEquals(
+        "guard", client.getObjectAsBytes(r -> r.bucket(bucket).key("neighbor.txt")).asUtf8String());
+  }
+
+  @Test
+  void lateFolderContentsAreNotAdopted() {
+    put("marker/", "");
+    var form = review("marker/");
+    put("marker/child.txt", "late");
+    submit(form).statusCode(200);
+    assertEquals(State.PARTIAL, OperationHttpFixtures.await(operations, form.id()).state());
+    assertEquals(
+        "late",
+        client.getObjectAsBytes(r -> r.bucket(bucket).key("marker/child.txt")).asUtf8String());
   }
 }

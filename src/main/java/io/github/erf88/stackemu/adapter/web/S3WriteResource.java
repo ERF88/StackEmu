@@ -1,5 +1,7 @@
 package io.github.erf88.stackemu.adapter.web;
 
+import io.github.erf88.stackemu.application.OperationException;
+import io.github.erf88.stackemu.application.S3ObjectToolsPort;
 import io.github.erf88.stackemu.application.S3WriteException;
 import io.github.erf88.stackemu.application.S3WritePort;
 import io.github.erf88.stackemu.application.S3WriteValidation;
@@ -30,10 +32,14 @@ public class S3WriteResource {
   private final S3WritePort writer;
   private final ConnectionSettingsView configuration;
   private final long maximumUpload;
+  private final S3ObjectToolsPort tools;
+  private final UploadReplacementConfirmations replacements;
 
   public S3WriteResource(
       S3WritePort writer,
       ConnectionSettingsView configuration,
+      S3ObjectToolsPort tools,
+      UploadReplacementConfirmations replacements,
       @ConfigProperty(name = "stackemu.max-upload") long maximumUpload) {
     if (maximumUpload < 1) {
       throw new IllegalArgumentException("Upload limit must be positive");
@@ -41,6 +47,8 @@ public class S3WriteResource {
     this.writer = writer;
     this.configuration = configuration;
     this.maximumUpload = maximumUpload;
+    this.tools = tools;
+    this.replacements = replacements;
   }
 
   public record MutationPageView(
@@ -65,6 +73,11 @@ public class S3WriteResource {
 
     public String bucketHref() {
       return S3ViewMapper.bucketPath(bucket, key, null);
+    }
+
+    public String resultBackHref() {
+      String prefix = upload() ? key.substring(0, key.lastIndexOf('/') + 1) : key;
+      return S3ViewMapper.bucketPath(bucket, prefix, null);
     }
   }
 
@@ -138,13 +151,27 @@ public class S3WriteResource {
       @RestForm String prefix,
       @RestForm String confirm,
       @RestForm FileUpload file,
+      @RestForm String replacementTicket,
+      @RestForm String decision,
+      @RestForm String filename,
       @RestForm String lang,
       @RestForm String theme,
       @RestForm String density)
       throws IOException {
     try {
       return Response.fromResponse(
-              mutate("upload", bucket, prefix, confirm, file, lang, theme, density))
+              mutate(
+                  "upload",
+                  bucket,
+                  prefix,
+                  confirm,
+                  file,
+                  lang,
+                  theme,
+                  density,
+                  replacementTicket,
+                  decision,
+                  filename))
           .header("X-StackEmu-Upload", "workspace")
           .build();
     } finally {
@@ -164,6 +191,21 @@ public class S3WriteResource {
       String language,
       String theme,
       String density) {
+    return mutate(action, bucket, key, confirm, file, language, theme, density, null, null, null);
+  }
+
+  private Response mutate(
+      String action,
+      String bucket,
+      String key,
+      String confirm,
+      FileUpload file,
+      String language,
+      String theme,
+      String density,
+      String replacementTicket,
+      String decision,
+      String filename) {
     UiContext ui = UiContext.resolve(language, null, theme, density, formPath(action, bucket, key));
     try {
       if (!"yes".equals(confirm)) {
@@ -182,12 +224,24 @@ public class S3WriteResource {
           if (file == null) {
             throw new WriteValidationException("file", "fileRequired");
           }
-          target =
-              S3WriteValidation.uploadObjectKey(
-                  key, UploadFileNames.originalFilename(file.fileName()));
+          String original = UploadFileNames.originalFilename(file.fileName());
+          String selected = filename == null || filename.isBlank() ? original : filename;
+          int extension = original.lastIndexOf('.');
+          if (extension > 0 && !selected.endsWith(original.substring(extension)))
+            throw new WriteValidationException("file", "invalidFilename");
+          target = S3WriteValidation.uploadObjectKey(key, selected);
           S3WriteValidation.validateUploadSize(Files.size(file.uploadedFile()), maximumUpload);
           contentType = FileContentTypes.uploadContentType(target, file.contentType());
-          writer.uploadObject(bucket, target, file.uploadedFile(), contentType);
+          if ("replace".equals(decision)) {
+            var reviewed =
+                replacements
+                    .consume(replacementTicket)
+                    .orElseThrow(
+                        () -> new WriteValidationException("file", "replacementReviewRequired"));
+            if (!reviewed.bucket().equals(bucket) || !reviewed.key().equals(target))
+              throw new WriteValidationException("file", "replacementReviewRequired");
+            tools.replaceUpload(bucket, target, reviewed.etag(), file.uploadedFile(), contentType);
+          } else writer.uploadObject(bucket, target, file.uploadedFile(), contentType);
         }
       }
       String destination =
@@ -215,6 +269,36 @@ public class S3WriteResource {
     } catch (WriteValidationException invalid) {
       return page(422, action, bucket, key, "", invalid.errors(), ui);
     } catch (S3WriteException failure) {
+      if (action.equals("upload")
+          && file != null
+          && failure.kind() == S3WriteException.Kind.CONFLICT) {
+        try {
+          String selected =
+              filename == null || filename.isBlank()
+                  ? UploadFileNames.originalFilename(file.fileName())
+                  : filename;
+          String target = S3WriteValidation.uploadObjectKey(key, selected);
+          String replacement =
+              replacements.issue(bucket, target, tools.destinationEtag(bucket, target));
+          return page(
+              409,
+              action,
+              bucket,
+              key,
+              "uploadDestinationExists",
+              Map.of("replacementTicket", replacement, "replacementName", selected),
+              ui);
+        } catch (OperationException unavailable) {
+          return page(
+              409,
+              action,
+              bucket,
+              key,
+              "operationReason" + unavailable.reason().name(),
+              Map.of(),
+              ui);
+        }
+      }
       int status =
           switch (failure.kind()) {
             case CONFLICT -> 409;
@@ -231,6 +315,9 @@ public class S3WriteResource {
           failure.kind() == S3WriteException.Kind.CONFLICT ? "writeConflict" : "operationFailed",
           Map.of(),
           ui);
+    } catch (OperationException failure) {
+      return page(
+          409, action, bucket, key, "operationReason" + failure.reason().name(), Map.of(), ui);
     } catch (IOException failure) {
       return page(500, action, bucket, key, "operationFailed", Map.of(), ui);
     }

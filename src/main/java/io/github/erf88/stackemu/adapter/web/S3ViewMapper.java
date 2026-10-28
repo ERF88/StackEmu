@@ -2,6 +2,7 @@ package io.github.erf88.stackemu.adapter.web;
 
 import io.github.erf88.stackemu.application.ImagePreviewPolicy;
 import io.github.erf88.stackemu.application.S3ReadPort;
+import io.github.erf88.stackemu.application.TextPreviewPolicy;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
@@ -12,7 +13,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +24,7 @@ public final class S3ViewMapper {
 
   public record Link(String label, String href) {}
 
-  public record Tag(String key, String value) {}
+  public record FolderRow(String label, String href, String deleteHref) {}
 
   public record ObjectRow(
       String key,
@@ -38,16 +38,13 @@ public final class S3ViewMapper {
 
   public record BucketPageView(
       String name,
-      String region,
-      List<Tag> tags,
-      String tagsMessage,
       String prefix,
       List<Link> breadcrumbs,
-      List<Link> folders,
+      List<FolderRow> folders,
       List<ObjectRow> objects,
       String nextHref,
       String rootHref,
-      int pageSize,
+      boolean previousPage,
       String uploadHref,
       String folderHref) {}
 
@@ -62,7 +59,25 @@ public final class S3ViewMapper {
       String bucket,
       String previewHref,
       String imagePreviewHref,
-      String deleteHref) {}
+      String deleteHref,
+      String displayName,
+      String href) {
+    public String metadataHref() {
+      return href.replace("/s3/object?", "/s3/object-metadata?");
+    }
+
+    public String transferHref() {
+      return href.replace("/s3/object?", "/s3/transfer?");
+    }
+
+    public String shareHref() {
+      return href.replace("/s3/object?", "/s3/share?");
+    }
+
+    public String versionsHref() {
+      return href.replace("/s3/object?", "/s3/versions?");
+    }
+  }
 
   public static String encode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
@@ -98,50 +113,36 @@ public final class S3ViewMapper {
   }
 
   public static BucketPageView toBucketPage(
-      S3ReadPort.BucketDetails details,
-      S3ReadPort.ObjectPage listing,
-      String prefix,
-      int pageSize,
-      UiContext ui) {
+      String bucket, S3ReadPort.ObjectPage listing, String prefix, String token, UiContext ui) {
     List<Link> breadcrumbs = new ArrayList<>();
-    breadcrumbs.add(
-        new Link(details.name(), bucketPath(details.name(), "", null) + "&" + ui.query()));
+    breadcrumbs.add(new Link(bucket, bucketPath(bucket, "", null) + "&" + ui.query()));
     int start = 0;
     for (int index = 0; index < prefix.length(); index++) {
       if (prefix.charAt(index) == '/') {
         breadcrumbs.add(
             new Link(
                 prefix.substring(start, index + 1),
-                bucketPath(details.name(), prefix.substring(0, index + 1), null)
-                    + "&"
-                    + ui.query()));
+                bucketPath(bucket, prefix.substring(0, index + 1), null) + "&" + ui.query()));
         start = index + 1;
       }
     }
     if (start < prefix.length()) {
       breadcrumbs.add(
-          new Link(
-              prefix.substring(start),
-              bucketPath(details.name(), prefix, null) + "&" + ui.query()));
+          new Link(prefix.substring(start), bucketPath(bucket, prefix, null) + "&" + ui.query()));
     }
-    String tagMessage =
-        switch (details.tagsState()) {
-          case AVAILABLE -> "";
-          case EMPTY -> ui.text("noTags");
-          case UNKNOWN -> ui.text("unknownTags");
-        };
     return new BucketPageView(
-        details.name(),
-        optional(details.reportedRegion()),
-        details.tags().entrySet().stream()
-            .sorted(Comparator.comparing(e -> e.getKey()))
-            .map(e -> new Tag(e.getKey(), e.getValue()))
-            .toList(),
-        tagMessage,
+        bucket,
         prefix,
         List.copyOf(breadcrumbs),
         listing.prefixes().stream()
-            .map(p -> new Link(p, bucketPath(details.name(), p, null) + "&" + ui.query()))
+            .map(
+                p ->
+                    new FolderRow(
+                        p.startsWith(prefix) && p.length() > prefix.length()
+                            ? p.substring(prefix.length())
+                            : p,
+                        bucketPath(bucket, p, null) + "&" + ui.query(),
+                        deletionPath(bucket, p) + "&" + ui.query()))
             .toList(),
         listing.objects().stream()
             .map(
@@ -150,27 +151,27 @@ public final class S3ViewMapper {
                         o.key(),
                         bytes(o.size(), ui),
                         date(o.modified(), ui),
-                        objectPath(details.name(), o.key()) + "&" + ui.query(),
-                        downloadPath(details.name(), o.key()) + "&" + ui.query(),
+                        objectPath(bucket, o.key()) + "&" + ui.query(),
+                        downloadPath(bucket, o.key()) + "&" + ui.query(),
                         fileKind(o.key(), ui),
-                        previewPath(details.name(), o.key()) + "&" + ui.query(),
-                        o.key().endsWith("/")
+                        previewPath(bucket, o.key()) + "&" + ui.query(),
+                        o.key().endsWith("/") && o.size() != 0
                             ? ""
-                            : deletionPath(details.name(), o.key()) + "&" + ui.query()))
+                            : deletionPath(bucket, o.key()) + "&" + ui.query()))
             .toList(),
         listing.nextToken() == null || listing.nextToken().isEmpty()
             ? ""
-            : bucketPath(details.name(), prefix, listing.nextToken()) + "&" + ui.query(),
-        bucketPath(details.name(), prefix, null) + "&" + ui.query(),
-        pageSize,
+            : bucketPath(bucket, prefix, listing.nextToken()) + "&" + ui.query(),
+        bucketPath(bucket, prefix, null) + "&" + ui.query(),
+        token != null && !token.isEmpty(),
         "/s3/write?action=upload&bucket="
-            + encode(details.name())
+            + encode(bucket)
             + "&prefix="
             + encode(prefix)
             + "&"
             + ui.query(),
         "/s3/write?action=folder&bucket="
-            + encode(details.name())
+            + encode(bucket)
             + "&prefix="
             + encode(prefix)
             + "&"
@@ -190,11 +191,17 @@ public final class S3ViewMapper {
         downloadPath(bucket, object.key()) + "&" + ui.query(),
         bucketPath(bucket, prefix, null) + "&" + ui.query(),
         bucket,
-        previewPath(bucket, object.key()) + "&" + ui.query(),
+        TextPreviewPolicy.supports(object.key(), object.contentType(), null)
+            ? previewPath(bucket, object.key()) + "&" + ui.query()
+            : "",
         ImagePreviewPolicy.format(object.key(), object.contentType(), null).isEmpty()
             ? ""
             : imagePreviewPath(bucket, object.key()) + "&" + ui.query(),
-        object.key().endsWith("/") ? "" : deletionPath(bucket, object.key()) + "&" + ui.query());
+        object.key().endsWith("/") && object.size() != 0
+            ? ""
+            : deletionPath(bucket, object.key()) + "&" + ui.query(),
+        slash < object.key().length() - 1 ? object.key().substring(slash + 1) : object.key(),
+        objectPath(bucket, object.key()) + "&" + ui.query());
   }
 
   private static String optional(String value) {

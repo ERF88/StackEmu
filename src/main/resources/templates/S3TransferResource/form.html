@@ -1,0 +1,22 @@
+{#include layout}
+  {#title}{#if move}{ui.text('operationKindMOVE')}{#else}{ui.text('operationKindCOPY')}{/if}{/title}
+  {#content}
+    <div id="action-workspace">
+      <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{ui.objectLink(bucket, key)}">{#include icons/back /}{ui.text('backToDetails')}</a></nav>
+      <h1>{#if move}{ui.text('operationKindMOVE')}{#else}{ui.text('operationKindCOPY')}{/if}</h1>
+      <p class="object-key">{bucket} / {key}</p>
+      {#if message != ''}<p role="alert">{ui.text(message)}</p>{/if}
+      <form class="mutation-form" method="post" action="/s3/transfer" data-submitting-label="{ui.text('submitting')}">
+        <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+        <input type="hidden" name="bucket" value="{bucket}"><input type="hidden" name="key" value="{key}"><input type="hidden" name="move" value="{move}">
+        <input type="hidden" name="lang" value="{ui.language}"><input type="hidden" name="theme" value="{ui.theme}"><input type="hidden" name="density" value="{ui.density}">
+        <label for="transfer-bucket">{ui.text('destinationBucket')}</label><input id="transfer-bucket" name="destinationBucket" value="{destinationBucket}" required>
+        <label for="transfer-key">{ui.text('destinationKey')}</label><input id="transfer-key" name="destinationKey" value="{destinationKey}" required>
+        <label for="transfer-conflict">{ui.text('existingDestination')}</label>
+        <select id="transfer-conflict" name="decision"><option value="keep">{ui.text('keepExisting')}</option><option value="replace">{ui.text('replaceExisting')}</option></select>
+        <button class="button primary" type="submit"><span data-submit-label>{ui.text('reviewOperation')}</span></button>
+      </form>
+      <p id="submission-status" role="status"></p>
+    </div>
+  {/content}
+{/include}

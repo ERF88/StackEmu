@@ -14,10 +14,11 @@ Methods use precise verbs: `listBuckets`, `getBucketDetails`, `listObjects`, `ge
 
 ## English — boundaries and responsibility
 
-Keep the root `io.github.erf88.stackemu` and the implemented packages `application`, `adapter.aws` and `adapter.web`. One Maven module remains intentional. Do not rename to speculative `core`, `common`, `util` or an empty domain layer. A second real service can justify feature-oriented packages/modules through a new ADR, not an automatic migration.
+Keep the root `io.github.erf88.stackemu` and the implemented packages `application`, `adapter.aws`, `adapter.web` and `adapter.persistence`. ADR-0029 adds the real H2/JDBC persistence boundary, with no database dependencies in application/web. One Maven module remains intentional. Do not rename to speculative `core`, `common`, `util` or an empty domain layer. A second real service can justify feature-oriented packages/modules through a new ADR, not an automatic migration.
 
 - Application: immutable data, output ports and stable errors; no SDK, HTTP, CDI, Qute or localized strings. Add domain/use-case types only for actual rules or orchestration.
 - AWS adapter: SDK requests/results, SDK failure translation and resource lifetime; never template/HTTP response handling. Client creation/lifecycle stays with the existing Quarkiverse integration.
+- Persistence adapter: local operation journal, SQL transactions, schema migration and database lifetime; no SDK or HTTP/template dependency. / Persistência: histórico local, transações, schema e ciclo do banco, sem SDK/HTTP/templates.
 - Web resources: request validation, invocation of ports, response/template selection and HTTP errors; no SDK calls or business rules. Split resources by screen/capability when reasons to change differ, not by line count alone.
 - View mapper/context: localized display data, links, language and theme. Do not perform I/O. Keep attachment/header security outside page mapping.
 - Download helpers: bounded stream transfer and HTTP attachment policy. Stream copying belongs to delivery, not the application contract; the caller still owns closure.

@@ -37,6 +37,7 @@ public class AwsS3ObjectDeletionAdapter implements S3ObjectDeletionPort, AutoClo
                     options
                         .retryStrategy(AwsRetryStrategy.doNotRetry())
                         .addExecutionInterceptor(new EmptyDeleteBodyInterceptor())
+                        .addExecutionInterceptor(new S3DeletionListingInterceptor())
                         .apiCallTimeout(Duration.ofSeconds(3))
                         .apiCallAttemptTimeout(Duration.ofSeconds(2)))
             .httpClientBuilder(
@@ -66,9 +67,9 @@ public class AwsS3ObjectDeletionAdapter implements S3ObjectDeletionPort, AutoClo
   public Target inspectObject(String bucket, String key) {
     S3WriteValidation.validateBucketName(bucket);
     S3WriteValidation.validateObjectKey(key);
-    if (key.endsWith("/")) throw new ObjectDeletionException(Kind.UNSAFE);
     try {
       requireUnversioned(bucket);
+      if (key.endsWith("/")) requireEmptyFolder(bucket, key);
       var object = client.headObject(request -> request.bucket(bucket).key(key));
       if ((object.versionId() != null && !object.versionId().equals("null"))
           || object.contentLength() == null
@@ -85,6 +86,12 @@ public class AwsS3ObjectDeletionAdapter implements S3ObjectDeletionPort, AutoClo
   public void deleteObject(Target target) {
     try {
       requireUnversioned(target.bucket());
+      if (target.key().endsWith("/")) {
+        var current = inspectObject(target.bucket(), target.key());
+        if (!current.etag().equals(target.etag())) {
+          throw new ObjectDeletionException(Kind.CONFLICT);
+        }
+      }
     } catch (SdkException failure) {
       throw translate(failure, false);
     }
@@ -105,6 +112,26 @@ public class AwsS3ObjectDeletionAdapter implements S3ObjectDeletionPort, AutoClo
       }
     } catch (SdkException failure) {
       throw translate(failure, true);
+    }
+  }
+
+  private void requireEmptyFolder(String bucket, String key) {
+    var listing = client.listObjectsV2(request -> request.bucket(bucket).prefix(key).maxKeys(2));
+    if (listing.contents().stream().anyMatch(object -> !key.equals(object.key()))) {
+      throw new ObjectDeletionException(Kind.CONFLICT);
+    }
+    if (!Boolean.FALSE.equals(listing.isTruncated())
+        || listing.keyCount() == null
+        || listing.keyCount() != listing.contents().size()
+        || listing.nextContinuationToken() != null
+        || !listing.commonPrefixes().isEmpty()) {
+      throw new ObjectDeletionException(Kind.UNSAFE);
+    }
+    if (listing.contents().isEmpty()) throw new ObjectDeletionException(Kind.NOT_FOUND);
+    if (listing.contents().size() != 1
+        || listing.contents().getFirst().size() == null
+        || listing.contents().getFirst().size() != 0) {
+      throw new ObjectDeletionException(Kind.UNSAFE);
     }
   }
 

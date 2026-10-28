@@ -18,9 +18,12 @@ LABEL org.opencontainers.image.title="StackEmu" \
       org.opencontainers.image.source="https://github.com/ERF88/StackEmu" \
       org.opencontainers.image.licenses="MIT"
 WORKDIR /app
+RUN mkdir -p /data/stackemu && chown 10001:10001 /data/stackemu
+ENV STACKEMU_OPERATIONS_PATH=/data/stackemu/operations
 COPY LICENSE /licenses/StackEmu-LICENSE
 COPY THIRD_PARTY_NOTICES.md /licenses/THIRD_PARTY_NOTICES.md
 COPY --from=styles /workspace/node_modules/tailwindcss/LICENSE /licenses/Tailwind-CSS-LICENSE
+COPY --from=build /build/target/classes/META-INF/licenses/h2-NOTICE.txt /licenses/H2-NOTICE
 COPY --from=build /build/target/quarkus-app/ ./
 USER 10001
 EXPOSE 8080

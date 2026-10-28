@@ -2,27 +2,8 @@
   {#title}{view.key}{/title}
   {#content}
     <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{view.parentHref}">{#include icons/back /}{ui.text('backToObjects')}</a></nav>
-    <h1>{#include icons/file /}{ui.text('objectDetails')}</h1>
-    <div class="object-detail-grid">
-    <section class="resource-panel">
-      <h2 class="object-key">{view.key}</h2>
-      <dl class="object-facts">
-        <div class="fact-wide"><dt>Bucket</dt><dd>{view.bucket}</dd></div>
-        <div><dt>{ui.text('size')}</dt><dd>{view.size}</dd></div>
-        <div><dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd></div>
-        <div class="fact-wide"><dt>ETag</dt><dd><code>{view.etag}</code></dd></div>
-        <div class="fact-wide"><dt>{ui.text('modified')}</dt><dd>{view.modified}</dd></div>
-      </dl>
+    <section class="resource-panel object-detail-panel" aria-label="{ui.text('objectDetails')}">
+      {#include S3Resource/objectDetails standalone=true /}
     </section>
-    <section class="resource-panel object-actions" aria-labelledby="object-actions-title">
-      <h2 id="object-actions-title">{ui.text('objectActions')}</h2>
-      <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
-      <a class="button" href="{view.previewHref}">{#include icons/file /}{ui.text('textPreview')}</a>
-      {#if view.deleteHref != ''}<a class="button danger" href="{view.deleteHref}">{#include icons/delete /}{ui.text('deleteObject')}</a>{/if}
-      {#if view.imagePreviewHref != ''}
-        <a class="button" href="{view.imagePreviewHref}">{#include icons/file /}{ui.text('imagePreview')}</a>
-      {/if}
-    </section>
-    </div>
   {/content}
 {/include}

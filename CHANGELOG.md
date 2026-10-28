@@ -4,6 +4,28 @@ All notable changes will be documented in this file. This project intends to fol
 
 ## [Unreleased]
 
+- Correct contextual navigation: keep metadata/versions/previews in the inspector with bounded history and listing-origin restoration; preserve share targets and pagination in preferences, add canonical transfer/share returns and explicit unsent-change discard, and hide ineligible text previews. [Contract](docs/decisions/ADR-0032-contextual-navigation.md).
+
+- Fix duplicate upload selectors: keep one native file input inside the drop surface, removing the second picker button while preserving keyboard, drag/drop and no-JavaScript upload.
+
+- Adapt S3 controls from the maintainer's Stackport reference: contextual explorer toolbar, explicit folder creation, page-local name filters with clear/no-match states and distinct move/share icons. Preserve native routes, security gates and existing typography; no React/Cloudscape import or speculative batch controls. [Scope](docs/decisions/ADR-0031-s3-reference-controls.md).
+
+- Adopt locally bundled Space Grotesk/IBM Plex Sans typography and compact precision-console controls. Remove Operations from primary navigation without disabling durable execution. Replace bare metadata/version links with accessible icon controls. [Decision and scoped verification](docs/decisions/ADR-0030-precision-console.md). / Adotar tipografia local e controles compactos; remover Operações do menu, preservar execução persistente e substituir links soltos de metadados/versões por ícones acessíveis.
+
+- Introduce minimal action dialogs with automatic success return, separate metadata/operation pages and persistent H2-backed S3 execution. Add reviewed prefix/version cleanup beyond 25 entries, interruption/reconciliation, individual copy/move, conditional upload replacement and explicit presigned downloads. Earlier bounded-cleanup entries below describe preceding slices superseded by [ADR-0029](docs/decisions/ADR-0029-minimal-workspace-operations.md).
+
+- Add separate reviewed Empty and delete for at most 25 entries in never-versioned buckets, with typed-name confirmation, independent one-use tickets/CSRF, fresh manifest checks, per-key outcomes and no automatic destructive retries. Simplify action dialogs in both languages; retain security details in disclosures and all original-file gates.
+
+- Fix the folder-marker trap with explicit empty-folder review and one exact conditional deletion after fresh prefix/size/version checks. Keep children untouched, CSRF and one-use tickets. Rename creation to Create folder and center table action headings. No recursive cleanup.
+
+- Show only the next folder name in prefix rows while retaining exact navigation targets and breadcrumbs. Simplify shared object details with a filename heading, grouped actions, inline exact-value copy controls and collapsible technical metadata/policy; retain canonical pages and all operation gates.
+
+- Focus the explorer on resource operations: remove bucket region/tags and listing-help blocks together with their metadata reads; align table names/icons/actions and heading controls. Hide redundant first-page navigation while retaining cursor recovery. Security and original-file flows remain unchanged.
+
+- Extend the compact HIG-inspired treatment to the bucket explorer: named icon actions, contextual refresh, smaller action column and secondary metadata/guidance below the list. Preserve full keys, canonical routes, previews/downloads and independent deletion gates. [Contract](docs/decisions/ADR-0026-bucket-workspace-deletion.md#explorer-continuation--continuação-do-explorer).
+
+- Compact bucket row icons with accessible labels, a narrower shell and one balanced table spacing; remove the density selector while preserving legacy URLs. Add reviewed empty, never-versioned bucket deletion with CSRF, one-use tickets and no automatic retry. Empty and delete is mapped, not enabled. [Contract](docs/decisions/ADR-0026-bucket-workspace-deletion.md) · [Verification](docs/evidence/bucket-workspace-results.md).
+
 - Add JavaScript-driven creation/upload/deletion-review windows with explicit action buttons instead of generic checkboxes; move density, diagnostics and the local-only notice into Preferences. Preserve server validation and deletion gates. [Decision and limits](docs/decisions/ADR-0025-action-dialogs.md); local runtime verification remains separate.
 
 - Replace expanding Actions/Preferences with direct resource actions and native nonmodal Preferences; standardize icon/label buttons and contextual returns before titles. Preserve original-file, native fallback and security contracts. [Decision](docs/decisions/ADR-0024-direct-actions-navigation.md) · [Local checks](docs/evidence/direct-controls-results.md).

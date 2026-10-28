@@ -1,6 +1,6 @@
 # Known limitations / Limitações conhecidas
 
-Single-object deletion is deliberately narrower than the operational backlog: it excludes markers, versioned/unknown buckets, bulk/prefix/bucket cleanup and unsupported conservative write names. External versioning changes are not atomic with DELETE; identical-ETag replacements are not distinguishable. Tickets expire after five minutes, are one-use, process-local (restart invalidates them), and at most 128 may be pending. See [ADR-0021](decisions/ADR-0021-single-object-deletion.md). / Exclusão individual não conclui backlog: exclui markers, buckets versionados/desconhecidos, lotes/prefixos/buckets e nomes fora da validação conservadora. Mudança externa de versão não é atômica com DELETE; ETag igual não distingue substituições. Confirmações expiram em cinco minutos, uso único, locais ao processo, máximo 128; reinício invalida.
+Current operations follow [ADR-0029](decisions/ADR-0029-minimal-workspace-operations.md) and [their contracts](development/s3-operations.md): persistent reviewed deletion, version/prefix cleanup, object copy/move, explicit replacement and signed downloads. Limits remain: one application instance, local trusted use, configurable storage/transfer bounds, no atomic snapshot against external writers, no automatic ambiguous-write retry and no rollback. Same-ETag replacement and bucket-name reuse cannot be reliably distinguished. / Operações atuais incluem exclusão persistente, versões/prefixos, cópia/movimentação, substituição explícita e download assinado. Permanecem instância única, uso local confiável, limites configuráveis, ausência de snapshot atômico contra escritores externos, sem retry incerto ou rollback; ETag igual/reutilização do nome não são distinguíveis com segurança.
 
 ## Baseline status / Status do baseline
 
@@ -12,9 +12,9 @@ Reviewed / Revisado: 2026-10-17; committed baseline `486f807`, with subsequent l
 
 Preview supports complete UTF-8 text/JSON-as-text up to 64 KiB and separate static PNG/JPEG re-encoding within [ADR-0019 limits](decisions/ADR-0019-raster-preview-isolation.md). No JSON syntax validation, HTML/SVG/PDF/GIF/WebP/APNG, compressed encoding or arbitrary active documents. Images are refused rather than downscaled/truncated; no exact EXIF orientation/color-fidelity promise or version-consistent page/download snapshot. Shell 200 does not establish object/image availability; no-JS retains generic refusal guidance, not the failed image response's exact reason. Original attachments remain unchanged. [Local raster evidence](evidence/ux-5b-results.md) does not replace final new-image/runtime validation. / Preview de texto até 64 KiB e PNG/JPEG estáticos reencodados dentro dos limites; sem validar sintaxe JSON/renderizar formatos ativos/animação/encoding comprimido. Sem reduzir/truncar imagens, prometer EXIF/fidelidade ou snapshot consistente. Shell 200 não confirma imagem; sem JS há orientação genérica, não motivo HTTP exato. Anexos preservados e validação final com imagem nova pendente.
 
-The implemented S3 slice includes reads, creation/upload, explorer/drawer/clipboard, progressive upload feedback, notices and bounded text/static-image previews against MiniStack 1.5.25. Deletion, copy/move, presigned URLs, overwrite, range/resume and version selection are not implemented in the GUI. Confirmed first-delivery scope is not a claim of complete implementation or S3 compatibility.
+The implemented S3 slice additionally includes durable deletion, version selection/removal, reviewed bucket/prefix cleanup, individual copy/move, conditional replacement and presigned downloads. Range/resumable file transfer, multipart copy, cross-endpoint transfer, full version restoration and advanced bucket configuration are not implemented. Operation resume reconciles its journal; it is not resumable upload/download. Confirmed delivery scope does not establish full S3 compatibility.
 
-A fatia implementada inclui essas leituras/escritas, navegação/clipboard/feedback e previews. Exclusão, cópia/movimentação, URLs assinadas, sobrescrita, retomada e versões não existem na GUI. Escopo confirmado não comprova implementação ou compatibilidade completa.
+A fatia atual inclui operações persistentes, versões, limpeza revisada, cópia/movimentação individual, substituição condicional e download assinado. Transferência retomável/range/multipart, entre endpoints, restauração integral de versões e configuração avançada não existem. Retomar operação reconcilia o histórico, não retoma transferência de arquivo. Escopo não comprova compatibilidade S3 completa.
 
 ## Historical MVP exclusions and current limits / Exclusões históricas e limites atuais
 
@@ -28,8 +28,8 @@ Phase 3 adds bucket creation, bounded single-file upload and markers; see [guide
 
 - AWS account administration, real-AWS console replacement, multitenancy, and internet exposure.
 - Other service modules, persistent editable connection profiles, arbitrary terminal/shell, and native image as a release requirement.
-- Complex S3 policy/CORS/encryption/lifecycle/replication editing, object metadata/content editing, object rename, and full version recovery.
-- Automatic empty-and-delete bucket behavior; destructive/version-aware flows are post-MVP and need dedicated tests.
+- Complex S3 policy/CORS/encryption/lifecycle/replication editing, object metadata/content editing, and full version recovery. Object rename is an explicit copy/move destination choice. / Configuração avançada, edição de conteúdo/metadados e restauração integral pendentes; renomear é escolha explícita de destino.
+- Automatic cleanup without review, cross-endpoint transfer and arbitrary version/retention bypass. Explicit reviewed version-aware flows are governed by ADR-0029. / Sem limpeza automática não revisada, transferência entre endpoints ou bypass de retenção/versões; fluxos explícitos seguem ADR-0029.
 
 ## Compatibility limits / Limites de compatibilidade
 

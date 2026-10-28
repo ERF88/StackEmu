@@ -1,0 +1,19 @@
+{#include layout}
+  {#title}{ui.text('operations')}{/title}
+  {#content}
+    <h1>{ui.text('operations')}</h1>
+    {#if operations.isEmpty}<p>{ui.text('operationsEmpty')}</p>{#else}
+      <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('operations')}">
+        <table><thead><tr><th>{ui.text('action')}</th><th>Bucket</th><th>{ui.text('operationStatus')}</th><th>{ui.text('operationProgress')}</th></tr></thead><tbody>
+        {#for operation in operations}
+          <tr {#if operation.active}data-operation-poll="{operation.id}" data-operation-state="{operation.state.name}" data-operation-refresh="/operations?page={page}&{ui.query}"{/if}><td><a href="/operations/{operation.id}?{ui.query}">{ui.text('operationKind' + operation.request.kind.name)}</a></td><td class="object-key">{operation.request.bucket}</td><td>{ui.text('operationState' + operation.state.name)}</td><td data-operation-progress>{operation.done} / {operation.total}</td></tr>
+        {/for}
+        </tbody></table>
+      </div>
+    {/if}
+    <nav class="pagination" aria-label="{ui.text('pagination')}">
+      {#if page > 0}<a class="button" href="/operations?page={page - 1}&{ui.query}">{ui.text('previousPage')}</a>{/if}
+      {#if operations.size == 50}<a class="button" href="/operations?page={page + 1}&{ui.query}">{ui.text('nextPage')}</a>{/if}
+    </nav>
+  {/content}
+{/include}

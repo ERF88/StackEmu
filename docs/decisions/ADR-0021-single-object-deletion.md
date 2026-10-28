@@ -5,6 +5,8 @@
 
 ## Contract / Contrato
 
+2026-10-22: [ADR-0027](ADR-0027-empty-folder-removal.md) supersedes the marker exclusion below only for verified zero-byte empty-folder entries. No recursive deletion is authorized. / Substitui a exclusão de markers abaixo apenas para entrada de pasta comprovadamente vazia; sem exclusão recursiva.
+
 2026-10-21: [ADR-0025](ADR-0025-action-dialogs.md) supersedes native-page-only/no-modal presentation and the generic checkbox. Explicit Delete in a reviewed action window expresses consent; one-use tickets, CSRF, exact server-held targets, version/ETag gates and uncertainty remain unchanged. / Modal e envio explícito substituem apresentação anterior, sem dispensar os gates de exclusão.
 
 Implement only one exact non-marker key in a never-versioned bucket. No traversal, batch, prefix cleanup, bucket deletion, explicit version IDs or retention bypass. GET `/s3/delete-object?bucket=…&key=…` reads version state and HEAD metadata; it cannot delete. POST to the same path requires framework CSRF, explicit confirmation and a random 256-bit opaque ticket. The bounded process-local store holds the reviewed target/ETag for five minutes, at most 128 pending tickets. The POST atomically consumes a ticket before any service I/O, including failures. Restart invalidates tickets. No browser storage, signing secret, application session or new dependency is introduced. Tokens are not authentication; localhost/trusted-emulator restrictions remain.

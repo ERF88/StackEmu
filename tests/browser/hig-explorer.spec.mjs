@@ -23,7 +23,7 @@ for (const javaScriptEnabled of [true, false]) {
     test.use({ javaScriptEnabled });
     for (const language of ["en", "pt-BR"]) {
       for (const theme of ["light", "dark"]) {
-        test(`empty prefix, guidance and resource error: ${language}, ${theme}`, async ({
+        test(`empty prefix, focused content and resource error: ${language}, ${theme}`, async ({
           page,
           request,
         }, testInfo) => {
@@ -51,15 +51,9 @@ for (const javaScriptEnabled of [true, false]) {
             expect(upload.searchParams.get("lang")).toBe(language);
             expect(upload.searchParams.get("theme")).toBe(theme);
             if (density === "compact") expect(upload.searchParams.get("density")).toBe(density);
-            const help = page.locator(".explorer-help");
-            await expect(help).not.toHaveAttribute("open");
-            await help.locator("summary").focus();
-            await page.keyboard.press("Enter");
-            await expect(help).toHaveAttribute("open", "");
-            await expect(help.locator("p")).toHaveCount(2);
-            await expect(help.locator("p").first()).toBeVisible();
-            await page.keyboard.press("Enter");
-            await expect(help).not.toHaveAttribute("open");
+            await expect(
+              page.locator(".explorer-help, .bucket-metadata, .resource-pagination"),
+            ).toHaveCount(0);
             for (const width of [390, 1440]) {
               await page.setViewportSize({ width, height: 1000 });
               expect(

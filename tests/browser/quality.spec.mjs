@@ -152,10 +152,10 @@ test("browser S3 writes, original file download, validation and security", async
     created = true;
     await page.getByRole("link", { name: "Open created resource" }).click();
     await audit(page, testInfo, "empty-bucket");
-    await page.getByRole("link", { name: "Create folder marker", exact: true }).click();
-    await page.getByLabel("Folder marker prefix").fill(prefix);
+    await page.getByRole("link", { name: "Create folder", exact: true }).click();
+    await page.getByLabel("Folder path").fill(prefix);
     await expect(page.locator('input[name="confirm"]')).toHaveValue("yes");
-    await page.getByRole("button", { name: "Create folder marker", exact: true }).click();
+    await page.getByRole("button", { name: "Create folder", exact: true }).click();
     await page.getByRole("link", { name: "Open created resource" }).click();
     await page.getByRole("link", { name: "Upload new object", exact: true }).click();
     await expect(page.locator('input[name="key"]')).toHaveCount(0);
@@ -230,7 +230,7 @@ test("browser S3 writes, original file download, validation and security", async
           `/s3/object?bucket=${bucket}&key=${encodeURIComponent(key)}&lang=${language}&theme=${theme}`,
         );
         await expect(page.locator(".object-key")).toHaveText(key);
-        await expect(page.locator(".object-actions .primary")).toBeVisible();
+        await expect(page.locator(".object-panel-actions .primary")).toBeVisible();
         await audit(page, testInfo, `e4-object-${language}-${theme}`);
         for (const width of [360, 390, 1440, 1920]) {
           await page.setViewportSize({ width, height: 900 });

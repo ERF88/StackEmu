@@ -1,5 +1,7 @@
 # Configuration / Configuração
 
+Durable operation storage, retention and transfer settings / Persistência, retenção e limites de transferência: [S3 operations](development/s3-operations.md).
+
 ## Source of truth / Fonte de verdade
 
 Reviewed / Revisado: 2026-10-16. Effective mappings are defined by `src/main/resources/application.properties`; [current status](status.md) supersedes historical phase labels below. Host execution defaults to `http://localhost:4566`; the separate reference GUI container uses `http://ministack:4566`. Daily workflow starts only the emulator in Docker. / Mapeamentos efetivos vêm das properties; status atual substitui rótulos históricos. Endpoints do host/contêiner diferem; fluxo diário usa somente emulador no Docker.

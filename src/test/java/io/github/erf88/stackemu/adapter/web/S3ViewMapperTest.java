@@ -66,8 +66,7 @@ class S3ViewMapperTest {
         (key, kind) -> {
           var view =
               S3ViewMapper.toBucketPage(
-                  new S3ReadPort.BucketDetails(
-                      "bucket", null, Map.of(), S3ReadPort.TagsState.EMPTY),
+                  "bucket",
                   new S3ReadPort.ObjectPage(
                       List.of(),
                       List.of(
@@ -75,7 +74,7 @@ class S3ViewMapperTest {
                               key, 1536, Instant.parse("2026-01-01T12:00:00Z"))),
                       null),
                   "",
-                  50,
+                  null,
                   ui);
           var row = view.objects().getFirst();
           assertEquals(key, row.key());
@@ -97,7 +96,7 @@ class S3ViewMapperTest {
   }
 
   @Test
-  void missingMetadataAndUnknownTagsAreExplicit() {
+  void missingObjectMetadataIsExplicit() {
     var ui = UiContext.resolve("pt-BR", null, "light", "/");
     var object =
         S3ViewMapper.toObjectPage(
@@ -106,15 +105,18 @@ class S3ViewMapperTest {
     assertEquals("—", object.contentType());
     assertEquals("—", object.etag());
     assertEquals("—", object.modified());
-    var bucket =
-        S3ViewMapper.toBucketPage(
-            new S3ReadPort.BucketDetails("bucket", null, Map.of(), S3ReadPort.TagsState.UNKNOWN),
-            new S3ReadPort.ObjectPage(List.of(), List.of(), null),
-            "",
-            50,
-            ui);
-    assertEquals("—", bucket.region());
-    assertTrue(bucket.tagsMessage().contains("desconhecido"));
+  }
+
+  @Test
+  void paginationDistinguishesFirstAndCursorPagesEvenWhenEmpty() {
+    var ui = UiContext.resolve("en", null, "dark", "/s3");
+    var empty = new S3ReadPort.ObjectPage(List.of(), List.of(), null);
+    var first = S3ViewMapper.toBucketPage("bucket", empty, "a/", null, ui);
+    assertEquals(false, first.previousPage());
+    assertEquals("", first.nextHref());
+    var cursor = S3ViewMapper.toBucketPage("bucket", empty, "a/", "opaque+/%", ui);
+    assertTrue(cursor.previousPage());
+    assertEquals("/s3/bucket?bucket=bucket&prefix=a%2F&lang=en&theme=dark", cursor.rootHref());
   }
 
   @Test
@@ -125,5 +127,58 @@ class S3ViewMapperTest {
     assertEquals(path + "&lang=pt-BR&theme=light", ui.toggleTheme());
     assertTrue(path.contains("prefix=a%2F%C3%BC%20%2B%25%2F"));
     assertTrue(path.contains("token=token%2B%2F%25"));
+  }
+
+  @Test
+  void folderLabelsShowOnlyTheNextLevelWithoutChangingTargetsOrBreadcrumbs() {
+    var ui = UiContext.resolve("pt-BR", null, "dark", "compact", "/s3");
+    String prefix = "examples/2026/";
+    String child = prefix + "outubro +% ação/";
+    var view =
+        S3ViewMapper.toBucketPage(
+            "bucket", new S3ReadPort.ObjectPage(List.of(child), List.of(), null), prefix, null, ui);
+    assertEquals("outubro +% ação/", view.folders().getFirst().label());
+    assertEquals(
+        S3ViewMapper.bucketPath("bucket", child, null) + "&" + ui.query(),
+        view.folders().getFirst().href());
+    assertEquals(
+        List.of("bucket", "examples/", "2026/"),
+        view.breadcrumbs().stream().map(S3ViewMapper.Link::label).toList());
+    var root =
+        S3ViewMapper.toBucketPage(
+            "bucket",
+            new S3ReadPort.ObjectPage(List.of("examples/"), List.of(), null),
+            "",
+            null,
+            ui);
+    assertEquals("examples/", root.folders().getFirst().label());
+    var partial =
+        S3ViewMapper.toBucketPage(
+            "bucket",
+            new S3ReadPort.ObjectPage(List.of("examples/2026/"), List.of(), null),
+            "examples/20",
+            null,
+            ui);
+    assertEquals("26/", partial.folders().getFirst().label());
+  }
+
+  @Test
+  void objectTitleIsOnlyPresentationAndAllActionsRetainTheExactKey() {
+    var ui = UiContext.resolve("en", null, "light", "/s3");
+    String key = "examples/2026/ação +% <x>.txt";
+    var view =
+        S3ViewMapper.toObjectPage(
+            "bucket", new S3ReadPort.ObjectDetails(key, 1, null, null, null), ui);
+    assertEquals("ação +% <x>.txt", view.displayName());
+    assertEquals(key, view.key());
+    assertEquals(S3ViewMapper.objectPath("bucket", key) + "&" + ui.query(), view.href());
+    assertEquals(S3ViewMapper.deletionPath("bucket", key) + "&" + ui.query(), view.deleteHref());
+    assertEquals(S3ViewMapper.downloadPath("bucket", key) + "&" + ui.query(), view.downloadHref());
+    var marker =
+        S3ViewMapper.toObjectPage(
+            "bucket", new S3ReadPort.ObjectDetails("folder/", 0, null, null, null), ui);
+    assertEquals("folder/", marker.displayName());
+    assertEquals(
+        S3ViewMapper.deletionPath("bucket", "folder/") + "&" + ui.query(), marker.deleteHref());
   }
 }

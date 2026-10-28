@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { randomUUID } from "node:crypto";
+import { readyDialog, stableOperation } from "./operation-fixtures.mjs";
 
 const emulator = "http://127.0.0.1:4566";
 const owned = new Map();
@@ -60,11 +61,9 @@ for (const language of ["en", "pt-BR"]) {
       await folder.click();
       await dialog.locator("#mutation-key").fill("created/");
       await dialog.locator('button[type="submit"]').click();
-      await expect(dialog.locator("[data-operation-success]")).toHaveCount(1);
-      await expect(page).toHaveURL(new RegExp(`/s3/bucket\\?bucket=${bucket}`));
-      await close.click();
       await expect(dialog).not.toBeVisible();
       expect((await request.get(`${emulator}/${bucket}/created%2F`)).status()).toBe(200);
+      await page.goto(listing);
 
       await page.locator('.page-actions a[href*="action=upload"]').click();
       await dialog.locator('input[type="file"]').setInputFiles({
@@ -73,19 +72,18 @@ for (const language of ["en", "pt-BR"]) {
         buffer: Buffer.from("original bytes\n"),
       });
       await dialog.locator('button[type="submit"]').click();
-      await expect(dialog.locator("[data-operation-success]")).toHaveCount(1);
+      await expect(dialog).not.toBeVisible();
       expect(await (await request.get(`${emulator}/${bucket}/original.txt`)).text()).toBe(
         "original bytes\n",
       );
-      await close.click();
       await expect(dialog).not.toBeVisible();
 
       const row = page.locator(".object-table tbody tr").filter({ hasText: "target.txt" });
       const deletion = row.locator('a[href^="/s3/delete-object?"]');
       await deletion.click();
-      await expect(dialog.locator('input[name="ticket"]')).toHaveValue(/^[A-Za-z0-9_-]{43}$/);
+      await readyDialog(page);
       await expect(close).toBeFocused();
-      await expect(dialog.locator(".object-key")).toHaveText("target.txt");
+      await expect(dialog.locator(".object-key")).toContainText("target.txt");
       for (const width of [390, 1440]) {
         await page.setViewportSize({ width, height: 1000 });
         expect(
@@ -107,16 +105,16 @@ for (const language of ["en", "pt-BR"]) {
       await expect(deletion).toBeFocused();
       expect((await request.get(`${emulator}/${bucket}/target.txt`)).status()).toBe(200);
       await deletion.click();
-      await expect(dialog.locator('input[name="ticket"]')).toHaveCount(1);
+      const { id } = await readyDialog(page);
       const response = page.waitForResponse(
-        (r) => r.request().method() === "POST" && r.url().includes("/s3/delete-object"),
+        (r) => r.request().method() === "POST" && /\/operations\/.+\/start/.test(r.url()),
       );
       await dialog.locator('button[type="submit"]').click();
       expect((await response).status()).toBe(200);
-      await expect(dialog.locator("[data-action-completed]")).toHaveCount(1);
+      await expect(dialog).not.toBeVisible();
+      expect((await stableOperation(request, id)).state).toBe("SUCCEEDED");
       expect((await request.get(`${emulator}/${bucket}/target.txt`)).status()).toBe(404);
       expect((await request.get(`${emulator}/${bucket}/neighbor.txt`)).status()).toBe(200);
-      await close.click();
       await expect(page).toHaveURL(new RegExp(`/s3/bucket\\?bucket=${bucket}.*density=compact`));
       await expect(
         page.locator(".object-table tbody tr").filter({ hasText: "target.txt" }),
@@ -163,7 +161,7 @@ test("creation validation, stale reads and unmarked mutation failure", async ({ 
     });
   });
   await dialog.locator('button[type="submit"]').click();
-  await expect(dialog.locator("[data-action-status]")).toContainText("could not be confirmed");
+  await expect(dialog.locator("[data-action-status]")).toContainText("Result not confirmed");
   await expect(dialog.locator('button[type="submit"]')).toBeDisabled();
   await expect(dialog).not.toContainText("Untrusted response");
   await dialog.locator("form").evaluate((form) => form.requestSubmit());

@@ -1,15 +1,15 @@
 package io.github.erf88.stackemu.adapter.web;
 
-import io.github.erf88.stackemu.application.ObjectDeletionException;
-import io.github.erf88.stackemu.application.S3ObjectDeletionPort;
-import io.github.erf88.stackemu.application.S3ObjectDeletionPort.Target;
+import io.github.erf88.stackemu.application.OperationException;
+import io.github.erf88.stackemu.application.S3ObjectToolsPort;
+import io.github.erf88.stackemu.application.S3OperationPort.Kind;
+import io.github.erf88.stackemu.application.S3OperationPort.Request;
 import io.github.erf88.stackemu.application.WriteValidationException;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -18,125 +18,66 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestForm;
 
+/** Preserves the canonical action URL while using the durable reviewed workflow. */
 @Path("/s3/delete-object")
 @Blocking
 @Produces(MediaType.TEXT_HTML)
 public class S3ObjectDeletionResource {
-  private final S3ObjectDeletionPort deletion;
-  private final ObjectDeletionConfirmations confirmations;
+  private final OperationsResource operations;
+  private final S3ObjectToolsPort tools;
 
-  public S3ObjectDeletionResource(
-      S3ObjectDeletionPort deletion, ObjectDeletionConfirmations confirmations) {
-    this.deletion = deletion;
-    this.confirmations = confirmations;
+  public S3ObjectDeletionResource(OperationsResource operations, S3ObjectToolsPort tools) {
+    this.operations = operations;
+    this.tools = tools;
   }
-
-  public record DeletionPageView(
-      String bucket, String key, String etag, String ticket, String message, String backHref) {}
 
   @CheckedTemplate
   public static class Templates {
-    public static native TemplateInstance confirmation(DeletionPageView view, UiContext ui);
+    public static native TemplateInstance unavailable(
+        String bucket, String key, String message, UiContext ui);
+  }
+
+  private Response unavailable(String bucket, String key, String message, UiContext ui) {
+    return Response.status(409)
+        .header("Cache-Control", "no-store")
+        .header("X-StackEmu-Action", "workspace")
+        .entity(Templates.unavailable(bucket, key, message, ui).render())
+        .build();
   }
 
   @GET
   public Response showConfirmation(
       @QueryParam("bucket") String bucket,
       @QueryParam("key") String key,
+      @QueryParam("version") String version,
       @QueryParam("lang") String lang,
       @QueryParam("theme") String theme,
-      @QueryParam("density") String density,
-      @HeaderParam("Accept-Language") String acceptLanguage) {
-    String path =
-        "/s3/delete-object?bucket="
-            + S3ViewMapper.encode(value(bucket))
-            + "&key="
-            + S3ViewMapper.encode(value(key));
-    UiContext ui = UiContext.resolve(lang, acceptLanguage, theme, density, path);
+      @QueryParam("density") String density) {
+    var ui = UiContext.resolve(lang, null, theme, density, "/s3/delete-object");
     try {
-      Target target = deletion.inspectObject(bucket, key);
-      var ticket = confirmations.issue(target);
-      return page(
-          ticket.isPresent() ? 200 : 429,
-          target,
-          ticket.orElse(""),
-          ticket.isPresent() ? "" : "deleteCapacity",
-          ui);
-    } catch (WriteValidationException invalid) {
-      return page(422, null, "", "deleteUnsafe", ui);
-    } catch (ObjectDeletionException failure) {
-      return failure(failure, null, ui);
+      Kind kind =
+          version != null && !version.isEmpty()
+              ? Kind.DELETE_VERSION
+              : key != null && key.endsWith("/") ? Kind.DELETE_PREFIX : Kind.DELETE_OBJECT;
+      var request = new Request(kind, bucket, key, version, "", "", false);
+      if (kind == Kind.DELETE_VERSION && !tools.isVersionDeletionAvailable(bucket))
+        return unavailable(bucket, key, "versionDeletionUnavailable", ui);
+      return operations.prepare(request, ui);
+    } catch (OperationException failure) {
+      return unavailable(bucket, key, "operationReason" + failure.reason().name(), ui);
+    } catch (IllegalArgumentException | WriteValidationException invalid) {
+      return operations.invalid(ui);
     }
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response deleteObject(
+  public Response submit(
       @RestForm String ticket,
-      @RestForm String confirm,
+      @RestForm String bucketName,
       @RestForm String lang,
       @RestForm String theme,
       @RestForm String density) {
-    UiContext ui = UiContext.resolve(lang, null, theme, density, "/s3");
-    // The target/ETag are server-held; extra bucket/key/ETag form fields are never consulted.
-    Target target = confirmations.consume(ticket).orElse(null);
-    if (target == null) return page(409, null, "", "deleteExpired", ui);
-    if (!"yes".equals(confirm)) return page(422, target, "", "confirmationRequired", ui);
-    try {
-      deletion.deleteObject(target);
-      return page(200, target, "", "deleteCompleted", ui);
-    } catch (ObjectDeletionException failure) {
-      return failure(failure, target, ui);
-    }
-  }
-
-  private Response failure(ObjectDeletionException failure, Target target, UiContext ui) {
-    int status =
-        switch (failure.kind()) {
-          case UNSAFE, CONFLICT -> 409;
-          case NOT_FOUND -> 404;
-          case FORBIDDEN -> 403;
-          case UNAVAILABLE -> 503;
-          case UNCERTAIN -> 502;
-        };
-    String message =
-        switch (failure.kind()) {
-          case UNSAFE -> "deleteUnsafe";
-          case CONFLICT -> "deleteConflict";
-          case NOT_FOUND -> "deleteMissing";
-          case FORBIDDEN -> "deleteForbidden";
-          case UNAVAILABLE -> "deleteUnavailable";
-          case UNCERTAIN -> "deleteUncertain";
-        };
-    return page(status, target, "", message, ui);
-  }
-
-  private Response page(int status, Target target, String ticket, String message, UiContext ui) {
-    String back = "/s3?" + ui.query();
-    if (target != null) {
-      int slash = target.key().lastIndexOf('/');
-      String prefix = slash < 0 ? "" : target.key().substring(0, slash + 1);
-      back = S3ViewMapper.bucketPath(target.bucket(), prefix, null) + "&" + ui.query();
-    }
-    return Response.status(status)
-        .type(MediaType.TEXT_HTML_TYPE)
-        .header("Cache-Control", "no-store")
-        .header("X-StackEmu-Action", "workspace")
-        .entity(
-            Templates.confirmation(
-                    new DeletionPageView(
-                        target == null ? "" : target.bucket(),
-                        target == null ? "" : target.key(),
-                        target == null ? "" : target.etag(),
-                        ticket,
-                        message,
-                        back),
-                    ui)
-                .render())
-        .build();
-  }
-
-  private static String value(String value) {
-    return value == null ? "" : value;
+    return operations.start(ticket, bucketName, lang, theme, density);
   }
 }

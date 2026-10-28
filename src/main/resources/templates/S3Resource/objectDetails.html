@@ -1,0 +1,39 @@
+<section class="object-panel clipboard-panel" aria-labelledby="object-name"
+  data-copy-source="{view.href}" data-copied-label="{ui.text('copied')}" data-copy-failed-label="{ui.text('copyFailed')}">
+  {#if standalone}
+    <h1 id="object-name">{view.displayName}</h1>
+  {#else}
+    <h3 id="object-name">{view.displayName}</h3>
+  {/if}
+  <dl class="object-facts">
+    <div><dt>{ui.text('size')}</dt><dd>{view.size}</dd></div>
+    <div><dt>{ui.text('contentType')}</dt><dd>{view.contentType}</dd></div>
+    <div class="fact-wide"><dt>{ui.text('modified')}</dt><dd>{view.modified}</dd></div>
+  </dl>
+  <nav class="object-panel-actions" aria-label="{ui.text('objectActions')}">
+    <a class="button icon-action" href="{view.downloadHref}" aria-label="{ui.text('download')}" title="{ui.text('download')}">{#include icons/download /}<span class="action-tooltip" aria-hidden="true">{ui.text('downloadAction')}</span></a>
+    {#if view.previewHref != ''}<a class="button" href="{view.previewHref}">{#include icons/file /}{ui.text('textPreview')}</a>{/if}
+    {#if view.imagePreviewHref != ''}<a class="button" href="{view.imagePreviewHref}">{#include icons/file /}{ui.text('imagePreview')}</a>{/if}
+    <a class="button icon-action" href="{view.transferHref}" aria-label="{ui.text('operationKindCOPY')}" title="{ui.text('operationKindCOPY')}">{#include icons/copy /}<span class="action-tooltip" aria-hidden="true">{ui.text('operationKindCOPY')}</span></a>
+    <a class="button icon-action" href="{view.transferHref}&move=true" aria-label="{ui.text('operationKindMOVE')}" title="{ui.text('operationKindMOVE')}">{#include icons/move /}<span class="action-tooltip" aria-hidden="true">{ui.text('operationKindMOVE')}</span></a>
+    <a class="button icon-action" href="{view.shareHref}" aria-label="{ui.text('shareDownload')}" title="{ui.text('shareDownload')}">{#include icons/share /}<span class="action-tooltip" aria-hidden="true">{ui.text('shareDownload')}</span></a>
+    {#if view.deleteHref != ''}<a class="button danger icon-action" href="{view.deleteHref}" aria-label="{ui.text('deleteObject')}: {view.key}" title="{ui.text('deleteObject')}">{#include icons/delete /}<span class="action-tooltip" aria-hidden="true">{ui.text('deleteObject')}</span></a>{/if}
+  </nav>
+  <p id="object-copy-help" class="visually-hidden">{ui.text('manualCopyNote')}</p>
+  <p data-encoded-note hidden>{ui.text('encodedCopyNote')}</p>
+  <div class="copy-field">
+    <label for="drawer-copy-bucket">Bucket</label>
+    <textarea id="drawer-copy-bucket" data-copy-param="bucket" rows="1" readonly spellcheck="false" aria-describedby="object-copy-help">{view.bucket}</textarea>
+    <button class="button icon-action" type="button" data-copy-field hidden aria-label="{ui.text('copyBucket')}" title="{ui.text('copyBucket')}">{#include icons/copy /}<span class="action-tooltip" aria-hidden="true">{ui.text('copyBucket')}</span></button>
+  </div>
+  <div class="copy-field">
+    <label for="drawer-copy-key">{ui.text('objectKey')}</label>
+    <textarea id="drawer-copy-key" class="object-key" data-copy-param="key" rows="2" readonly spellcheck="false" aria-describedby="object-copy-help">{view.key}</textarea>
+    <button class="button icon-action" type="button" data-copy-field hidden aria-label="{ui.text('copyKey')}" title="{ui.text('copyKey')}">{#include icons/copy /}<span class="action-tooltip" aria-hidden="true">{ui.text('copyKey')}</span></button>
+  </div>
+  <p class="copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <nav class="object-inspector-tools" aria-label="{ui.text('technicalDetails')}">
+    <a class="button icon-action" href="{view.metadataHref}" aria-label="{ui.text('technicalDetails')}" title="{ui.text('technicalDetails')}">{#include icons/settings /}<span class="action-tooltip" aria-hidden="true">{ui.text('technicalDetails')}</span></a>
+    <a class="button icon-action" href="{view.versionsHref}" aria-label="{ui.text('versions')}" title="{ui.text('versions')}">{#include icons/history /}<span class="action-tooltip" aria-hidden="true">{ui.text('versions')}</span></a>
+  </nav>
+</section>

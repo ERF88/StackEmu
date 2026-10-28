@@ -2,6 +2,8 @@
 
 [English](CONTRIBUTING.md)
 
+Para alterações de UI, seguir o [padrão de feedback das interações](docs/design/interaction-feedback.md): reutilizar controlador comum, abrir conteúdo verificado sem janelas vazias, preservar foco válido em diálogos e distinguir feedback tardio de leitura do estado imediato de mutações. Incluir na revisão checks relevantes de resposta rápida/lenta, falha, teclado, repetição de clique e fallback nativo.
+
 Antes de alterar código, siga o [guia de nomenclatura e responsabilidades](docs/development/naming-and-responsibilities.md) e seu checklist de revisão. O baseline atual inclui a leitura da Fase 2.
 
 O StackEmu tem a fundação da Fase 1. Consulte as evidências registradas antes de afirmar implementação ou compatibilidade.

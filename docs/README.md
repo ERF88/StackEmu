@@ -6,6 +6,10 @@ Evidence is historical and version/environment-specific, not today's instruction
 
 ## Use / Usar
 
+- [Precision console decision / Decisão do console de precisão](decisions/ADR-0030-precision-console.md)
+- [S3 reference controls / Controles S3 de referência](decisions/ADR-0031-s3-reference-controls.md)
+- [Contextual navigation / Navegação contextual](decisions/ADR-0032-contextual-navigation.md)
+
 - [Project overview — English / Visão geral em inglês](../README.md)
 - [Project overview — pt-BR / Visão geral em português](../README.pt-BR.md)
 - [Configuration / Configuração](configuration.md)
@@ -62,6 +66,21 @@ Evidence is historical and version/environment-specific, not today's instruction
 - [MIT license / Licença MIT](../LICENSE)
 
 ## Decisions / Decisões
+
+- [Reviewed bucket cleanup / Esvaziamento revisado de bucket](decisions/ADR-0028-bounded-bucket-cleanup.md)
+- [Minimal workspace and durable operations / Workspace mínimo e operações persistentes](decisions/ADR-0029-minimal-workspace-operations.md)
+- [Durable S3 operations / Operações S3 persistentes](development/s3-operations.md)
+- [Minimal workspace local results / Resultados locais do workspace mínimo](evidence/minimal-operations-results.md)
+- [Interface responsiveness review / Revisão da fluidez da interface](evidence/interface-fluidity-results.md)
+- [Interaction feedback standard / Padrão de feedback das interações](design/interaction-feedback.md)
+- [ADR-0033 — Interaction feedback / Feedback das interações](decisions/ADR-0033-interaction-feedback.md)
+- [ADR-0034 — Compact notifications / Notificações compactas](decisions/ADR-0034-compact-notifications.md)
+- [Platform interaction results / Resultados do padrão de interação](evidence/interaction-standard-results.md)
+- [Interaction simplification / Simplificação das interações](evidence/interaction-simplification-results.md)
+
+- [Empty folder removal / Exclusão de pasta vazia](decisions/ADR-0027-empty-folder-removal.md)
+
+- [Compact buckets and empty deletion / Buckets compactos e exclusão vazia](decisions/ADR-0026-bucket-workspace-deletion.md)
 
 - [Cohesive HIG fluidity / Fluidez HIG coesa](decisions/ADR-0023-hig-fluidity.md)
 - [Direct actions and navigation / Ações diretas e navegação](decisions/ADR-0024-direct-actions-navigation.md)
@@ -123,6 +142,7 @@ Evidence is historical and version/environment-specific, not today's instruction
 - [evidence/phase-0-spike-index](evidence/phase-0-spike-index.md)
 - [evidence/phase-1-results](evidence/phase-1-results.md)
 - [evidence/phase-2-results](evidence/phase-2-results.md)
+- [evidence/bucket-workspace-results](evidence/bucket-workspace-results.md)
 - [evidence/phase-3-results](evidence/phase-3-results.md)
 - [evidence/phase-4-results](evidence/phase-4-results.md)
 - [evidence/phase-5-results](evidence/phase-5-results.md)

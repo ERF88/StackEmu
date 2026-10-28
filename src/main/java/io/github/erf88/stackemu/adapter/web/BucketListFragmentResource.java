@@ -1,13 +1,13 @@
 package io.github.erf88.stackemu.adapter.web;
 
 import io.github.erf88.stackemu.application.BucketListPort;
-import io.quarkus.qute.TemplateInstance;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /** Preserves the existing read-only fragment URL independently of the S3 page root. */
 @Path("/buckets")
@@ -23,16 +23,21 @@ public class BucketListFragmentResource {
   }
 
   @GET
-  public TemplateInstance showBuckets(
+  public Response showBuckets(
       @QueryParam("lang") String language,
       @QueryParam("theme") String theme,
       @QueryParam("density") String density,
       @HeaderParam("Accept-Language") String acceptLanguage) {
     var snapshot = bucketList.listBuckets();
-    return BucketsResource.Templates.buckets(
-        snapshot.buckets(),
-        snapshot.connected(),
-        UiContext.resolve(language, acceptLanguage, theme, density, "/s3"),
-        configuration);
+    return Response.ok(
+            BucketsResource.Templates.buckets(
+                    snapshot.buckets(),
+                    snapshot.connected(),
+                    UiContext.resolve(language, acceptLanguage, theme, density, "/s3"),
+                    configuration)
+                .render())
+        .header("X-StackEmu-Fragment", "bucket-list")
+        .header("Cache-Control", "no-store")
+        .build();
   }
 }

@@ -47,7 +47,7 @@ for (const language of ["en", "pt-BR"]) {
       await expect(preferences).toBeHidden();
       await expect(page.locator(".language-controls")).toBeHidden();
       await expect(page.locator(".preferences .density-controls")).toBeHidden();
-      await expect(page.locator(".density-controls")).toHaveCount(1);
+      await expect(page.locator(".density-controls")).toHaveCount(0);
       await expect(
         page.locator(".sidebar .local-notice, .brand small, .workspace-label .eyebrow"),
       ).toHaveCount(0);
@@ -96,7 +96,7 @@ for (const language of ["en", "pt-BR"]) {
       const row = page.locator("#bucket-list tbody tr").filter({ hasText: bucket });
       const actions = row.locator(".resource-action-links");
       await expect(row.locator("summary")).toHaveCount(0);
-      await expect(actions.locator("a")).toHaveCount(2);
+      await expect(actions.locator("a")).toHaveCount(3);
       for (const action of await actions.locator("a").all()) {
         await expect(action).toBeVisible();
         await expect(action.locator("svg[aria-hidden=true]")).toHaveCount(1);

@@ -41,6 +41,7 @@ public record UiContext(
   }
 
   public String contextLabel() {
+    if (page.startsWith("/operations")) return text("operations");
     if (page.startsWith("/s3") || page.equals("/connection")) return "S3";
     return text(page.equals("/components") ? "gallery" : "home");
   }
@@ -71,12 +72,24 @@ public record UiContext(
     return S3ViewMapper.bucketPath(bucket, "", null) + "&" + query();
   }
 
+  public String objectLink(String bucket, String key) {
+    return S3ViewMapper.objectPath(bucket, key) + "&" + query();
+  }
+
   public String bucketUploadLink(String bucket) {
     return "/s3/write?action=upload&bucket=" + S3ViewMapper.encode(bucket) + "&" + query();
   }
 
   public String bucketFolderLink(String bucket) {
     return "/s3/write?action=folder&bucket=" + S3ViewMapper.encode(bucket) + "&" + query();
+  }
+
+  public String bucketDeletionLink(String bucket) {
+    return "/s3/delete-bucket?bucket=" + S3ViewMapper.encode(bucket) + "&" + query();
+  }
+
+  public String bucketVersionsLink(String bucket) {
+    return "/s3/versions?bucket=" + S3ViewMapper.encode(bucket) + "&" + query();
   }
 
   public String themeLink(String selected) {

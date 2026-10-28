@@ -1,5 +1,15 @@
 # Third-party assets
 
+## Stackport interaction reference / Referência de interação Stackport
+
+The maintainer selected [Stackport](https://github.com/DaviReisVieira/stackport), inspected at commit `f428f12ec95fb73b270f593695db056af195bfbe`, as a UX reference for S3 controls. No Stackport source, screenshot, logo or dependency is bundled. Search, move and share icon fragments are separate first-party MIT geometric drawings. / Stackport foi inspecionado como referência de UX; sem distribuição de código, capturas, marca ou dependências. Novos ícones de busca, mover e compartilhar são desenhos próprios MIT.
+
+## Local console typography / Tipografia local do console
+
+Space Grotesk variable TTF is distributed unchanged from [Google Fonts](https://github.com/google/fonts/tree/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/spacegrotesk), commit `e7db6ca603fd4862010383ff17ffd6cc4ffac1c0`. IBM Plex Sans Regular and SemiBold WOFF2 are distributed unchanged from [IBM Plex](https://github.com/IBM/plex/tree/71f558992315a12ca1f06a2215d57962a1992162/packages/plex-sans/fonts/complete/woff2), commit `71f558992315a12ca1f06a2215d57962a1992162`. Full copyright and SIL Open Font License 1.1 texts accompany the fonts under `src/main/resources/META-INF/licenses/space-grotesk-OFL.txt` and `ibm-plex-OFL.txt`. These fonts are not relicensed under the project's MIT license; preserve their notices when distributing the application. The history SVG is first-party MIT artwork.
+
+Space Grotesk TTF variável e IBM Plex Sans Regular/SemiBold WOFF2 são distribuídas sem alterações, dos commits acima. Textos completos de copyright e SIL OFL 1.1 acompanham o artefato em `META-INF/licenses/`; preservar na distribuição. Fontes não são relicenciadas pela MIT do projeto. O SVG de histórico é desenho próprio MIT. Não há consulta a CDN de fontes em runtime.
+
 ## UX-0 isolated CSS tooling / Ferramentas CSS isoladas
 
 The non-production `tools/ux0/package-lock.json` pins Tailwind CSS and CLI 4.3.3 (Tailwind Labs, MIT) and Pico CSS 2.1.1 (Pico, MIT). Neither stylesheet is shipped by the GUI in UX-0. Original license texts remain in installed packages; the spike copies the three direct-package licenses with hashes to ignored `work/ux0/` reports. Preserve the upstream copyright/permission notices if distributing their generated CSS. This entry does not certify all transitive tooling licenses; inspect the lockfile/package notices when distributing tooling. DaisyUI is not installed or bundled.
@@ -42,3 +52,7 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+## H2 Database Engine
+
+The unmodified `com.h2database:h2:2.4.240` runtime dependency is dual-licensed under MPL 2.0 or EPL 1.0, as declared by its versioned Maven POM and [upstream licensing notice](https://h2database.com/html/license.html). H2 is provided without warranties or contributor/distributor liability under those terms. Corresponding source is available as the same-version `sources` artifact on Maven Central. The packaged notice is `META-INF/licenses/h2-NOTICE.txt`, also copied to `/licenses/H2-NOTICE` by the runtime-image recipe. This dependency is not relicensed as MIT. / Dependência H2 sem modificações, sob MPL 2.0 ou EPL 1.0; aviso e fonte da mesma versão disponíveis, sem garantia/responsabilidade conforme termos originais. Aviso acompanha artefato/receita de imagem; H2 não é relicenciado como MIT.

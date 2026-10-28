@@ -1,0 +1,17 @@
+{#include layout}
+  {#title}{ui.text('versions')}{/title}
+  {#content}
+    <section id="object-inspector-view" data-inspector-title="{ui.text('versions')}">
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{back}">{#include icons/back /}{bucket}</a></nav>
+    <h1>{ui.text('versions')}</h1>
+    {#if message != ''}<p role="alert">{ui.text(message)}</p>{/if}
+    {#if versions.isEmpty && message == ''}<p>{ui.text('versionsEmpty')}</p>{/if}
+    {#if !deletionAvailable && message == ''}<p>{ui.text('versionDeletionUnavailable')}</p>{/if}
+    {#if !versions.isEmpty}<div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('versions')}"><table class="resource-table">
+      <thead><tr><th>{ui.text('objectKey')}</th><th>{ui.text('version')}</th><th>{ui.text('modified')}</th>{#if deletionAvailable}<th>{ui.text('action')}</th>{/if}</tr></thead><tbody>
+      {#for version in versions}<tr><td class="object-key">{version.key}{#if version.marker}<br>{ui.text('deleteMarker')}{/if}{#if version.latest}<br>{ui.text('latestVersion')}{/if}</td><td class="object-key">{version.id}</td><td>{version.modified}</td>{#if deletionAvailable}<td><a class="button danger icon-action" href="{version.deleteHref}" aria-label="{ui.text('operationKindDELETE_VERSION')}: {version.key}" title="{ui.text('operationKindDELETE_VERSION')}">{#include icons/delete /}<span class="action-tooltip" aria-hidden="true">{ui.text('operationKindDELETE_VERSION')}</span></a></td>{/if}</tr>{/for}
+      </tbody></table></div>{/if}
+    {#if next != ''}<a class="button" href="{next}">{ui.text('nextPage')}</a>{/if}
+    </section>
+  {/content}
+{/include}

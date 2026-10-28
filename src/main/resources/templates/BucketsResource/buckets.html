@@ -5,7 +5,7 @@
       <a href="/connection?{ui.query}">{ui.text('connectionDetails')}</a>
     </div>
   {/if}
-  <section id="bucket-list" class="summary-card bucket-list-card" aria-labelledby="bucket-list-title">
+  <section id="bucket-list" class="summary-card bucket-list-card" aria-labelledby="bucket-list-title" data-resource-browser>
     <div class="section-heading"><h2 id="bucket-list-title">{#include icons/buckets /}Buckets {#if connected}<small data-bucket-count="{buckets.size}">({buckets.size})</small>{/if}</h2>
     </div>
     {#if connected}
@@ -16,8 +16,9 @@
         </div>
         <a class="button" href="/s3/write?action=bucket&amp;{ui.query}">{#include icons/add /}{ui.text('createBucket')}</a>
       {#else}
+        {#include resourceFilter filterId='bucket-filter' filterLabel=ui.text('filterBuckets') /}
         <div class="table-scroll" tabindex="0" role="region" aria-label="Buckets">
-          <table class="resource-table">
+          <table class="resource-table bucket-table">
             <caption class="visually-hidden">Buckets</caption>
             <thead><tr><th scope="col">{ui.text('name')}</th><th scope="col">{ui.text('resourceActions')}</th></tr></thead>
             <tbody>
@@ -26,8 +27,9 @@
                   <th scope="row"><a href="{ui.bucketLink(bucket)}">{#include icons/buckets /}<code>{bucket}</code></a></th>
                   <td>
                     <div class="resource-action-links" role="group" aria-label="{ui.text('resourceActions')}: {bucket}">
-                      <a class="button" href="{ui.bucketUploadLink(bucket)}">{#include icons/upload /}{ui.text('uploadObject')}</a>
-                      <a class="button" href="{ui.bucketFolderLink(bucket)}">{#include icons/folder /}{ui.text('createFolder')}</a>
+                      <a class="button icon-action" href="{ui.bucketUploadLink(bucket)}" aria-label="{ui.text('uploadObject')}: {bucket}" title="{ui.text('uploadObject')}">{#include icons/upload /}<span class="action-tooltip" aria-hidden="true">{ui.text('uploadObject')}</span></a>
+                      <a class="button icon-action" href="{ui.bucketFolderLink(bucket)}" aria-label="{ui.text('createFolder')}: {bucket}" title="{ui.text('createFolder')}">{#include icons/folder /}<span class="action-tooltip" aria-hidden="true">{ui.text('createFolder')}</span></a>
+                      <a class="button danger icon-action" href="{ui.bucketDeletionLink(bucket)}" aria-label="{ui.text('deleteBucket')}: {bucket}" title="{ui.text('deleteBucket')}">{#include icons/delete /}<span class="action-tooltip" aria-hidden="true">{ui.text('deleteBucket')}</span></a>
                     </div>
                   </td>
                 </tr>

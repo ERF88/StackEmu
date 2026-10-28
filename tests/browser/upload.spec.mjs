@@ -78,7 +78,7 @@ for (const language of ["en", "pt-BR"]) {
           buffer: Buffer.from("previous"),
         });
         const pickerPromise = page.waitForEvent("filechooser");
-        await zone.getByRole("button").focus();
+        await input.focus();
         await page.keyboard.press("Enter");
         const chooser = await pickerPromise;
         await chooser.setFiles({
@@ -427,7 +427,8 @@ test("native upload without JavaScript keeps original bytes and server confirmat
     try {
       const page = await context.newPage();
       await page.goto(`/s3/write?action=upload&bucket=${bucket}&prefix=ux3%2F&lang=en`);
-      await expect(page.locator("[data-upload-drop]")).toBeHidden();
+      await expect(page.locator("[data-upload-drop]")).toBeVisible();
+      await expect(page.locator("[data-upload-drop-hint]")).toBeHidden();
       await expect(page.locator("[data-upload-progress]")).toBeHidden();
       await page
         .locator("#mutation-file")

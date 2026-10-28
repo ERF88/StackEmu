@@ -55,6 +55,7 @@ public class S3ImagePreviewResource {
               S3ViewMapper.objectPath(bucket, key) + "&" + ui.query());
       // Shell only: the single img GET owns validation/read/decode. No cached body or second read.
       return Response.ok(Templates.image(view, ui).render())
+          .header("X-StackEmu-Fragment", "object-inspector")
           .header("Cache-Control", "no-store")
           .build();
     } catch (S3ReadException failure) {

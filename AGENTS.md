@@ -1,5 +1,19 @@
 # StackEmu contributor instructions
 
+Notification standard: ADR-0034 supersedes manual-only success toasts. Use the shared compact notice controller: confirmed success expires after five visible seconds, paused by hover/focus/hidden documents; pending and attention outcomes stay until dismissed. Preserve accessible close/focus and durable results. / Avisos compactos comuns; sucesso expira com pausas, demais estados persistem, sem ocultar erros ou cancelar trabalho.
+
+Interaction standard: read ADR-0033 and `docs/design/interaction-feedback.md` for all current/future UI work. Reuse `beginInteractionFeedback` and checked read controllers: no empty loading dialogs, no minimum wait, delayed source feedback for slow reads, immediate real mutation state, explicit failures, valid focus and canonical fallback. Never invent progress/download completion, cache forms/tokens/files or cancel/retry sent mutations. / Padrão obrigatório para UI atual/futura: helper comum, conteúdo completo, feedback de leitura no acionador, estado real de mutações e segurança preservada.
+
+Current navigation: read ADR-0032. Object read views use a bounded same-bucket inspector history; preserve checked fragments, canonical returns, listing origin and exact preference targets. Earlier no-history/drawer-reset rules are superseded only for these tested read views. Do not intercept mutations or serialize files, signed URLs or credentials. / Navegação atual: inspector de leitura com histórico delimitado, fragmentos verificados e origem/alvos preservados; sem interceptar mutações ou serializar segredos/arquivos.
+
+Current approved direction: read ADR-0029. Minimal dialogs and durable operations supersede the historical restrictions below as tested replacements are delivered. Versioned cleanup, nonempty prefixes, explicit replacement, object transfer and signed downloads are authorized. Keep CSRF/CSP, target integrity, bounded resources and honest partial/uncertain outcomes. / Direção atual: ADR-0029 autoriza evolução; restrições históricas cedem aos substitutos testados, preservando segurança e resultados reais.
+
+Explicit reviewed-cleanup exception: ADR-0028 authorizes only the separate `/s3/empty-bucket` workflow with immutable manifest, exact typed bucket name and independent one-use/CSRF gates, capped at 25 entries. Never turn ordinary empty-bucket/folder deletion into recursive cleanup. / Exceção explícita: somente fluxo separado/revisado da ADR-0028; preservar gates individuais e limites.
+
+Empty-folder correction: read ADR-0027. Only exact zero-byte markers with bounded complete empty-prefix proof may be removed, with fresh rechecks and existing ticket/CSRF/version/ETag/no-retry gates. Never delete children or infer recursive cleanup. / Pasta vazia: remover só marker exato comprovado vazio, sem filhos/lote, com gates e nova verificação.
+
+Current bucket workspace: ADR-0026 supersedes bucket-row text controls and the density selector with accessible icons/one spacing. Empty-bucket deletion has independent one-use confirmation, CSRF, never-versioned/empty checks and no retries. Empty and delete is mapped only, not enabled. / Buckets compactos e exclusão vazia com gates próprios; limpeza em lote apenas mapeada.
+
 Read `docs/development/code-style.md`, `docs/development/naming-and-responsibilities.md` and applicable ADRs before changing code.
 
 Current visual authority: ADR-0023 explicitly permits cohesive HIG-driven redesign and supersedes frozen V1 decoration/visual recipes; do not treat historical colors, spacing or timings as permanent blockers. Security, accessibility, licensing and build contracts remain. / ADR-0023 autoriza reformulação coesa e substitui receitas visuais congeladas, sem dispensar segurança/acessibilidade/licenças/build.

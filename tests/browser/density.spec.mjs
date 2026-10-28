@@ -48,7 +48,9 @@ test.afterAll(async ({ request }) => {
 
 for (const language of ["en", "pt-BR"]) {
   for (const theme of ["dark", "light"]) {
-    test(`V3 density and S3 navigation: ${language}, ${theme}`, async ({ page }, testInfo) => {
+    test(`Legacy density URLs and S3 navigation: ${language}, ${theme}`, async ({
+      page,
+    }, testInfo) => {
       await page.setViewportSize({ width: 1440, height: 1000 });
       await page.goto(`${bucketPath}&lang=${language}&theme=${theme}`);
       await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
@@ -58,14 +60,10 @@ for (const language of ["en", "pt-BR"]) {
         path: testInfo.outputPath("comfortable-long-key.png"),
         fullPage: true,
       });
-      await page.locator(".preferences-trigger").click();
-      await page.locator('[data-density-choice="compact"]').click();
+      await page.goto(`${bucketPath}&lang=${language}&theme=${theme}&density=compact`);
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
-      expect((await row.boundingBox()).height).toBeLessThan(comfortableHeight);
-      await expect(page.locator('[data-density-choice="compact"]')).toHaveAttribute(
-        "aria-current",
-        "true",
-      );
+      expect((await row.boundingBox()).height).toBe(comfortableHeight);
+      await expect(page.locator("[data-density-choice]")).toHaveCount(0);
       await expect(page.locator(".object-table code").filter({ hasText: longKey })).toHaveText(
         longKey,
       );
@@ -105,9 +103,7 @@ for (const language of ["en", "pt-BR"]) {
           fullPage: true,
         });
       }
-      for (const link of await page
-        .locator(".language-controls a, .theme-controls a, .density-controls a")
-        .all()) {
+      for (const link of await page.locator(".language-controls a, .theme-controls a").all()) {
         const href = new URL(await link.getAttribute("href"), page.url());
         expect(href.searchParams.getAll("density")).toHaveLength(1);
         expect(href.searchParams.get("prefix")).toBe("samples/");
@@ -116,18 +112,17 @@ for (const language of ["en", "pt-BR"]) {
       await next.click();
       const token = new URL(page.url()).searchParams.get("token");
       expect(token).toBeTruthy();
-      await page.locator(".preferences-trigger").click();
-      await page.locator('[data-density-choice="comfortable"]').click();
+      const comfortableUrl = new URL(page.url());
+      comfortableUrl.searchParams.delete("density");
+      await page.goto(comfortableUrl.href);
       expect(new URL(page.url()).searchParams.get("token")).toBe(token);
       await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
-      await page.locator(".preferences-trigger").click();
-      await page.locator('[data-density-choice="compact"]').click();
       await page.goto(`${bucketPath}&lang=${language}&theme=${theme}&density=compact`);
       const object = page.locator("[data-object-detail]").filter({ hasText: longKey });
       await object.click();
       await expect(page.locator("#object-drawer")).toBeVisible();
-      await expect(page.locator("[data-drawer-page]")).toHaveAttribute("href", /density=compact/);
-      await page.locator("[data-drawer-page]").click();
+      await expect(object).toHaveAttribute("href", /density=compact/);
+      await page.goto(await object.getAttribute("href"));
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
       const preview = page.locator('a[href^="/s3/preview?"]');
       await expect(preview).toHaveAttribute("href", /density=compact/);
@@ -161,8 +156,8 @@ for (const language of ["en", "pt-BR"]) {
       const page = await context.newPage();
       await page.goto(`/s3?lang=${language}&theme=light&density=untrusted`);
       await expect(page.locator("html")).toHaveAttribute("data-density", "comfortable");
-      await page.locator(".preferences-trigger").click();
-      await page.locator('[data-density-choice="compact"]').click();
+      await expect(page.locator("[data-density-choice]")).toHaveCount(0);
+      await page.goto(`/s3?lang=${language}&theme=light&density=compact`);
       await page.locator("[data-refresh-panel]").click();
       await expect(page.locator("html")).toHaveAttribute("data-density", "compact");
       await page.locator(".preferences-trigger").click();

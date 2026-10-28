@@ -1,0 +1,25 @@
+{#include layout}
+  {#title}{ui.text('shareDownload')}{/title}
+  {#content}
+    <div id="action-workspace">
+      <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{ui.objectLink(bucket, key)}">{#include icons/back /}{ui.text('backToDetails')}</a></nav>
+      <h1>{ui.text('shareDownload')}</h1><p class="object-key">{bucket} / {key}</p>
+      {#if message != ''}<p role="alert">{ui.text(message)}</p>{/if}
+      {#if url == ''}
+        <form class="mutation-form" method="post" action="/s3/share" data-submitting-label="{ui.text('submitting')}">
+          <input type="hidden" name="csrf-token" value="{inject:csrf.token}"><input type="hidden" name="bucket" value="{bucket}"><input type="hidden" name="key" value="{key}">
+          <input type="hidden" name="lang" value="{ui.language}"><input type="hidden" name="theme" value="{ui.theme}"><input type="hidden" name="density" value="{ui.density}">
+          <label for="share-minutes">{ui.text('validForMinutes')}</label><input id="share-minutes" name="minutes" type="number" min="1" max="60" value="15" required>
+          <button class="button primary" type="submit"><span data-submit-label>{ui.text('generateLink')}</span></button>
+        </form>
+      {#else}
+        <div class="clipboard-panel" data-copy-source="/s3/share" data-copied-label="{ui.text('copied')}" data-copy-failed-label="{ui.text('copyFailed')}">
+          <p>{ui.text('linkAccessNote')}</p><p>{ui.text('expiresAt')}: {expires}</p>
+          <div class="copy-field"><label for="signed-download">{ui.text('downloadLink')}</label><textarea id="signed-download" readonly rows="3" spellcheck="false">{url}</textarea><button class="button" type="button" data-copy-field>{#include icons/copy /}{ui.text('copyLink')}</button></div>
+          <p data-encoded-note hidden></p><p class="copy-status" role="status" aria-live="polite"></p>
+        </div>
+      {/if}
+      <p id="submission-status" role="status"></p>
+    </div>
+  {/content}
+{/include}

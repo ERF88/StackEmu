@@ -7,11 +7,7 @@
     <h1 data-operation-success>{#include icons/success /}{ui.text('writeCompleted')}</h1>
     <p>{ui.text('targetBucket')}: <code>{view.bucket}</code></p>
     {#if !view.createBucket}<p>{ui.text('targetKey')}: <code>{view.key}</code></p>{/if}
-    <a class="button primary" href="{destination}">{#include icons/chevron /}{ui.text('openResource')}</a>
-    <details class="action-help"><summary>{ui.text('cliEquivalent')}</summary>
-    <p>{ui.text('cliHelp')}</p>
-    <textarea class="command-preview" readonly rows="5" aria-label="{ui.text('cliEquivalent')}">{view.command}</textarea>
-    </details>
+    <a class="button primary" data-result-return href="{#if view.createBucket}/s3?{ui.query}{#else}{view.resultBackHref}&{ui.query}{/if}">{#include icons/chevron /}{ui.text('backToObjects')}</a>
     {#if view.upload}</div>{/if}
     </div>
   {/content}

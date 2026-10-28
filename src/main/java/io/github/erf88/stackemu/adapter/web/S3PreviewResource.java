@@ -75,6 +75,7 @@ public class S3PreviewResource {
               S3ViewMapper.downloadPath(bucket, key) + "&" + ui.query(),
               S3ViewMapper.objectPath(bucket, key) + "&" + ui.query());
       return Response.ok(Templates.text(view, ui).render())
+          .header("X-StackEmu-Fragment", "object-inspector")
           .header("Cache-Control", "no-store")
           .build();
     } catch (S3ReadException failure) {

@@ -2,6 +2,8 @@
 
 ## English
 
+HTML responses use `Cache-Control: no-store`; versioned public assets retain their immutable cache policy. Keep these concerns separate: fresh HTML must reference the current fingerprints, and each fingerprint must match the actual served bytes. Already open documents still need navigation/reload after a packaged GUI restart. Do not infer a user's stale-client cause merely from a successful fresh-session test.
+
 UX-1 uses Tailwind CSS/CLI 4.3.3 at build time only, without Preflight, CDN, default theme or a browser compiler. The authored semantic stylesheet remains `src/main/resources/META-INF/resources/app.css`; `src/main/frontend/input.css` imports it and scans literal classes in Qute templates. Do not construct utility tokens from emulator data. Utilities currently migrate shell layout only; retain semantic component classes and token-based colors elsewhere.
 
 `mvn verify` provisions Node 24.10.0/npm 11.6.1 under `target/frontend`, installs the root lockfile with scripts disabled, and runs `scripts/build-css.mjs` during `generate-resources`. First builds need network access. Authored CSS is excluded from Maven resources; generated `target/generated-resources/META-INF/resources/app.css` is packaged at the existing URL and fingerprinted by `WebAssetCatalog`. The Tailwind MIT license is packaged under `META-INF/licenses/`. Generated files and toolchains are not committed.
@@ -25,6 +27,8 @@ mvn -B -ntp verify '-DargLine=-Xmx384m -XX:ActiveProcessorCount=2'
 These are build/test settings, not a runtime capacity claim. Docker also bounds its Maven build heap; the Java runtime retains its separate Compose policy. / São opções de build/teste, não capacidade de runtime; a imagem limita o build Maven, enquanto o runtime mantém a política Compose separada.
 
 ## Português
+
+Respostas HTML usam `Cache-Control: no-store`; assets públicos versionados preservam cache imutável. HTML novo deve apontar aos fingerprints atuais e cada hash deve corresponder aos bytes servidos. Documentos já abertos ainda precisam de navegação/recarga após reinício da GUI empacotada. Teste em sessão nova aprovado não comprova sozinho cache antigo na sessão do usuário.
 
 A UX-1 usa Tailwind CSS/CLI 4.3.3 somente no build, sem Preflight, CDN, tema padrão ou compilador no navegador. O CSS semântico autoral permanece em `src/main/resources/META-INF/resources/app.css`; a entrada `src/main/frontend/input.css` o importa e detecta classes literais nos Qute. Não montar classes com dados do emulador. A migração de utilitários limita-se ao layout do shell; manter componentes semânticos e cores por tokens.
 

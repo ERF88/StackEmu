@@ -13,7 +13,7 @@ for (const language of ["en", "pt-BR"]) {
             "Connection",
             "Component gallery",
             "Create bucket",
-            "Create folder marker",
+            "Create folder",
             "Upload new object",
           ]
         : [
@@ -21,7 +21,7 @@ for (const language of ["en", "pt-BR"]) {
             "Conexão",
             "Galeria de componentes",
             "Criar bucket",
-            "Criar marcador de pasta",
+            "Criar pasta",
             "Enviar novo objeto",
           ];
     const paths = [

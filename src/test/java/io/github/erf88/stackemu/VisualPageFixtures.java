@@ -52,12 +52,6 @@ final class VisualPageFixtures {
                 settings)
             .render());
     var modified = Instant.parse("2026-01-01T12:00:00Z");
-    var details =
-        new S3ReadPort.BucketDetails(
-            "visual-example",
-            "us-east-1",
-            Map.of("purpose", "visual-fixture"),
-            S3ReadPort.TagsState.AVAILABLE);
     var listing =
         new S3ReadPort.ObjectPage(
             List.of("samples/nested/"),
@@ -72,9 +66,8 @@ final class VisualPageFixtures {
         language,
         theme,
         S3Resource.Templates.bucket(
-                S3ViewMapper.toBucketPage(details, listing, "samples/", 50, bucketUi),
-                bucketUi,
-                settings)
+                S3ViewMapper.toBucketPage("visual-example", listing, "samples/", null, bucketUi),
+                bucketUi)
             .render());
     var objectUi =
         UiContext.resolve(

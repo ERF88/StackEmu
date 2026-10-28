@@ -208,7 +208,7 @@ class S3WriteIntegrationTest {
         .then()
         .statusCode(200)
         .body(
-            containsString("--if-none-match"),
+            containsString("data-result-return"),
             not(containsString("AWS_SECRET_ACCESS_KEY")),
             not(containsString("<img")));
     assertUploadsRemoved();
@@ -304,7 +304,7 @@ class S3WriteIntegrationTest {
         .get("/s3/bucket")
         .then()
         .statusCode(200)
-        .body(containsString("nested/folder/"));
+        .body(containsString("<code>folder/</code>"), containsString("prefix=nested%2Ffolder%2F"));
     given()
         .cookies(session.cookies())
         .formParam("csrf-token", session.token())

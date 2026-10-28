@@ -82,7 +82,7 @@ for (const language of ["en", "pt-BR"]) {
       const drawer = page.getByRole("dialog");
       await expect(drawer).toBeVisible();
       await expect(drawer.locator(".object-key")).toHaveText(key);
-      const actions = drawer.locator(".object-panel-actions");
+      const actions = drawer.locator(".object-panel-actions").first();
       await expect(actions.locator('a[href^="/s3/download?"]')).toBeVisible();
       await expect(actions.locator('a[href^="/s3/preview?"]')).toBeVisible();
       await expect(actions.locator('a[href^="/s3/delete-object?"]')).toBeVisible();
@@ -91,8 +91,9 @@ for (const language of ["en", "pt-BR"]) {
       expect(
         await actions.evaluate((element) =>
           Boolean(
-            element.compareDocumentPosition(document.querySelector(".response-policy")) &
-              window.Node.DOCUMENT_POSITION_FOLLOWING,
+            element.compareDocumentPosition(
+              document.querySelector('a[href^="/s3/object-metadata?"]'),
+            ) & window.Node.DOCUMENT_POSITION_FOLLOWING,
           ),
         ),
       ).toBe(true);
@@ -104,8 +105,16 @@ for (const language of ["en", "pt-BR"]) {
       );
       await page.keyboard.press("Tab");
       await expect(page.locator("[data-drawer-close]")).toBeFocused();
-      await expect(drawer.locator("[data-drawer-page]")).toHaveAttribute("href", /\/s3\/object\?/);
-      expect(page.url()).toBe(originalURL);
+      await expect(drawer.locator("[data-drawer-page]")).toHaveCount(0);
+      const currentURL = new URL(page.url());
+      const originURL = new URL(originalURL);
+      expect(currentURL.pathname + currentURL.search).toBe(originURL.pathname + originURL.search);
+      const selectedView = new URL(
+        new URLSearchParams(currentURL.hash.slice(1)).get("inspect"),
+        page.url(),
+      );
+      expect(selectedView.pathname).toBe("/s3/object");
+      expect(selectedView.searchParams.get("key")).toBe(key);
       expect(await page.evaluate(() => window.htmx.config.allowScriptTags)).toBe(false);
       const copyKey = drawer.getByRole("button", {
         name: language === "en" ? "Copy object key" : "Copiar chave do objeto",
@@ -261,7 +270,7 @@ test("ten-second browser timeout is visible and does not automatically retry", a
   });
   await page.goto(`${bucketPath}&lang=en`);
   await page.getByRole("link", { name: key, exact: true }).click();
-  await expect(page.locator("#drawer-status")).toContainText("Loading");
+  await expect(page.locator("[data-action-launch-status]")).toContainText("Loading");
   try {
     await expect(page.locator("#drawer-status")).toContainText("Could not load", {
       timeout: 15000,
@@ -353,11 +362,12 @@ test("native fallback and normal Back Forward preserve canonical detail navigati
   await page.goto(`${bucketPath}&lang=en`);
   await page.getByRole("link", { name: key, exact: true }).click();
   await expect(page.locator("#object-drawer .object-key")).toHaveText(key);
-  const detailHref = await page.locator("[data-drawer-page]").getAttribute("href");
+  const detailHref = await page.getByRole("link", { name: key, exact: true }).getAttribute("href");
   await page.goBack();
-  await expect(page).toHaveURL(/\/connection\?/);
-  await page.goForward();
+  await expect(page).toHaveURL(/\/s3\/bucket\?/);
   await expect(page.locator("#object-drawer")).not.toBeVisible();
+  await page.goForward();
+  await expect(page.locator("#object-drawer")).toBeVisible();
   const context = await browser.newContext({ javaScriptEnabled: false, baseURL });
   try {
     const nativePage = await context.newPage();

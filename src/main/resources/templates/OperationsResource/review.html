@@ -1,0 +1,36 @@
+{#include layout}
+  {#title}{ui.text(view.titleKey)}{/title}
+  {#content}
+    <div id="action-workspace" data-operation-id="{view.operation.id}" {#if view.accepted}{#if view.operation.state.name == 'SUCCEEDED'}data-action-completed data-notice="{ui.text('operationCompleted')}"{#else}data-action-accepted data-notice="{ui.text('operationStarted')}"{/if}{/if}
+      {#if view.operation.state.name == 'PREPARING'}data-operation-poll="{view.operation.id}" data-operation-state="PREPARING" data-operation-refresh="{view.reviewHref}"{/if}>
+      <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{view.backHref}">{#include icons/back /}{ui.text('backToS3')}</a></nav>
+      <h1>{ui.text(view.titleKey)}</h1>
+      <div class="action-summary">
+        <p class="object-key"><strong>{view.operation.request.bucket}</strong>{#if view.operation.request.key != ''}<br>{view.operation.request.key}{/if}</p>
+        {#if view.message != ''}<p class="error" role="alert">{ui.text(view.message)}</p>{/if}
+        {#if view.operation.confirmable}
+          <p id="operation-consequence">{ui.text(view.consequenceKey)}</p>
+          {#if view.operation.request.destinationBucket != ''}<p class="object-key">{view.operation.request.destinationBucket} / {view.operation.request.destinationKey}</p>{/if}
+          <form class="mutation-form" method="post" action="/operations/{view.operation.id}/start" data-submitting-label="{ui.text('submitting')}">
+            <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+            <input type="hidden" name="lang" value="{ui.language}">
+            <input type="hidden" name="theme" value="{ui.theme}">
+            <input type="hidden" name="density" value="{ui.density}">
+            {#if view.operation.bucketConfirmation}
+              <label for="operation-bucket-name">{ui.text('cleanupConfirmName')}</label>
+              <input id="operation-bucket-name" name="bucketName" required autocomplete="off" autocapitalize="off" spellcheck="false" {#if view.message == 'operationReasonNAME'}aria-invalid="true"{/if}>
+            {/if}
+            <button class="button {#if view.operation.request.kind.name == 'COPY'}primary{#else}danger{/if}" type="submit" aria-describedby="operation-consequence"><span data-submit-label>{ui.text(view.titleKey)}</span></button>
+          </form>
+        {#else}
+          {#if !view.failed}<p role="status">{#if view.accepted && view.operation.state.name == 'RUNNING'}{ui.text('operationStarted')}{#else}{ui.text(view.stateKey)}{/if}</p>{/if}
+          {#if view.cleanupAvailable}<a class="button danger" href="{view.cleanupHref}&{ui.query}" data-action-review>{ui.text('emptyAndDelete')}</a>
+          {#else}{#if view.failed}<p>{ui.text('operationReason' + view.operation.message)}</p>{/if}{/if}
+          {#if view.transferConflict}<a class="button" href="{view.transferHref}&{ui.query}" data-action-review>{ui.text('changeDestination')}</a>{/if}
+          {#if view.operation.state.name != 'PREPARING'}<a class="button" href="/operations/{view.operation.id}?{ui.query}">{ui.text('viewOperation')}</a>{/if}
+        {/if}
+      </div>
+      <p id="submission-status" class="request-feedback" role="status" aria-live="polite"></p>
+    </div>
+  {/content}
+{/include}

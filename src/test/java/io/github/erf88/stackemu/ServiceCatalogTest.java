@@ -75,6 +75,7 @@ class ServiceCatalogTest {
           .get("/")
           .then()
           .statusCode(200)
+          .header("Cache-Control", "no-store")
           .body(
               containsString("summary-card service-card"),
               not(containsString("id=\"bucket-panel\"")),

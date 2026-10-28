@@ -32,6 +32,12 @@ class AwsS3ObjectDeletionAdapterTest {
   private volatile boolean dropDeleteResponse;
   private volatile String matchedEtag;
   private volatile String deletedPath;
+  private volatile String headSize = "1";
+  private volatile String headEtag = "\"reviewed\"";
+  private volatile String folderEntries = "<Contents><Key>folder/</Key><Size>0</Size></Contents>";
+  private volatile String folderCount = "1";
+  private volatile String truncated = "false";
+  private volatile String listQuery;
 
   @BeforeEach
   void startLocalProtocolFixture() throws Exception {
@@ -51,9 +57,23 @@ class AwsS3ObjectDeletionAdapterTest {
               }
               exchange.sendResponseHeaders(deleteStatus, -1);
             } else if (exchange.getRequestMethod().equals("HEAD")) {
-              exchange.getResponseHeaders().add("ETag", "\"reviewed\"");
-              exchange.getResponseHeaders().add("Content-Length", "1");
+              exchange.getResponseHeaders().add("ETag", headEtag);
+              exchange.getResponseHeaders().add("Content-Length", headSize);
               exchange.sendResponseHeaders(200, -1);
+            } else if (exchange.getRequestURI().getRawQuery().contains("list-type=2")) {
+              listQuery = exchange.getRequestURI().getRawQuery();
+              byte[] xml =
+                  ("<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><KeyCount>"
+                          + folderCount
+                          + "</KeyCount><IsTruncated>"
+                          + truncated
+                          + "</IsTruncated>"
+                          + folderEntries
+                          + "</ListBucketResult>")
+                      .getBytes(StandardCharsets.UTF_8);
+              exchange.getResponseHeaders().add("Content-Type", "application/xml");
+              exchange.sendResponseHeaders(200, xml.length);
+              exchange.getResponseBody().write(xml);
             } else {
               byte[] xml =
                   ("<VersioningConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">"
@@ -95,6 +115,87 @@ class AwsS3ObjectDeletionAdapterTest {
     assertEquals(1, deletes.get());
     assertEquals("\"reviewed\"", matchedEtag);
     assertEquals("/test-bucket/ação +%/file.txt", deletedPath);
+  }
+
+  @Test
+  void emptyFolderUsesBoundedProofAndExactConditionalDelete() {
+    headSize = "0";
+    var target = adapter.inspectObject("test-bucket", "folder/");
+    adapter.deleteObject(target);
+    assertEquals(1, deletes.get());
+    assertEquals("/test-bucket/folder/", deletedPath);
+    assertEquals("\"reviewed\"", matchedEtag);
+    assertTrue(listQuery.contains("max-keys=2"));
+    assertTrue(listQuery.contains("prefix=folder%2F"));
+    assertTrue(!listQuery.contains("delimiter="));
+  }
+
+  @Test
+  void changedOrNonemptyFolderNeverSubmitsDelete() {
+    headSize = "0";
+    var target = adapter.inspectObject("test-bucket", "folder/");
+    headEtag = "\"changed\"";
+    assertEquals(
+        Kind.CONFLICT,
+        assertThrows(ObjectDeletionException.class, () -> adapter.deleteObject(target)).kind());
+    headEtag = target.etag();
+    folderEntries += "<Contents><Key>folder/child</Key><Size>1</Size></Contents>";
+    folderCount = "2";
+    assertEquals(
+        Kind.CONFLICT,
+        assertThrows(ObjectDeletionException.class, () -> adapter.deleteObject(target)).kind());
+    assertEquals(0, deletes.get());
+  }
+
+  @Test
+  void unknownTruncatedInconsistentAndNonzeroFoldersFailClosed() {
+    headSize = "0";
+    truncated = "true";
+    assertThrows(
+        ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    truncated = "false";
+    folderCount = "2";
+    assertThrows(
+        ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    folderCount = "1";
+    headSize = "1";
+    assertThrows(
+        ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    headSize = "0";
+    truncated = "";
+    assertThrows(
+        ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    assertEquals(0, deletes.get());
+  }
+
+  @Test
+  void lostFolderDeleteResponseDoesNotRetry() {
+    headSize = "0";
+    var target = adapter.inspectObject("test-bucket", "folder/");
+    dropDeleteResponse = true;
+    assertEquals(
+        Kind.UNCERTAIN,
+        assertThrows(ObjectDeletionException.class, () -> adapter.deleteObject(target)).kind());
+    assertEquals(1, deletes.get());
+  }
+
+  @Test
+  void ambiguousDuplicateAndOversizedFolderResponsesFailClosed() {
+    headSize = "0";
+    for (String value : new String[] {"", "unknown", "FALSE"}) {
+      truncated = value;
+      assertThrows(
+          ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    }
+    truncated = "false";
+    String originalEntries = folderEntries;
+    folderEntries += "<IsTruncated>false</IsTruncated>";
+    assertThrows(
+        ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    folderEntries = originalEntries + " ".repeat(65_537);
+    assertThrows(
+        ObjectDeletionException.class, () -> adapter.inspectObject("test-bucket", "folder/"));
+    assertEquals(0, deletes.get());
   }
 
   @Test

@@ -12,4 +12,6 @@ StackEmu has completed Phase 2 reading. Consult recorded evidence before making 
 
 Follow the [coding conventions and commands](docs/development/code-style.md). Run `mvn spotless:apply` and `npm run format` locally, then `npm run check` and `mvn clean verify`. CI checks formatting, Markdown/CSS, PowerShell, Dockerfile, workflows, Compose, translations, architecture, integration and smoke tests. Include only validation you actually executed.
 
+For UI changes, follow the [interaction feedback standard](docs/design/interaction-feedback.md): reuse the shared controller, open checked content without empty loading windows, retain valid modal focus, and distinguish delayed read feedback from immediate mutation state. Include relevant quick/slow, failure, keyboard, repeated-click and native-fallback checks in the review.
+
 Use conventional, descriptive commits where practical. By contributing, you agree that contributions are licensed under the MIT License.

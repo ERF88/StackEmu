@@ -1,0 +1,34 @@
+{#include layout}
+  {#title}{ui.text(view.titleKey)}{/title}
+  {#content}
+    <section {#if view.operation.active}data-operation-poll="{view.operation.id}" data-operation-state="{view.operation.state.name}" data-operation-refresh="/operations/{view.operation.id}?{ui.query}"{/if}>
+      <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="/operations?{ui.query}">{#include icons/back /}{ui.text('operations')}</a></nav>
+      <h1>{ui.text(view.titleKey)}</h1>
+      <p class="object-key">{view.operation.request.bucket}{#if view.operation.request.key != ''} / {view.operation.request.key}{/if}</p>
+      <p role="status">{ui.text(view.stateKey)}</p>
+      {#if view.operation.message != ''}<p>{ui.text('operationReason' + view.operation.message)}</p>{/if}
+      {#if view.operation.state.name != 'PREPARING'}<p data-operation-progress>{view.operation.done} / {view.operation.total}</p>{/if}
+      <div class="operation-controls">
+        {#if view.operation.confirmable}<a class="button primary" href="{view.reviewHref}">{ui.text('reviewOperation')}</a>{/if}
+        {#if view.operation.active || view.operation.resumable}
+          <form method="post" action="/operations/{view.operation.id}/{#if view.operation.resumable}resume{#else}interrupt{/if}">
+            <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+            <input type="hidden" name="lang" value="{ui.language}"><input type="hidden" name="theme" value="{ui.theme}"><input type="hidden" name="density" value="{ui.density}">
+            <button class="button" type="submit">{#if view.operation.resumable}{ui.text('resumeOperation')}{#else}{ui.text('interruptOperation')}{/if}</button>
+          </form>
+        {/if}
+        <a class="button" href="{view.backHref}">{ui.text('backToS3')}</a>
+      </div>
+      {#if !view.items.isEmpty}
+        <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('operationItems')}"><table>
+          <thead><tr><th>{ui.text('objectKey')}</th><th>{ui.text('version')}</th><th>{ui.text('operationStatus')}</th></tr></thead><tbody>
+          {#for item in view.items}<tr><td class="object-key">{item.key}</td><td class="object-key">{item.version}</td><td>{ui.text('operationItem' + item.state.name)}{#if item.message != ''}<br>{ui.text('operationReason' + item.message)}{/if}</td></tr>{/for}
+          </tbody></table></div>
+      {/if}
+      <nav class="pagination" aria-label="{ui.text('pagination')}">
+        {#if view.page > 0}<a class="button" href="/operations/{view.operation.id}?page={view.page - 1}&{ui.query}">{ui.text('previousPage')}</a>{/if}
+        {#if view.items.size == 50}<a class="button" href="/operations/{view.operation.id}?page={view.page + 1}&{ui.query}">{ui.text('nextPage')}</a>{/if}
+      </nav>
+    </section>
+  {/content}
+{/include}

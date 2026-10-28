@@ -1,5 +1,7 @@
 # Coding conventions / Convenções de código
 
+UI interactions must follow the shared [feedback standard](../design/interaction-feedback.md) and [ADR-0033](../decisions/ADR-0033-interaction-feedback.md). Use existing read controllers and `beginInteractionFeedback`; no per-component loading timers or unchecked fragment insertion. / Interações seguem padrão comum; sem timers duplicados ou inserção de fragmentos sem verificação.
+
 These are the StackEmu defaults. They use established language tools while preserving Qute semantics and the project's small JVM build. Formatting is automated; design and behavior still require review. Tool versions are pinned in `pom.xml`, `package-lock.json` and the workflow. Update them deliberately and rerun checks.
 
 ## File conventions
@@ -37,6 +39,8 @@ Detailed naming/role rules and review checklist: [naming and responsibilities](n
 - Tests describe observable behavior, include meaningful error cases and isolate cleanup to resources created by that test.
 
 ## Templates and assets
+
+Navigation correction: [ADR-0032](../decisions/ADR-0032-contextual-navigation.md) permits bounded same-bucket read-only inspector history and marked Qute child selection. Preserve response/XHR/path gates; no arbitrary redirects, mutation interception, persistent draft storage or credentials/signed URLs in navigation state. / Correção permite histórico de leitura delimitado e fragmentos verificados, mantendo gates e proibindo redirecionamento arbitrário, interceptação de mutações e persistência de arquivos/segredos.
 
 Use the maintainer-requested apple-hig-designer skill through the [StackEmu mapping](../design/apple-hig-guidelines.md) and ADR-0022. Design guidance does not override semantic HTML, local build, CSP, CSRF or native fallbacks; examples are not tested project components. / Usar skill/guia como padrão visual, sem importar reset/framework ou dispensar contratos/verificação.
 

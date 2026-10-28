@@ -99,7 +99,7 @@ class S3ReadIntegrationTest {
         .body(
             containsString("&lt;img src=x onerror=alert(1)&gt;"),
             containsString("Copiar chave do objeto"),
-            containsString("Política de resposta da aplicação"),
+            containsString("/s3/object-metadata?"),
             containsString("text/html"),
             not(containsString("<img")),
             not(containsString("<!doctype")),
@@ -178,19 +178,21 @@ class S3ReadIntegrationTest {
   }
 
   @Test
-  void emptyBucketAndAbsentTagsAreReadable() {
+  void emptyBucketShowsOnlyOperationalContent() {
     given()
         .queryParam("bucket", bucket)
         .get("/s3/bucket")
         .then()
         .statusCode(200)
         .body(
-            containsString("No tags configured."),
+            not(containsString("bucket-metadata")),
+            not(containsString("explorer-help")),
+            not(containsString("resource-pagination")),
             containsString("No objects or prefixes found here."));
   }
 
   @Test
-  void optionalTagsAreRenderedEscaped() {
+  void optionalTagsDoNotAppearInOperationalListing() {
     client.putBucketTagging(
         request ->
             request
@@ -205,8 +207,7 @@ class S3ReadIntegrationTest {
         .then()
         .statusCode(200)
         .body(
-            containsString("team"),
-            containsString("&lt;b&gt;integration&lt;/b&gt;"),
+            not(containsString("&lt;b&gt;integration&lt;/b&gt;")),
             not(containsString("<b>integration</b>")));
   }
 
@@ -284,7 +285,9 @@ class S3ReadIntegrationTest {
         .then()
         .statusCode(200)
         .body(
-            containsString("ação +%?#.txt"), containsString("text/plain"), containsString("ETag"));
+            containsString("ação +%?#.txt"),
+            containsString("text/plain"),
+            containsString("/s3/object-metadata?"));
   }
 
   @Test

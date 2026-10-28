@@ -1,12 +1,14 @@
 {#include layout}
   {#title}S3{/title}
   {#content}
-    <div class="page-heading">
-      <div><p class="eyebrow">{ui.text('services')}</p><h1>S3</h1><p>{ui.text('s3Description')}</p></div>
+    <div class="page-heading bucket-workspace-heading">
+      <h1>S3</h1>
       <div class="page-actions">
     <a class="button primary" href="/s3/write?action=bucket&amp;{ui.query}">{#include icons/add /}{ui.text('createBucket')}</a>
     <a
-      class="button"
+      class="button icon-action"
+      aria-label="{ui.text('refreshList')}"
+      title="{ui.text('refreshList')}"
       href="/s3?{ui.query}"
       hx-get="/buckets?{ui.query}"
       hx-target="#bucket-panel"
@@ -14,7 +16,7 @@
       hx-indicator="#loading"
       hx-sync="this:drop"
       data-refresh-panel
-    >{#include icons/refresh /}{ui.text('refreshList')}</a>
+    >{#include icons/refresh /}<span class="action-tooltip" aria-hidden="true">{ui.text('refreshList')}</span></a>
     <span id="loading" class="request-feedback" role="status" aria-live="polite" aria-atomic="true" data-loading-label="{ui.text('loading')}" data-failed-label="{ui.text('refreshFailed')}"></span>
       </div>
     </div>

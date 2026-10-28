@@ -19,7 +19,7 @@
   </head>
   <body>
     <a class="skip" href="#content">{ui.text('skip')}</a>
-    <div class="app-shell grid grid-cols-1 min-[901px]:grid-cols-[256px_minmax(0,1fr)]">
+    <div class="app-shell grid grid-cols-1 min-[901px]:grid-cols-[208px_minmax(0,1fr)]">
       <aside class="sidebar bg-panel" aria-label="{ui.text('navigation')}">
         <a class="brand" href="/?{ui.query}">
           <svg class="brand-symbol" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 48 48" fill="none">
@@ -41,12 +41,12 @@
       <div class="workspace min-w-0">
         <header class="workspace-header flex flex-wrap items-start justify-between gap-4 bg-panel">
           <div class="workspace-label">
-            {#if ui.page != '/'}<span>{ui.contextLabel}</span>{/if}
           </div>
           <button class="button preferences-trigger" type="button" popovertarget="preferences-panel">{#include icons/settings /}{ui.text('preferences')}</button>
           <section id="preferences-panel" class="preferences preferences-panel" popover="auto" aria-labelledby="preferences-title">
               <div class="preferences-heading"><h2 id="preferences-title">{ui.text('preferences')}</h2><button class="button preferences-close" type="button" popovertarget="preferences-panel" popovertargetaction="hide" aria-label="{ui.text('closePreferences')}">{#include icons/close /}</button></div>
               <h3>{ui.text('languagePreferences')}</h3>
+              <noscript><p class="preferences-note">{ui.text('nativeNavigationNote')}</p></noscript>
               <div class="language-controls" role="group" aria-label="{ui.text('languagePreferences')}">
                 {#include icons/language /}
                 <a href="{ui.english}" lang="en" {#if ui.language == 'en'}aria-current="true"{/if}>English</a>
@@ -64,8 +64,6 @@
                   {#include icons/moon /}<span>{ui.text('themeDark')}</span>
                 </a>
               </div>
-              <h3>{ui.text('densityPreferences')}</h3>
-              {#include tableDensity /}
               <h3>{ui.text('diagnostics')}</h3>
               <a class="button" href="/connection?{ui.query}">{#include icons/info /}{ui.text('connectionDetails')}</a>
               <p class="preferences-note">{ui.text('local')}</p>
@@ -73,13 +71,18 @@
         </header>
         <main id="content" tabindex="-1">
           {#insert content /}
-          <section class="operation-notice" data-operation-notice aria-label="{ui.text('operationNotification')}" hidden>
-            <p data-notice-message aria-atomic="true"></p>
-            <button class="button" type="button" data-notice-dismiss>{#include icons/close /}{ui.text('dismissNotification')}</button>
+          <section class="operation-notice" data-operation-notice aria-label="{ui.text('operationNotification')}" hidden
+            data-completed-label="{ui.text('operationCompleted')}" data-partial-label="{ui.text('operationStatePARTIAL')}" data-failed-label="{ui.text('operationStateFAILED')}" data-uncertain-label="{ui.text('operationStateUNCERTAIN')}" data-interrupted-label="{ui.text('operationStateINTERRUPTED')}">
+            <div class="notice-content">
+              <p data-notice-message aria-atomic="true"></p>
+              <a data-notice-link hidden>{ui.text('viewOperation')}</a>
+            </div>
+            <button class="button icon-action" type="button" data-notice-dismiss aria-label="{ui.text('dismissNotification')}" title="{ui.text('dismissNotification')}">{#include icons/close /}</button>
           </section>
         </main>
       </div>
     </div>
+    <span class="visually-hidden" data-action-launch-status data-loading-label="{ui.text('actionLoading')}" role="status" aria-live="polite" aria-atomic="true"></span>
     <dialog id="action-dialog" class="action-dialog" aria-labelledby="action-dialog-title"
       data-loading-label="{ui.text('actionLoading')}" data-failed-label="{ui.text('actionLoadFailed')}"
       data-uncertain-label="{ui.text('actionUncertain')}" data-cancel-label="{ui.text('cancelAction')}" data-close-label="{ui.text('closeAction')}">
@@ -89,6 +92,14 @@
       </div>
       <p data-action-status role="status" aria-live="polite" aria-atomic="true"></p>
       <div id="action-dialog-content" aria-busy="false"></div>
+    </dialog>
+    <dialog id="navigation-guard" class="action-dialog" aria-labelledby="navigation-guard-title">
+      <h2 id="navigation-guard-title">{ui.text('discardChangesTitle')}</h2>
+      <p>{ui.text('discardChangesNote')}</p>
+      <div class="page-actions">
+        <button class="button" type="button" data-keep-editing autofocus>{ui.text('keepEditing')}</button>
+        <button class="button danger" type="button" data-discard-changes>{ui.text('discardChanges')}</button>
+      </div>
     </dialog>
   </body>
 </html>

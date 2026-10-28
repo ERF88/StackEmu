@@ -1,6 +1,7 @@
 {#include layout}
   {#title}{ui.text('imagePreview')}{/title}
   {#content}
+    <section id="object-inspector-view" data-inspector-title="{ui.text('imagePreview')}">
     <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{view.objectHref}">{#include icons/back /}{ui.text('backToDetails')}</a></nav>
     <h1>{ui.text('imagePreview')}</h1>
     <p>{ui.text('targetBucket')}: <code>{view.bucket}</code></p>
@@ -15,5 +16,6 @@
     <nav class="preview-navigation" aria-label="{ui.text('objectActions')}">
       <a class="button primary" href="{view.downloadHref}">{#include icons/download /}{ui.text('download')}</a>
     </nav>
+    </section>
   {/content}
 {/include}

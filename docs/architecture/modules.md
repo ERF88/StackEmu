@@ -2,9 +2,9 @@
 
 ## Proposed boundaries / Limites propostos
 
-Implemented baseline remains one Maven module with `application`, `adapter.aws`, `adapter.web`, per ADR-0004/0006. The table below is conditional future planning, not the current package tree. See the [class review](naming-review.md) and [mandatory naming guide](../development/naming-and-responsibilities.md).
+Implemented baseline remains one Maven module with `application`, `adapter.aws`, `adapter.web` and the JDBC-specific `adapter.persistence` introduced by [ADR-0029](../decisions/ADR-0029-minimal-workspace-operations.md). The table below is conditional future planning, not the current package tree. See the [class review](naming-review.md) and [mandatory naming guide](../development/naming-and-responsibilities.md).
 
-O baseline atual tem um módulo e três pacotes de responsabilidade. A tabela é planejamento futuro condicionado, não a estrutura implementada.
+O baseline atual tem um módulo e os pacotes de aplicação, AWS, web e persistência JDBC. A tabela é planejamento futuro condicionado, não a estrutura implementada.
 
 | Boundary         | Responsibility                                       | Notes                                           |
 | ---------------- | ---------------------------------------------------- | ----------------------------------------------- |

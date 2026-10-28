@@ -35,9 +35,12 @@ services:
       - "127.0.0.1:8080:8080"
     environment:
       STACKEMU_ENDPOINT: http://ministack:4566
+    volumes:
+      - stackemu-operations:/data/stackemu
     depends_on:
       ministack:
         condition: service_healthy
 volumes:
+  stackemu-operations:
   ministack-state:
   ministack-s3:

@@ -3,3 +3,4 @@ outputs/
 target/
 work/
 node_modules/
+.stackemu/

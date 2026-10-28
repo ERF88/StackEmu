@@ -1,0 +1,13 @@
+<div class="resource-filter" data-resource-filter hidden>
+  <div class="resource-filter-input">
+    {#include icons/search /}
+    <label class="visually-hidden" for="{filterId}">{filterLabel}</label>
+    <input type="search" id="{filterId}" data-resource-query maxlength="256" autocomplete="off" spellcheck="false" placeholder="{filterLabel}" aria-describedby="{filterId}-scope">
+    <button class="button icon-action" type="button" data-filter-clear hidden aria-label="{ui.text('clearFilter')}" title="{ui.text('clearFilter')}">{#include icons/close /}<span class="action-tooltip" aria-hidden="true">{ui.text('clearFilter')}</span></button>
+  </div>
+  <div class="resource-filter-summary">
+    <span id="{filterId}-scope">{ui.text('filterCurrentPage')}</span>
+    <output data-filter-count aria-live="polite" aria-atomic="true" aria-label="{ui.text('filterMatches')}"></output>
+  </div>
+</div>
+<p class="resource-filter-empty" data-filter-empty hidden>{ui.text('filterNoMatches')}</p>
