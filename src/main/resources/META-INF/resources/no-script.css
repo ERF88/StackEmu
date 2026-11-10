@@ -1,0 +1,4 @@
+/* The local filter is client-side only; do not show an inert field without JavaScript. */
+[data-resource-filter] {
+  display: none !important;
+}

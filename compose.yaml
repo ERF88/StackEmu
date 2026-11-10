@@ -1,0 +1,23 @@
+services:
+  stackemu:
+    build: .
+    image: stackemu:local
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 256
+    mem_limit: 512m
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+    ports:
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - stackemu-operations:/data/stackemu
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:4566/_ministack/health && wget -q -O /dev/null http://127.0.0.1:8080/q/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  stackemu-operations:

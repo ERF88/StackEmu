@@ -1,0 +1,16 @@
+version: 1
+project:
+  id: example-api
+services: [s3, sqs, sns]
+resources:
+  buckets: [uploads]
+  queues: [events]
+  topics: [created]
+  subscriptions:
+    - topic: created
+      queue: events
+persistence: enabled
+limits:
+  memoryMiB: 512
+  pids: 256
+  storageMiB: 1024

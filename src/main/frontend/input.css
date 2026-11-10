@@ -1,0 +1,12 @@
+@layer reset, tokens, base, layout, components, utilities;
+
+@import "../resources/META-INF/resources/app.css";
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@source "../resources/templates";
+
+/* No default theme or Preflight: application tokens remain authoritative. */
+@theme inline {
+  --spacing: 0.25rem;
+  --color-panel: var(--color-surface-1);
+}

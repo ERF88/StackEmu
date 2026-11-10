@@ -1,0 +1,218 @@
+package io.github.erf88.stackemu;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.QuarkusTestProfile;
+import io.quarkus.test.junit.TestProfile;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+@TestProfile(BucketsResourceTest.Unavailable.class)
+class BucketsResourceTest {
+  @jakarta.inject.Inject software.amazon.awssdk.services.s3.S3Client client;
+
+  public static class Unavailable implements QuarkusTestProfile {
+    public Map<String, String> getConfigOverrides() {
+      return Map.of(
+          "quarkus.s3.endpoint-override",
+          "http://127.0.0.1:1",
+          "quarkus.s3.aws.region",
+          "sa-east-1",
+          "quarkus.s3.aws.credentials.static-provider.secret-access-key",
+          "hidden-test-value");
+    }
+  }
+
+  @Test
+  void pagesApplyBrowserSecurityPolicyWithoutInlineScriptPermissions() {
+    given()
+        .get("/")
+        .then()
+        .header("X-Content-Type-Options", "nosniff")
+        .header("Referrer-Policy", "no-referrer")
+        .header("X-Frame-Options", "DENY")
+        .header("Content-Security-Policy", containsString("form-action 'self'"))
+        .header("Content-Security-Policy", not(containsString("unsafe-inline")))
+        .header("Content-Security-Policy", not(containsString("unsafe-eval")))
+        .body(containsString("allowEval"));
+  }
+
+  @Test
+  void writesDeterministicPresentationAndRealUnavailableBrowserFixtures()
+      throws java.io.IOException {
+    for (String language : java.util.List.of("en", "pt-BR")) {
+      for (String theme : java.util.List.of("dark", "light")) {
+        VisualPageFixtures.write(language, theme);
+      }
+    }
+  }
+
+  @Test
+  void unavailableServiceIsAnUnderstandablePage() {
+    given()
+        .get("/s3")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("Could not verify S3"),
+            not(containsString("SdkException")),
+            not(containsString("data-bucket-count=")),
+            containsString("/connection?"),
+            not(containsString("hidden-test-value")),
+            not(containsString("data-bucket-count=\"0\"")));
+  }
+
+  @Test
+  void fullPagesHaveLocalizedTitlesAndBundledFingerprintedAssets() {
+    given()
+        .queryParam("lang", "pt-BR")
+        .get("/")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("<title>Início · StackEmu</title>"),
+            containsString("rel=\"icon\""),
+            containsString("/app.css?v="),
+            containsString("aria-hidden=\"true\""),
+            not(containsString("◫")));
+    given()
+        .queryParam("lang", "pt-BR")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("<title>Conexão · StackEmu</title>"));
+    given()
+        .queryParam("lang", "en")
+        .get("/components")
+        .then()
+        .statusCode(200)
+        .body(containsString("<title>Component gallery · StackEmu</title>"));
+    given()
+        .queryParam("lang", "pt-BR")
+        .queryParam("bucket", "example")
+        .get("/s3/bucket")
+        .then()
+        .statusCode(503)
+        .body(containsString("<title>Emulador indisponível · StackEmu</title>"));
+  }
+
+  @Test
+  void partialUpdateIsLocalizedAndNotAFullDocument() {
+    given()
+        .queryParam("lang", "pt-BR")
+        .header("HX-Request", "true")
+        .get("/buckets")
+        .then()
+        .statusCode(200)
+        .body(containsString("Não foi possível verificar S3"), not(containsString("<!doctype")));
+  }
+
+  @Test
+  void processHealthDoesNotDependOnEmulator() {
+    given().get("/q/health/live").then().statusCode(200);
+  }
+
+  @Test
+  void connectionShowsEffectiveConfigurationWithoutSecrets() {
+    org.junit.jupiter.api.Assertions.assertEquals(
+        "sa-east-1", client.serviceClientConfiguration().region().id());
+    given()
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("http://127.0.0.1:1"),
+            containsString("sa-east-1"),
+            containsString("Could not verify S3"),
+            not(containsString("hidden-test-value")));
+  }
+
+  @Test
+  void connectionReturnsToItsValidatedOriginOrTheServiceCatalog() {
+    given()
+        .queryParam("lang", "en")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("href=\"/?lang=en&amp;theme=auto\""), containsString("Back to home"));
+    given()
+        .queryParam("lang", "en")
+        .queryParam("from", "s3")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("href=\"/s3?lang=en&amp;theme=auto\""),
+            containsString("href=\"/connection?from=s3&amp;lang=en&amp;theme=auto\""),
+            containsString("Back to S3"));
+    given()
+        .queryParam("from", "https://example.invalid")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("href=\"/?lang=en&amp;theme=auto\""),
+            not(containsString("example.invalid")));
+  }
+
+  @Test
+  void galleryRendersWithoutEmulatorAndPreservesPreferences() {
+    given()
+        .queryParam("lang", "pt-BR")
+        .queryParam("theme", "light")
+        .get("/components")
+        .then()
+        .statusCode(200)
+        .body(
+            containsString("Galeria de componentes"),
+            containsString("data-theme=\"light\""),
+            containsString("lang=pt-BR"));
+  }
+
+  @Test
+  void languageNegotiationRespectsExplicitOverride() {
+    given()
+        .header("Accept-Language", "pt-BR, en;q=0.8")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("Endpoint efetivo"));
+    given()
+        .header("Accept-Language", "pt-BR")
+        .queryParam("lang", "en")
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("Effective endpoint"));
+  }
+
+  @Test
+  void s3ReadFailureKeepsLocalizedPageAndHidesSecrets() {
+    given()
+        .queryParam("bucket", "bucket")
+        .queryParam("lang", "pt-BR")
+        .get("/s3/bucket")
+        .then()
+        .statusCode(503)
+        .body(
+            containsString("Emulador indisponível"),
+            not(containsString("hidden-test-value")),
+            not(containsString("SdkException")));
+  }
+
+  @Test
+  void downloadFailureBeforeStreamingIsSafePlainText() {
+    given()
+        .queryParam("bucket", "bucket")
+        .queryParam("key", "file")
+        .get("/s3/download")
+        .then()
+        .statusCode(503)
+        .contentType("text/plain")
+        .body(containsString("Emulator unavailable"), not(containsString("hidden-test-value")));
+  }
+}

@@ -1,0 +1,79 @@
+{#include layout}
+  {#title}{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form">
+    {#if view.upload}<div id="mutation-workspace" tabindex="-1" data-page-title="{ui.text('uploadObject')} · StackEmu">{/if}
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}">
+      {#if view.createBucket}<a href="/s3?{ui.query}">{#include icons/back /}{ui.text('backToS3')}</a>
+      {#else}<a href="{view.bucketHref}&{ui.query}">{#include icons/back /}{ui.text('backToObjects')}</a>{/if}
+    </nav>
+    <h1>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</h1>
+    {#if !view.message.isEmpty}<p role="alert" class="error">{ui.text(view.message)}</p>{/if}
+    <form class="mutation-form mutation-form-task" aria-busy="false" data-submitting-label="{ui.text('submitting')}" action="/s3/write/{view.action}" method="post" accept-charset="UTF-8" enctype="{#if view.upload}multipart/form-data{#else}application/x-www-form-urlencoded{/if}"
+      {#if view.upload}data-upload-form hx-encoding="multipart/form-data"
+      data-upload-sending="{ui.text('uploadSending')}" data-upload-processing="{ui.text('uploadProcessing')}"
+      data-upload-uncertain="{ui.text('uploadUncertain')}" data-upload-rejected="{ui.text('uploadRejected')}"
+       data-drop-rejected="{ui.text('dropRejected')}" data-drop-selected="{ui.text('dropSelected')}"{/if}>
+      <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+      <input type="hidden" name="lang" value="{ui.language}">
+      <input type="hidden" name="theme" value="{ui.theme}">
+      <input type="hidden" name="density" value="{ui.density}">
+      {#if view.upload}
+        <input type="hidden" name="bucket" value="{view.bucket}">
+        <div class="upload-destination">
+          <span>{ui.text('uploadDestination')}</span>
+          <code>{view.bucket}{#if !view.key.isEmpty}/{view.key}{/if}</code>
+        </div>
+      {#else}
+        <label for="mutation-bucket">{ui.text('targetBucket')}</label>
+        <input id="mutation-bucket" name="bucket" value="{view.bucket}" required {#if !view.createBucket}readonly{/if} {#if view.errors.containsKey('bucket')}aria-invalid="true" aria-describedby="bucket-error"{/if}>
+      {/if}
+      {#if view.errors.containsKey('bucket')}<p id="bucket-error" class="error" role="alert">{ui.text(view.errors.get('bucket'))}</p>{/if}
+      {#if !view.createBucket && !view.upload}
+        <label for="mutation-key">{ui.text('targetPrefix')}</label>
+        <input id="mutation-key" name="key" value="{view.key}" required aria-describedby="key-help{#if view.errors.containsKey('key') || view.errors.containsKey('prefix')} key-error{/if}" {#if view.errors.containsKey('key') || view.errors.containsKey('prefix')}aria-invalid="true"{/if}>
+        <p id="key-help">{ui.text('folderSemantics')}</p>
+        {#if view.errors.containsKey('key')}
+          <p id="key-error" class="error" role="alert">{ui.text(view.errors.get('key'))}</p>
+        {#else}
+          {#if view.errors.containsKey('prefix')}<p id="key-error" class="error" role="alert">{ui.text(view.errors.get('prefix'))}</p>{/if}
+        {/if}
+      {/if}
+      {#if view.upload}
+        {#if view.errors.containsKey('replacementTicket')}
+          <input type="hidden" name="replacementTicket" value="{view.errors.get('replacementTicket')}">
+          <label for="upload-filename">{ui.text('destinationName')}</label><input id="upload-filename" name="filename" value="{view.errors.get('replacementName')}" required>
+          <label for="upload-decision">{ui.text('existingDestination')}</label>
+          <select id="upload-decision" name="decision"><option value="keep">{ui.text('useAnotherName')}</option><option value="replace">{ui.text('replaceExisting')}</option></select>
+        {/if}
+        <p id="upload-policy">{ui.text('uploadNamePolicy')}</p>
+        {#if !view.key.isEmpty}<p class="upload-prefix">{ui.text('targetPrefix')}: <code>{view.key}</code></p>{/if}
+        <input type="hidden" name="prefix" value="{view.key}">
+        {#if view.errors.containsKey('prefix')}<p id="prefix-error" class="error" role="alert">{ui.text(view.errors.get('prefix'))}</p>{/if}
+        <div class="upload-dropzone" data-upload-drop>
+          <label for="mutation-file">{ui.text('selectFile')}</label>
+          <input id="mutation-file" type="file" name="file" required aria-describedby="upload-policy file-help{#if view.errors.containsKey('file')} file-error{/if}{#if view.errors.containsKey('prefix')} prefix-error{/if}" {#if view.errors.containsKey('file')}aria-invalid="true"{/if}>
+          <p id="upload-drop-hint" data-upload-drop-hint hidden>{ui.text('dropHint')}</p>
+          <p id="file-help">{ui.text('uploadMaximum')}: {view.maximumUploadLabel} ({view.maximumUpload} B). {ui.text('fileReselect')}</p>
+        </div>
+        <p data-drop-status role="status" aria-live="polite" aria-atomic="true"></p>
+        {#if view.errors.containsKey('file')}<p id="file-error" class="error" role="alert">{ui.text(view.errors.get('file'))}</p>{/if}
+        <div class="upload-progress" data-upload-progress hidden>
+          <label for="upload-progress">{ui.text('uploadTransferLabel')}</label>
+          <progress id="upload-progress" max="100"></progress>
+          <p data-upload-status role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
+      {/if}
+      <input type="hidden" name="confirm" value="yes">
+      {#if view.errors.containsKey('confirm')}<p id="confirm-error" class="error" role="alert">{ui.text(view.errors.get('confirm'))}</p>{/if}
+      <div class="form-actions">
+        <button class="button primary" type="submit">{#if view.createBucket}{#include icons/add /}{#else}{#if view.upload}{#include icons/upload /}{#else}{#include icons/folder /}{/if}{/if}<span data-submit-label>{#if view.createBucket}{ui.text('createBucket')}{#else}{#if view.upload}{ui.text('uploadObject')}{#else}{ui.text('createFolder')}{/if}{/if}</span></button>
+      </div>
+    </form>
+    <p id="submission-status" class="request-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+    {#if view.upload}
+      <p><a class="button" href="{ui.page}&{ui.query}">{#include icons/refresh /}{ui.text('reloadUploadForm')}</a></p>
+    </div>{/if}
+    </div>
+  {/content}
+{/include}

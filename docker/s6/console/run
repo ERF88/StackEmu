@@ -1,0 +1,3 @@
+#!/bin/sh
+until wget -q -O /dev/null http://127.0.0.1:4566/_ministack/health; do sleep 1; done
+exec java -jar /opt/stackemu/quarkus-run.jar

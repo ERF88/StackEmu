@@ -1,0 +1,22 @@
+{#include layout}
+  {#title}{ui.text('sqsDlqPartialTitle')} · SQS{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form">
+      <h1>{ui.text('sqsDlqPartialTitle')}</h1>
+      <p class="error" role="alert">{#include icons/warning /}{ui.text('sqsDlqPartialIntro')}</p>
+      <ul>
+        <li>{ui.text('sqsDlqCreated')}: <code>{deadLetterQueue}</code></li>
+        {#if queueCreated}
+          <li>{ui.text('sqsQueueCreated')}: <code>{queue}</code></li>
+          <li>{ui.text('sqsDlqAssociationNotCreated')}</li>
+        {#else}
+          <li>{ui.text('sqsQueueNotCreated')}: <code>{queue}</code></li>
+        {/if}
+      </ul>
+      <p>{ui.text('sqsDlqPartialReview')}</p>
+      <div class="form-actions">
+        <a class="button primary" href="{returnHref}">{ui.text('sqsBack')}</a>
+      </div>
+    </div>
+  {/content}
+{/include}

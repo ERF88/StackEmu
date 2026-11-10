@@ -1,0 +1,53 @@
+{#include layout}
+  {#title}{ui.text('home')}{/title}
+  {#content}
+    <div class="page-heading">
+      <div><h1>{ui.text('home')}</h1><p>{ui.text('homeDescription')}</p><p class="home-orientation">{ui.text('homeOrientation')}</p></div>
+    </div>
+    <section class="service-catalog" aria-labelledby="services-title">
+      <h2 id="services-title">{ui.text('availableServices')}</h2>
+      <div class="service-grid">
+        <article class="summary-card service-card">
+          <h3>{#include icons/buckets /}S3</h3>
+          <p class="service-card-purpose">{ui.text('objectStorage')}</p>
+          <p class="service-card-description">{ui.text('s3Description')}</p>
+          <ul class="service-capabilities service-capabilities-desktop">
+            <li>{ui.text('homeCapabilityBrowse')}</li>
+            <li>{ui.text('homeCapabilityTransfer')}</li>
+          </ul>
+          <details class="service-capabilities-disclosure">
+            <summary>{ui.text('serviceCapabilities')}</summary>
+            <ul class="service-capabilities">
+              <li>{ui.text('homeCapabilityBrowse')}</li>
+              <li>{ui.text('homeCapabilityTransfer')}</li>
+            </ul>
+          </details>
+          <div class="service-card-actions">
+            <a class="button primary" href="/s3?{ui.query}">{ui.text('openS3')}{#include icons/chevron /}</a>
+            <a class="service-connection" href="{ui.connectionDetailsLink}">{#include icons/info /}{ui.text('connectionDetails')}</a>
+          </div>
+        </article>
+        <article class="summary-card service-card">
+          <h3>{#include icons/components /}SQS</h3>
+          <p class="service-card-purpose">{ui.text('sqsCardLabel')}</p>
+          <p class="service-card-description">{ui.text('sqsCardDescription')}</p>
+          <ul class="service-capabilities service-capabilities-desktop">
+            <li>{ui.text('sqsCardCapabilityQueues')}</li>
+            <li>{ui.text('sqsCardCapabilityCounters')}</li>
+          </ul>
+          <details class="service-capabilities-disclosure">
+            <summary>{ui.text('serviceCapabilities')}</summary>
+            <ul class="service-capabilities">
+              <li>{ui.text('sqsCardCapabilityQueues')}</li>
+              <li>{ui.text('sqsCardCapabilityCounters')}</li>
+            </ul>
+          </details>
+          <div class="service-card-actions">
+            <a class="button primary" href="/sqs?{ui.query}">{ui.text('openSqs')}{#include icons/chevron /}</a>
+            <a class="service-connection" href="/sqs/connection?{ui.query}">{#include icons/info /}{ui.text('connectionDetails')}</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  {/content}
+{/include}

@@ -1,0 +1,10 @@
+{#include layout}
+  {#title}{title} · SQS{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form" data-action-completed data-result-return="{returnHref}">
+      <h1>{title}</h1>
+      <p>{message}</p>
+      <a class="button primary" href="{returnHref}">{ui.text('sqsBack')}</a>
+    </div>
+  {/content}
+{/include}

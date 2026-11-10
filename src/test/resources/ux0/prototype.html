@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="{language}" data-theme="{theme}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{title} · StackEmu UX-0</title>
+    <link rel="stylesheet" href="/ux0/{candidate}.css?v=CSS_FINGERPRINT">
+  </head>
+  <body>
+    <main id="content">
+      <h1>{title}</h1>
+      <p>{notice}</p>
+      <div class="component-gallery {#if utility}grid gap-4 md:grid-cols-2{/if}">
+        <section class="resource-panel">
+          <h2>{actions}</h2>
+          <div class="utility-probe {#if utility}grid gap-4{/if}">
+            <button id="primary" class="button primary" type="button">{action}</button>
+            <button class="button" type="button" disabled>{disabled}</button>
+            <p class="literal-probe {#if utility}text-ink hover:bg-panel dark:underline{/if}">{notice}</p>
+            <p class="dynamic-probe p-{spacing}">{dynamicNote}</p>
+          </div>
+        </section>
+        <section class="resource-panel">
+          <h2>{objects}</h2>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="{objects}">
+            <table class="resource-table">
+              <caption>{objects}</caption>
+              <thead><tr><th scope="col">{name}</th><th scope="col">{size}</th></tr></thead>
+              <tbody><tr><th scope="row"><code>{key}</code></th><td>44 B</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="resource-panel">
+          <h2>{fields}</h2>
+          <form class="component-form" method="get" action="/ux0/example">
+            <label for="example-name">{name}</label>
+            <input id="example-name" name="name" value="example" required>
+            <label for="example-readonly">{readonly}</label>
+            <input id="example-readonly" value="samples/ação.txt" readonly>
+            <label for="example-file">{file}</label>
+            <input id="example-file" type="file">
+            <label for="example-check"><input id="example-check" type="checkbox"> {confirm}</label>
+          </form>
+        </section>
+        <section class="resource-panel">
+          <h2>{feedback}</h2>
+          <p role="status">{notice}</p>
+          <details><summary>{details}</summary><p>{notice}</p></details>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

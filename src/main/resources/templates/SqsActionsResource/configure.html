@@ -1,0 +1,22 @@
+{#include layout}
+  {#title}Configure queue · SQS{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form"><h1>{ui.text('sqsConfigure')} {queue.name}</h1>
+      <form class="mutation-form" method="post" action="/sqs/actions/configure" data-submitting-label="{ui.text('submitting')}">
+        <input type="hidden" name="csrf-token" value="{inject:csrf.token}"><input type="hidden" name="queue" value="{queue.name}"><input type="hidden" name="lang" value="{ui.language}"><input type="hidden" name="theme" value="{ui.theme}"><input type="hidden" name="density" value="{ui.density}">
+        {#if message != ''}<p class="error" role="alert">{#include icons/error /}{message}</p>{/if}
+        <label for="visibility-timeout">{ui.text('sqsVisibilityTimeout')}</label><input id="visibility-timeout" name="visibilityTimeout" type="number" min="0" max="43200" value="{queue.settings.visibilityTimeout}" required>
+        <label for="retention-period">{ui.text('sqsRetentionPeriod')}</label><input id="retention-period" name="retentionPeriod" type="number" min="60" max="1209600" value="{queue.settings.retentionPeriod}" required>
+        <label for="delay-seconds">{ui.text('sqsDeliveryDelay')}</label><input id="delay-seconds" name="delaySeconds" type="number" min="0" max="900" value="{queue.settings.delaySeconds}" required>
+        <label for="maximum-size">{ui.text('sqsMaximumMessageSize')}</label><input id="maximum-size" name="maximumMessageSize" type="number" min="1024" max="262144" value="{queue.settings.maximumMessageSize}" required>
+        <label for="receive-wait">{ui.text('sqsReceiveWait')}</label><input id="receive-wait" name="receiveWaitTime" type="number" min="0" max="20" value="{queue.settings.receiveWaitTime}" required>
+        {#if queue.fifo}<label><input type="checkbox" name="contentBasedDeduplication" value="true" {#if queue.settings.contentBasedDeduplication}checked{/if}> {ui.text('sqsContentBasedDeduplication')}</label>{/if}
+        <label><input type="checkbox" name="managedSse" value="true" {#if queue.settings.managedSse}checked{/if}> {ui.text('sqsManagedSse')}</label>
+        <label for="tags">{ui.text('sqsTags')}</label><textarea id="tags" name="tags">{configuredTags}</textarea>
+        <label for="dead-letter-queue">{ui.text('sqsDeadLetterQueue')}</label><select id="dead-letter-queue" name="deadLetterQueue"><option value="">{ui.text('sqsNoRedrivePolicy')}</option>{#for candidate in deadLetterQueues}<option value="{candidate.name}" {#if configuredDeadLetterQueue == candidate.name}selected{/if}>{candidate.name}</option>{/for}</select>
+        <label for="max-receive-count">{ui.text('sqsMaximumReceives')}</label><input id="max-receive-count" name="maxReceiveCount" type="number" min="1" max="1000" value="{configuredMaxReceiveCount}">
+        <button class="button primary" type="submit">{ui.text('sqsSaveSettings')}</button>
+      </form>
+    </div>
+  {/content}
+{/include}

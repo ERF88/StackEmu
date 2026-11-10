@@ -1,0 +1,12 @@
+StackEmu includes the unmodified H2 Database Engine 2.4.240 binary.
+H2 is dual-licensed under Mozilla Public License 2.0 or Eclipse Public License 1.0.
+H2 retains its upstream copyright and licensing; StackEmu's MIT license does not replace them.
+License terms and upstream distribution notice: https://h2database.com/html/license.html
+Corresponding source artifact: com.h2database:h2:2.4.240:sources at Maven Central.
+H2 is provided without warranties; its contributors and distributors disclaim liability
+as specified in the upstream license. StackEmu does not modify H2 source code.
+
+StackEmu inclui o binário H2 2.4.240 sem modificações, sob MPL 2.0 ou EPL 1.0.
+A licença MIT do StackEmu não substitui os direitos/licenças do H2.
+Termos, exclusões de garantia e responsabilidade constam na referência acima;
+o código-fonte correspondente está no artefato sources da mesma versão no Maven Central.

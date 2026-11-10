@@ -1,0 +1,9 @@
+{#include layout}
+  {#title}{view.key}{/title}
+  {#content}
+    <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{view.parentHref}">{#include icons/back /}{ui.text('backToObjects')}</a></nav>
+    <section class="resource-panel object-detail-panel" aria-label="{ui.text('objectDetails')}">
+      {#include S3Resource/objectDetails standalone=true /}
+    </section>
+  {/content}
+{/include}

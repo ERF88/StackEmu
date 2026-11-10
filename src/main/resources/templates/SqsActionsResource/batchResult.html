@@ -1,0 +1,9 @@
+{#include layout}
+  {#title}Batch result · SQS{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form" data-action-keep-open><h1>{ui.text('sqsBatchResult')}</h1><p>{ui.text('sqsCompleted')}: {result.succeededIds.size}. {ui.text('sqsFailed')}: {result.failures.size}.</p>
+      {#if !result.failures.isEmpty}<h2>{ui.text('sqsFailures')}</h2><ul>{#for failure in result.failures}<li>{failure.key}: {failure.value}</li>{/for}</ul>{/if}
+      <a class="button" href="/sqs/queue?name={queue}&amp;{ui.query}">{ui.text('sqsBack')}</a>
+    </div>
+  {/content}
+{/include}

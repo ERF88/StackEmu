@@ -1,0 +1,9 @@
+{#include layout}
+  {#title}{ui.text('sqsReceivedMessages')} · {ui.text('sqs')}{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form" data-action-keep-open><h1>{ui.text('sqsReceivedMessages')}</h1><p>{ui.text('sqsReceiveChangesVisibility')}</p>
+      {#if messages.isEmpty}<p>{ui.text('sqsNoMessages')}</p>{#else}<form class="mutation-form" method="post" action="/sqs/actions/delete-messages" data-submitting-label="{ui.text('submitting')}"><input type="hidden" name="csrf-token" value="{inject:csrf.token}"><input type="hidden" name="queue" value="{queue}"><input type="hidden" name="lang" value="{ui.language}"><input type="hidden" name="theme" value="{ui.theme}"><input type="hidden" name="density" value="{ui.density}"><ul class="resource-list">{#for message in messages}<li><h2>{message.messageId}</h2><pre>{message.body}</pre><label><input type="checkbox" name="receiptHandle" value="{message.receiptHandle}"> {ui.text('sqsSelectDeletion')}</label></li>{/for}</ul><button class="button danger" type="submit">{ui.text('sqsDeleteSelected')}</button></form>{/if}
+      <a class="button" href="/sqs/queue?name={queue}&amp;{ui.query}">{ui.text('sqsBack')}</a>
+    </div>
+  {/content}
+{/include}
