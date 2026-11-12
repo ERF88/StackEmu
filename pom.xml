@@ -100,6 +100,13 @@
       <resource>
         <directory>${project.build.directory}/generated-resources</directory>
       </resource>
+      <resource>
+        <targetPath>META-INF/resources</targetPath>
+        <directory>assets</directory>
+        <includes>
+          <include>plates/**</include>
+        </includes>
+      </resource>
     </resources>
     <plugins>
       <plugin>

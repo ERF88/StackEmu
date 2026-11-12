@@ -3,6 +3,7 @@ package io.github.erf88.stackemu;
 import static io.restassured.RestAssured.given;
 
 import io.github.erf88.stackemu.adapter.web.HomeResource;
+import io.github.erf88.stackemu.adapter.web.SandboxOverviewService;
 import io.github.erf88.stackemu.adapter.web.UiContext;
 import io.github.erf88.stackemu.adapter.web.s3.BucketsResource;
 import io.github.erf88.stackemu.adapter.web.s3.ConnectionResource;
@@ -28,7 +29,26 @@ final class VisualPageFixtures {
     Files.createDirectories(directory);
     var settings = new ConnectionSettingsView(URI.create("http://ministack:4566"), "us-east-1");
     var ui = UiContext.resolve(language, null, theme, "/");
-    save(directory, "overview", language, theme, HomeResource.Templates.index(ui).render());
+    var overview =
+        new SandboxOverviewService.Snapshot(
+            "visual-example",
+            "http://ministack:4566",
+            true,
+            List.of("visual-bucket"),
+            List.of("visual-queue"),
+            List.of("visual-topic"),
+            new SandboxOverviewService.Check(
+                SandboxOverviewService.State.READY, "configurationAligned"),
+            new SandboxOverviewService.Check(SandboxOverviewService.State.READY, "containerOnline"),
+            new SandboxOverviewService.Check(SandboxOverviewService.State.READY, "emulatorHealthy"),
+            new SandboxOverviewService.Check(SandboxOverviewService.State.READY, "consoleReady"),
+            SandboxOverviewService.Action.STATUS);
+    save(
+        directory,
+        "overview",
+        language,
+        theme,
+        HomeResource.Templates.index(ui, overview).render());
     save(
         directory,
         "service",

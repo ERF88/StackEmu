@@ -19,6 +19,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import org.jboss.resteasy.reactive.RestForm;
 
 @Path("/operations")
@@ -27,8 +28,61 @@ import org.jboss.resteasy.reactive.RestForm;
 public class OperationsResource {
   private final S3OperationPort operations;
 
+  public record OperationListRow(Operation operation, String reviewHref) {
+    public String titleKey() {
+      return "operationKind" + operation.request().kind().name();
+    }
+
+    public String stateKey() {
+      return "operationState" + operation.state().name();
+    }
+
+    public String target() {
+      var request = operation.request();
+      String target = request.bucket();
+      if (!request.key().isEmpty()) target += "/" + request.key();
+      if (!request.destinationBucket().isEmpty())
+        target += " → " + request.destinationBucket() + "/" + request.destinationKey();
+      return target;
+    }
+
+    public String progress() {
+      return operation.total() == 0 ? "—" : operation.done() + " / " + operation.total();
+    }
+  }
+
+  public record OperationListView(List<OperationListRow> operations) {
+    public OperationListView {
+      operations = List.copyOf(operations);
+    }
+
+    public boolean empty() {
+      return operations.isEmpty();
+    }
+  }
+
   public OperationsResource(S3OperationPort operations) {
     this.operations = operations;
+  }
+
+  @GET
+  public Response index(
+      @QueryParam("lang") String lang,
+      @QueryParam("theme") String theme,
+      @QueryParam("density") String density) {
+    var ui = UiContext.resolve(lang, null, theme, density, "/operations");
+    try {
+      var rows =
+          operations.list(0).stream()
+              .map(
+                  operation ->
+                      new OperationListRow(
+                          operation, "/operations/" + operation.id() + "/review?" + ui.query()))
+              .toList();
+      return response(200, Templates.index(new OperationListView(rows), ui));
+    } catch (OperationException failure) {
+      return error(failure, ui);
+    }
   }
 
   public record OperationPageView(
@@ -83,6 +137,8 @@ public class OperationsResource {
 
   @CheckedTemplate
   public static class Templates {
+    public static native TemplateInstance index(OperationListView view, UiContext ui);
+
     public static native TemplateInstance review(OperationPageView view, UiContext ui);
 
     public static native TemplateInstance error(String message, UiContext ui);

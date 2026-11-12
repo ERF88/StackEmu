@@ -43,9 +43,14 @@ public record UiContext(
 
   public String contextLabel() {
     if (page.startsWith("/operations")) return text("operations");
+    if (page.startsWith("/sns")) return "SNS";
     if (page.startsWith("/sqs")) return "SQS";
     if (page.startsWith("/s3") || page.startsWith("/connection")) return "S3";
     return text(page.equals("/components") ? "gallery" : "home");
+  }
+
+  public boolean hasConnectionDetails() {
+    return page.startsWith("/s3") || page.startsWith("/sqs") || page.startsWith("/connection");
   }
 
   public String query() {
