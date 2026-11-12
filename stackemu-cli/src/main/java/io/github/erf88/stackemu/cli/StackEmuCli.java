@@ -95,7 +95,19 @@ public final class StackEmuCli {
       Ports ports,
       PrintStream output)
       throws Exception {
-    assertPortsAvailable(ports, null);
+    start(projectId, config, configurationHash, stateHash, ports, output, false);
+  }
+
+  private static void start(
+      String projectId,
+      Path config,
+      String configurationHash,
+      String stateHash,
+      Ports ports,
+      PrintStream output,
+      boolean portsAlreadyValidated)
+      throws Exception {
+    if (!portsAlreadyValidated) assertPortsAvailable(ports, null);
     boolean volumeCreated = ensureVolume(projectId);
     boolean containerCreated = false;
     try {
@@ -273,7 +285,7 @@ public final class StackEmuCli {
     assertPortsAvailable(ports, tryCurrentPorts(projectId));
     dockerIgnoreFailure("rm", "-f", container(projectId));
     dockerIgnoreFailure("volume", "rm", volume(projectId));
-    start(projectId, config, configurationHash, stateHash, ports, output);
+    start(projectId, config, configurationHash, stateHash, ports, output, true);
     audit(projectId, "reset");
   }
 

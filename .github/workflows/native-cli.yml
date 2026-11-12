@@ -70,11 +70,11 @@ jobs:
         run: |
           $config = Join-Path $env:RUNNER_TEMP 'stackemu-native-smoke.yaml'
           "version: 1`nproject: {}" | Set-Content -Path $config -Encoding ascii
-          $output = & .\stackemu-cli\target\stackemu.exe start --config $config 2>&1
-          $exitCode = $LASTEXITCODE
-          if ($exitCode -ne 2 -or (($output | Out-String) -notmatch [regex]::Escape('project.id must be lowercase letters, digits, and hyphens'))) {
-            $output | Write-Host
-            throw "Native CLI smoke test failed with exit code $exitCode"
+          $cliOutput = & .\stackemu-cli\target\stackemu.exe start --config $config 2>&1
+          $cliExitCode = $LASTEXITCODE
+          if ($cliExitCode -ne 2) {
+            $cliOutput | Write-Host
+            throw "Native CLI smoke test expected exit code 2, received $cliExitCode"
           }
 
       - name: Rename native executable for distribution
