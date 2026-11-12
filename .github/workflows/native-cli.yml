@@ -70,11 +70,22 @@ jobs:
         run: |
           $config = Join-Path $env:RUNNER_TEMP 'stackemu-native-smoke.yaml'
           "version: 1`nproject: {}" | Set-Content -Path $config -Encoding ascii
-          $cliOutput = & .\stackemu-cli\target\stackemu.exe start --config $config 2>&1
-          $cliExitCode = $LASTEXITCODE
-          if ($cliExitCode -ne 2) {
-            $cliOutput | Write-Host
-            throw "Native CLI smoke test expected exit code 2, received $cliExitCode"
+          $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+          $startInfo.FileName = (Resolve-Path '.\stackemu-cli\target\stackemu.exe').Path
+          $startInfo.ArgumentList.Add('start')
+          $startInfo.ArgumentList.Add('--config')
+          $startInfo.ArgumentList.Add($config)
+          $startInfo.RedirectStandardOutput = $true
+          $startInfo.RedirectStandardError = $true
+          $startInfo.UseShellExecute = $false
+          $process = [System.Diagnostics.Process]::Start($startInfo)
+          $stdout = $process.StandardOutput.ReadToEnd()
+          $stderr = $process.StandardError.ReadToEnd()
+          $process.WaitForExit()
+          $cliOutput = $stdout + $stderr
+          if ($process.ExitCode -ne 2 -or $cliOutput -notmatch [regex]::Escape('project.id must be lowercase letters, digits, and hyphens')) {
+            Write-Host $cliOutput
+            throw "Native CLI smoke test failed with exit code $($process.ExitCode)"
           }
 
       - name: Rename native executable for distribution
