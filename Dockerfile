@@ -2,6 +2,7 @@ FROM maven:3.9-eclipse-temurin-25 AS build
 WORKDIR /workspace
 COPY pom.xml .
 COPY src src
+COPY assets assets
 RUN mvn -B -ntp -DskipTests -Dskip.frontend=true package
 
 FROM ministackorg/ministack:1.5.25

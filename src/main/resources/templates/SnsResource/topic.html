@@ -1,0 +1,105 @@
+{#include layout}
+  {#title}{topic.name}{/title}
+  {#content}
+    <div class="service-page sns-page sns-topic-page">
+      <header class="page-heading sns-topic-heading">
+        <div><h1>{topic.name}</h1><p>{ui.text('snsTopicDescription')}</p></div>
+        <div class="page-actions"><a class="button" href="/sns?{ui.query}">{#include icons/back /}{ui.text('snsBackToTopics')}</a></div>
+      </header>
+      {#if notice}<p class="operation-feedback sns-notice" role="status">{notice}</p>{/if}
+      <dl class="sns-topic-arn"><dt>{ui.text('snsTopicArn')}</dt><dd><code>{topic.arn}</code></dd></dl>
+
+      <div class="sns-topic-grid">
+        <div class="sns-topic-primary">
+          <section class="summary-card sns-panel" aria-labelledby="sns-publish-title">
+            <header class="section-heading"><h2 id="sns-publish-title">{#include icons/upload /}{ui.text('snsPublishTitle')}</h2></header>
+            <p>{ui.text('snsPublishHelp')}</p>
+            <form class="mutation-form sns-form" method="post" action="/sns/actions/publish">
+              <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+              <input type="hidden" name="topic" value="{topic.name}">
+              <input type="hidden" name="lang" value="{ui.language}">
+              <input type="hidden" name="theme" value="{ui.theme}">
+              <input type="hidden" name="density" value="{ui.density}">
+              <label for="sns-message">{ui.text('snsMessageLabel')}</label>
+              <textarea id="sns-message" name="message" required maxlength="262144" rows="5" aria-describedby="sns-message-help"></textarea>
+              <small id="sns-message-help">{ui.text('snsMessageHelp')}</small>
+              <button class="button primary" type="submit">{#include icons/upload /}{ui.text('snsPublishButton')}</button>
+            </form>
+          </section>
+
+          <section class="summary-card sns-panel sns-subscribe-panel" aria-labelledby="sns-subscribe-title">
+            <header class="section-heading"><h2 id="sns-subscribe-title">{#include icons/components /}{ui.text('snsSubscribeTitle')}</h2></header>
+            <p>{ui.text('snsSubscribeHelp')}</p>
+            {#if queueMessage}
+              <p class="sns-inline-message" role="status">{queueMessage}</p>
+              {#if queues.isEmpty}<a class="text-link" href="/sqs/actions?action=create&amp;{ui.query}">{ui.text('snsCreateQueue')}</a>{/if}
+            {#else if queues.isEmpty}
+              <p class="sns-inline-message">{ui.text('snsNoCompatibleQueues')}</p>
+              <a class="text-link" href="/sqs/actions?action=create&amp;{ui.query}">{ui.text('snsCreateQueue')}</a>
+            {#else}
+              <form class="mutation-form sns-form" method="post" action="/sns/actions/subscribe">
+                <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+                <input type="hidden" name="topic" value="{topic.name}">
+                <input type="hidden" name="lang" value="{ui.language}">
+                <input type="hidden" name="theme" value="{ui.theme}">
+                <input type="hidden" name="density" value="{ui.density}">
+                <label for="sns-queue">{ui.text('snsQueueLabel')}</label>
+                <select id="sns-queue" name="queue" required>
+                  <option value="">{ui.text('snsSelectQueue')}</option>
+                  {#for queue in queues}<option value="{queue.name}">{queue.name}</option>{/for}
+                </select>
+                <button class="button primary" type="submit">{ui.text('snsSubscribeButton')}</button>
+              </form>
+            {/if}
+          </section>
+        </div>
+
+        <div class="sns-topic-secondary">
+          <section class="summary-card sns-panel" aria-labelledby="sns-subscriptions-title">
+            <header class="section-heading"><h2 id="sns-subscriptions-title">{#include icons/components /}{ui.text('snsSubscriptions')} <small>({subscriptions.size})</small></h2></header>
+            {#if subscriptions.isEmpty}
+              <div class="resource-state sns-empty-state"><h3>{ui.text('snsNoSubscriptions')}</h3><p>{ui.text('snsNoSubscriptionsHelp')}</p></div>
+            {#else}
+              <ul class="sns-subscription-list">
+                {#for subscription in subscriptions}
+                  <li>
+                    <div class="sns-subscription-heading"><strong>{subscription.protocol}</strong><span>{ui.text('snsEndpointLabel')}</span></div>
+                    <code class="sns-subscription-endpoint">{subscription.endpoint}</code>
+                    <details class="sns-unsubscribe-details">
+                      <summary>{ui.text('snsUnsubscribe')}</summary>
+                      <form class="mutation-form sns-form sns-unsubscribe-form" method="post" action="/sns/actions/unsubscribe">
+                        <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+                        <input type="hidden" name="topic" value="{topic.name}">
+                        <input type="hidden" name="subscriptionArn" value="{subscription.arn}">
+                        <input type="hidden" name="lang" value="{ui.language}">
+                        <input type="hidden" name="theme" value="{ui.theme}">
+                        <input type="hidden" name="density" value="{ui.density}">
+                        <label><input type="checkbox" name="confirm" value="yes" required> {ui.text('snsConfirmUnsubscribe')}</label>
+                        <button class="button danger" type="submit">{ui.text('snsUnsubscribe')}</button>
+                      </form>
+                    </details>
+                  </li>
+                {/for}
+              </ul>
+            {/if}
+          </section>
+
+          <details class="summary-card sns-danger-zone">
+            <summary>{ui.text('snsDeleteTopic')}</summary>
+            <p>{ui.text('snsDeleteTopicHelp')}</p>
+            <form class="mutation-form sns-form" method="post" action="/sns/actions/delete">
+              <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+              <input type="hidden" name="topic" value="{topic.name}">
+              <input type="hidden" name="lang" value="{ui.language}">
+              <input type="hidden" name="theme" value="{ui.theme}">
+              <input type="hidden" name="density" value="{ui.density}">
+              <label for="sns-delete-confirm">{ui.text('snsConfirmTopicName')}</label>
+              <input id="sns-delete-confirm" name="confirmation" type="text" required autocomplete="off" spellcheck="false">
+              <button class="button danger" type="submit">{ui.text('snsDeleteTopic')}</button>
+            </form>
+          </details>
+        </div>
+      </div>
+    </div>
+  {/content}
+{/include}

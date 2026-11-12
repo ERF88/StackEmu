@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 class ServiceCatalogTest {
   public static class Emulator implements QuarkusTestResourceLifecycleManager {
     static final AtomicInteger requests = new AtomicInteger();
+    static final AtomicInteger healthChecks = new AtomicInteger();
     static volatile String buckets = "";
     static volatile boolean forbidden;
     static HttpServer server;
@@ -31,7 +32,10 @@ class ServiceCatalogTest {
     public Map<String, String> start() {
       listen(0);
       port = server.getAddress().getPort();
-      return Map.of("quarkus.s3.endpoint-override", "http://127.0.0.1:" + port);
+      String endpoint = "http://127.0.0.1:" + port;
+      return Map.of(
+          "quarkus.s3.endpoint-override", endpoint,
+          "stackemu.endpoint", endpoint);
     }
 
     static void listen(int selectedPort) {
@@ -40,6 +44,12 @@ class ServiceCatalogTest {
         server.createContext(
             "/",
             exchange -> {
+              if ("/_ministack/health".equals(exchange.getRequestURI().getPath())) {
+                healthChecks.incrementAndGet();
+                exchange.sendResponseHeaders(200, -1);
+                exchange.close();
+                return;
+              }
               requests.incrementAndGet();
               String body =
                   forbidden
@@ -67,8 +77,9 @@ class ServiceCatalogTest {
   }
 
   @Test
-  void homeDoesNotProbeAnAvailableOrStoppedEmulator() {
+  void homeChecksEmulatorHealthOnceWithoutListingResources() {
     Emulator.requests.set(0);
+    Emulator.healthChecks.set(0);
     for (String language : java.util.List.of("en", "pt-BR")) {
       given()
           .queryParam("lang", language)
@@ -77,16 +88,20 @@ class ServiceCatalogTest {
           .statusCode(200)
           .header("Cache-Control", "no-store")
           .body(
-              containsString("summary-card service-card"),
+              containsString("health-table"),
+              containsString("boarding-pass"),
+              containsString("service-inventory"),
               not(containsString("id=\"bucket-panel\"")),
               not(containsString("data-refresh-panel")),
               not(containsString("href=\"/components?")));
     }
     assertEquals(0, Emulator.requests.get());
+    assertEquals(1, Emulator.healthChecks.get());
     Emulator.server.stop(0);
     try {
-      given().get("/").then().statusCode(200).body(not(containsString("service-status-link")));
+      given().get("/").then().statusCode(200).body(containsString("health-table"));
       assertEquals(0, Emulator.requests.get());
+      assertEquals(1, Emulator.healthChecks.get());
     } finally {
       Emulator.listen(Emulator.port);
     }

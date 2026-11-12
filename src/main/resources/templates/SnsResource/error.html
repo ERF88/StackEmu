@@ -1,0 +1,10 @@
+{#include layout}
+  {#title}SNS{/title}
+  {#content}
+    <section class="summary-card sns-error-panel" role="alert">
+      <h1>{ui.text('snsErrorTitle')}</h1>
+      <p>{message}</p>
+      <a class="button primary" href="{returnHref}">{ui.text('retry')}</a>
+    </section>
+  {/content}
+{/include}
