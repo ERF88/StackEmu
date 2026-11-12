@@ -1,0 +1,90 @@
+name: StackEmu native CLI
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-cli:
+    name: Native CLI (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: linux-x64
+            binary: stackemu-linux-x64
+          - runner: ubuntu-24.04-arm
+            target: linux-arm64
+            binary: stackemu-linux-arm64
+          - runner: windows-latest
+            target: windows-x64
+            binary: stackemu.exe
+          - runner: macos-15-intel
+            target: darwin-x64
+            binary: stackemu-darwin-x64
+          - runner: macos-latest
+            target: darwin-arm64
+            binary: stackemu-darwin-arm64
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up GraalVM 25
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '25.0'
+          distribution: graalvm
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: maven
+          native-image-job-reports: 'true'
+
+      - name: Build native executable
+        run: mvn -B -ntp -f stackemu-cli/pom.xml -Pnative -DskipTests package
+
+      - name: Smoke-test native executable
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          config="$RUNNER_TEMP/stackemu-native-smoke.yaml"
+          printf 'version: 1\nproject: {}\n' > "$config"
+          set +e
+          output="$(./stackemu-cli/target/stackemu start --config "$config" 2>&1)"
+          exit_code=$?
+          set -e
+          if [[ "$exit_code" -ne 2 ]] || ! grep -Fq 'project.id must be lowercase letters, digits, and hyphens' <<< "$output"; then
+            printf '%s\n' "$output"
+            exit 1
+          fi
+
+      - name: Smoke-test native executable on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $config = Join-Path $env:RUNNER_TEMP 'stackemu-native-smoke.yaml'
+          "version: 1`nproject: {}" | Set-Content -Path $config -Encoding ascii
+          $output = & .\stackemu-cli\target\stackemu.exe start --config $config 2>&1
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 2 -or (($output | Out-String) -notmatch [regex]::Escape('project.id must be lowercase letters, digits, and hyphens'))) {
+            $output | Write-Host
+            throw "Native CLI smoke test failed with exit code $exitCode"
+          }
+
+      - name: Rename native executable for distribution
+        if: runner.os != 'Windows'
+        shell: bash
+        run: mv stackemu-cli/target/stackemu "stackemu-cli/target/${{ matrix.binary }}"
+
+      - name: Upload native executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: stackemu-${{ matrix.target }}
+          path: stackemu-cli/target/${{ matrix.binary }}
+          if-no-files-found: error

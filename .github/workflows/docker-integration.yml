@@ -27,6 +27,16 @@ jobs:
       - name: Build the StackEmu image
         run: docker build -t stackemu:local .
 
+      - name: Preload the unhealthy replacement image for rollback testing
+        run: |
+          context="$RUNNER_TEMP/stackemu-unhealthy-image"
+          mkdir -p "$context"
+          cat > "$context/Dockerfile" <<'DOCKERFILE'
+          FROM stackemu:local
+          HEALTHCHECK --interval=1s --timeout=1s --retries=1 CMD exit 1
+          DOCKERFILE
+          docker build --network=none --tag stackemu:offline-unhealthy-test "$context"
+
       - name: Run CLI unit tests and cache dependencies
         working-directory: stackemu-cli
         env:
@@ -120,6 +130,7 @@ jobs:
         env:
           STACKEMU_DOCKER_INTEGRATION: 'true'
           STACKEMU_AWS_CLI_INTEGRATION: 'true'
+          STACKEMU_UNHEALTHY_TEST_IMAGE: stackemu:offline-unhealthy-test
         run: |
           mvn -o -B -ntp -Dtest=SandboxLifecycleIntegrationTest test
           if [[ -s "$STACKEMU_FORBIDDEN_DOCKER_COMMANDS" ]]; then
@@ -139,3 +150,4 @@ jobs:
           sudo iptables -D DOCKER-USER -i docker0 -j STACKEMU-OFFLINE 2>/dev/null || true
           sudo iptables -F STACKEMU-OFFLINE 2>/dev/null || true
           sudo iptables -X STACKEMU-OFFLINE 2>/dev/null || true
+          docker image rm stackemu:offline-unhealthy-test 2>/dev/null || true

@@ -31,18 +31,22 @@ public class SandboxOverviewService {
       HttpClient.newBuilder().connectTimeout(Duration.ofMillis(250)).build();
 
   private final String endpoint;
+  private final String publicEndpoint;
   private final Path configPath;
   private final Path markerPath;
   private volatile CachedSnapshot cached;
 
   public SandboxOverviewService(
       @ConfigProperty(name = "stackemu.endpoint") String endpoint,
+      @ConfigProperty(name = "stackemu.public-endpoint", defaultValue = "http://127.0.0.1:4566")
+          String publicEndpoint,
       @ConfigProperty(name = "stackemu.config.path") String configPath,
       @ConfigProperty(
               name = "stackemu.marker.path",
               defaultValue = "/data/stackemu/.stackemu/marker.json")
           String markerPath) {
     this.endpoint = safeEndpoint(endpoint);
+    this.publicEndpoint = safeEndpoint(publicEndpoint);
     this.configPath = Path.of(configPath);
     this.markerPath = Path.of(markerPath);
   }
@@ -87,7 +91,7 @@ public class SandboxOverviewService {
         configuration.state() == State.READY && emulatorHealthy ? Action.STATUS : Action.DIAGNOSE;
     return new Snapshot(
         config.projectId(),
-        endpoint,
+        publicEndpoint,
         config.available(),
         config.buckets(),
         config.queues(),

@@ -10,7 +10,8 @@ public class SqsConnectionSettingsView {
   private final String region;
 
   public SqsConnectionSettingsView(
-      @ConfigProperty(name = "quarkus.sqs.endpoint-override") URI endpoint,
+      @ConfigProperty(name = "stackemu.public-endpoint", defaultValue = "http://127.0.0.1:4566")
+          URI endpoint,
       @ConfigProperty(name = "quarkus.sqs.aws.region") String region) {
     this.endpoint = endpoint;
     this.region = region;

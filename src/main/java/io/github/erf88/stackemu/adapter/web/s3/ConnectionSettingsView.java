@@ -10,7 +10,8 @@ public class ConnectionSettingsView {
   private final String region;
 
   public ConnectionSettingsView(
-      @ConfigProperty(name = "quarkus.s3.endpoint-override") URI endpoint,
+      @ConfigProperty(name = "stackemu.public-endpoint", defaultValue = "http://127.0.0.1:4566")
+          URI endpoint,
       @ConfigProperty(name = "quarkus.s3.aws.region") String region) {
     this.endpoint = endpoint;
     this.region = region;

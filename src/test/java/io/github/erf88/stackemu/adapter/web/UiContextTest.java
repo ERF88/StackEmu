@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.github.erf88.stackemu.adapter.web.s3.ConnectionSettingsView;
+import io.github.erf88.stackemu.adapter.web.sqs.SqsConnectionSettingsView;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 
@@ -68,6 +69,14 @@ class UiContextTest {
         new ConnectionSettingsView(
             URI.create("http://user:secret@localhost:4566/path?token=secret#secret"), "us-east-1");
     assertEquals("http://localhost:4566/path", view.endpoint());
+  }
+
+  @Test
+  void connectionExamplesUseTheConfiguredPublicAwsEndpoint() {
+    var s3 = new ConnectionSettingsView(URI.create("http://127.0.0.1:14566"), "us-east-1");
+    var sqs = new SqsConnectionSettingsView(URI.create("http://127.0.0.1:14566"), "us-east-1");
+    assertEquals("http://127.0.0.1:14566", s3.endpoint());
+    assertEquals("http://127.0.0.1:14566", sqs.endpoint());
   }
 
   @Test

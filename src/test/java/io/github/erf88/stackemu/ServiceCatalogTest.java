@@ -35,7 +35,8 @@ class ServiceCatalogTest {
       String endpoint = "http://127.0.0.1:" + port;
       return Map.of(
           "quarkus.s3.endpoint-override", endpoint,
-          "stackemu.endpoint", endpoint);
+          "stackemu.endpoint", endpoint,
+          "stackemu.public-endpoint", "http://127.0.0.1:14566");
     }
 
     static void listen(int selectedPort) {
@@ -138,6 +139,21 @@ class ServiceCatalogTest {
         .then()
         .statusCode(200)
         .body(containsString("catalog-example"), not(containsString("<!doctype")));
+  }
+
+  @Test
+  void publicEndpointCanDifferFromInternalEmulatorEndpoint() {
+    given().get("/").then().statusCode(200).body(containsString("http://127.0.0.1:14566"));
+    given()
+        .get("/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("http://127.0.0.1:14566"));
+    given()
+        .get("/sqs/connection")
+        .then()
+        .statusCode(200)
+        .body(containsString("http://127.0.0.1:14566"));
   }
 
   @Test

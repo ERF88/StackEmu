@@ -77,7 +77,7 @@ or after reset. Restart never deletes or reconciles current state. Reset shows
 its exact target, requires acknowledgement or CI-only --yes, erases all project
 state, recreates declared resources, and audits its result outside erased state.
 JSON status and diagnostics report redacted configuration, health, digest,
-versions, usage, outcome, and log pointers.
+versions, effective public endpoints, usage, outcome, and log pointers.
 
 Reset outcomes are retained as bounded structured records in a platform-managed
 host audit directory keyed by project ID, not in erased project state. The
@@ -93,11 +93,14 @@ startup without pulls, builds, or external calls.
 
 ### Connectivity
 
-The image exposes the emulator at http://127.0.0.1:4566 and console at
-http://127.0.0.1:8080. Clients use region us-east-1 and explicit non-production
-test credentials supplied by the host command. The compatibility document
-contains reproducible SDK and CLI requests, expected responses, subscription
-policy setup, and a 10-second SNS-to-SQS delivery deadline.
+The image listens internally on 127.0.0.1:4566 for AWS APIs and 127.0.0.1:8080
+for the console. By default, the host publishes these on the same loopback
+ports. Projects running on one machine may select distinct public ports in
+stackemu.yaml; internal clients, bootstrap, and health checks always use 4566
+and 8080 inside the container. SDK and AWS CLI examples use the selected public
+AWS endpoint, region us-east-1, and explicit non-production test credentials.
+The compatibility document contains reproducible requests, expected
+responses, subscription policy setup, and a 10-second SNS-to-SQS deadline.
 
 ## Public contracts
 
@@ -109,13 +112,22 @@ Commands are start, restart, status --json, diagnose --json, and reset. Exit
 codes are: 0 success; 2 configuration; 3 Docker/image prerequisite; 4 ownership
 or compatibility; 5 busy lock; 6 unready service; 7 incomplete reset. JSON
 reports include status, cause, project ID, image digest, schema version,
-configuration hash, volume usage, and log paths.
+configuration hash, effective public endpoints, volume usage, and log paths.
 
 Schema v1 requires project.id and permits s3, sqs, and sns services; named
 buckets, queues, topics, and SNS-to-SQS subscriptions; optional namespace;
 persistence enabled/disabled; and numeric CPU, memory, PID, and storage limits.
 Persistence is enabled by default. Unsupported resources and duplicate names
-fail validation.
+fail validation. The optional `ports` mapping accepts required integer fields
+`aws` and `console`, each from 1024 through 65535, and the values must differ.
+Without the block, ports remain 4566 and 8080. Docker binds selected ports only
+to 127.0.0.1. If a port is occupied, start or restart exits with code 3 and the
+`host-port-in-use` cause; StackEmu does not choose a replacement port. Changing
+only ports updates the container mapping on `restart`, preserves the same named
+volume, and does not require reset. A failed rebind restores the previous
+container and its existing mapping. The marker stores a full configuration
+hash and a state hash that excludes only `ports`; legacy markers use their
+original full hash as the state hash.
 
 The marker is .stackemu/marker.json at volume root. It records project ID,
 schema, compatible image range, and config hash. The lock is
@@ -171,7 +183,15 @@ limits:
   memoryMiB: 512
   pids: 256
   storageMiB: 1024
+ports:
+  aws: 4566
+  console: 8080
 ```
+
+Omit `ports` to keep the defaults. A second project could use `aws: 14566`
+and `console: 18080`; local SDK/AWS CLI clients use
+`http://127.0.0.1:14566`, and its console opens at
+`http://127.0.0.1:18080`.
 
 Namespace is optional and prefixes every declared resource. A configuration
 cannot combine a namespace with an explicitly prefixed resource name. Schema
@@ -253,4 +273,42 @@ Run formatting, architecture, unit, packaging, container, SDK/CLI contract, and
 offline-start tests. Migrate two clean-machine pilots, measure startup, rehearse
 rollback, and stop broader rollout on state loss, isolation, compatibility,
 migration, or rollback failure.
+
+## Pilot Evidence (2026-11-12)
+
+The following local checks were completed against the merged application. They
+are runtime evidence, not a clean-machine or release qualification.
+
+| Check | Result |
+| --- | --- |
+| SNS-to-SQS console flow | Created a topic and queue, subscribed the queue, published a unique payload, and received the SNS notification envelope containing that payload. |
+| SNS-to-SQS integration test | `SnsSqsIntegrationTest`: 1 test passed, 0 failures. The test verifies delivery within the ten-second contract window. |
+| Two-project runtime isolation | Ran two StackEmu image instances concurrently with separate project IDs, configuration files, labeled volumes, and host ports. Both Docker health checks were `healthy`; both console readiness endpoints returned HTTP 200. |
+| S3/SQS/SNS inventory isolation | Six console checks passed: each project showed its own declared bucket, queue, and topic, and did not show the corresponding resource from the other project. |
+| Cleanup | Removed both temporary containers, their named volumes, and temporary configuration files. The pre-existing `stackemu-example-api` container remained healthy on 4566/8080. |
+
+The CLI-managed two-project integration test now starts both projects through
+`stackemu`, verifies the effective endpoints from `status --json` and
+`diagnose --json`, checks console readiness and public endpoint examples, and
+confirms that S3, SQS, and SNS inventories remain isolated. It also verifies
+SNS-to-SQS delivery within the ten-second contract, rejects an occupied host
+port without losing a sentinel in the existing volume, and changes one
+project's ports with `restart` while preserving that sentinel and the other
+project. A separate injected unhealthy-image case verifies that a failed
+replacement restores the previous container, port bindings, and volume data.
+The pre-existing `stackemu-example-api` sandbox remained healthy on the default
+4566/8080 ports throughout the tests.
+
+The previously published baseline also passed the offline `docker-lifecycle`
+job in [GitHub Actions run 43245774553](https://github.com/ERF88/StackEmu/actions/runs/43245774553).
+That job confirmed the image was preloaded, rejected Docker pull/build commands,
+blocked container egress, and ran the sandbox contract. The run predates the
+current local configurable-port changes, so that offline contract must be
+repeated after those changes are integrated.
+
+The repository now defines a native CLI matrix for Linux x64/arm64, Windows
+x64, and macOS x64/arm64. It builds and smoke-tests the native launcher on
+each runner and uploads one artifact per target. Its first run against these
+local changes is still pending. Clean-machine startup time remains an open
+pilot check.
 

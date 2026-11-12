@@ -20,6 +20,8 @@ class BucketsResourceTest {
       return Map.of(
           "quarkus.s3.endpoint-override",
           "http://127.0.0.1:1",
+          "stackemu.public-endpoint",
+          "http://127.0.0.1:14566",
           "quarkus.s3.aws.region",
           "sa-east-1",
           "quarkus.s3.aws.credentials.static-provider.secret-access-key",
@@ -125,7 +127,7 @@ class BucketsResourceTest {
         .then()
         .statusCode(200)
         .body(
-            containsString("http://127.0.0.1:1"),
+            containsString("http://127.0.0.1:14566"),
             containsString("sa-east-1"),
             containsString("Could not verify S3"),
             not(containsString("hidden-test-value")));
