@@ -119,6 +119,10 @@ final class SandboxAwsContract {
             get(
                 http,
                 "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
+        assertTrue(review.contains(sourceBucket), review);
+        assertTrue(review.contains(sourceKey), review);
+        assertTrue(review.contains(destinationBucket), review);
+        assertTrue(review.contains(destinationKey), review);
         post(
             http,
             "/operations/" + operationId + "/start",
@@ -135,8 +139,6 @@ final class SandboxAwsContract {
                 "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
         assertTrue(completedReview.contains(sourceBucket), completedReview);
         assertTrue(completedReview.contains(sourceKey), completedReview);
-        assertTrue(completedReview.contains(destinationBucket), completedReview);
-        assertTrue(completedReview.contains(destinationKey), completedReview);
         assertEquals(
             body,
             s3.getObjectAsBytes(
