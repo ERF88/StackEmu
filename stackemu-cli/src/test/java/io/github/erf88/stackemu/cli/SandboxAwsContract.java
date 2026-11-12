@@ -5,13 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
@@ -36,6 +45,7 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 /** Direct AWS API contract coverage against the public sandbox endpoint. */
 final class SandboxAwsContract {
   private static final URI ENDPOINT = URI.create("http://127.0.0.1:4566");
+  private static final URI CONSOLE = URI.create("http://127.0.0.1:8080");
   private static final Region REGION = Region.US_EAST_1;
   private static final Duration MESSAGE_TIMEOUT = Duration.ofSeconds(10);
 
@@ -45,6 +55,99 @@ final class SandboxAwsContract {
     try (S3Client s3 = s3(); SqsClient sqs = sqs(); SnsClient sns = sns()) {
       verifyS3(s3, suffix);
       verifySnsAndSqs(sns, sqs, suffix);
+    }
+  }
+
+  static void verifyConsoleCopy(String suffix) throws Exception {
+    String sourceBucket = "console-src-" + suffix;
+    String destinationBucket = "console-dst-" + suffix;
+    String sourceKey = "contract-" + suffix + ".txt";
+    String destinationKey = "copy-" + suffix + ".txt";
+    try (S3Client s3 = s3()) {
+      boolean sourceCreated = false;
+      boolean destinationCreated = false;
+      try {
+        s3.createBucket(request -> request.bucket(sourceBucket));
+        sourceCreated = true;
+        s3.createBucket(request -> request.bucket(destinationBucket));
+        destinationCreated = true;
+        String body = "stackemu-console-contract-" + suffix;
+        s3.putObject(
+            PutObjectRequest.builder().bucket(sourceBucket).key(sourceKey).build(),
+            RequestBody.fromString(body));
+
+        var cookies = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+        HttpClient http =
+            HttpClient.newBuilder()
+                .cookieHandler(cookies)
+                .connectTimeout(Duration.ofSeconds(3))
+                .build();
+        String form =
+            get(
+                http,
+                "/s3/transfer?"
+                    + query(
+                        Map.of(
+                            "bucket", sourceBucket,
+                            "key", sourceKey,
+                            "move", "false",
+                            "destinationBucket", destinationBucket,
+                            "destinationKey", destinationKey,
+                            "lang", "en",
+                            "theme", "dark",
+                            "density", "compact")));
+        String csrf = hiddenValue(form, "csrf-token");
+        String prepared =
+            post(
+                http,
+                "/s3/transfer",
+                Map.of(
+                    "csrf-token", csrf,
+                    "bucket", sourceBucket,
+                    "key", sourceKey,
+                    "move", "false",
+                    "destinationBucket", destinationBucket,
+                    "destinationKey", destinationKey,
+                    "decision", "keep",
+                    "lang", "en",
+                    "theme", "dark",
+                    "density", "compact"));
+        String operationId = attribute(prepared, "data-operation-id");
+        assertEquals("READY", awaitOperationState(http, operationId, "READY"));
+
+        String review =
+            get(
+                http,
+                "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
+        assertTrue(review.contains(sourceBucket), review);
+        assertTrue(review.contains(sourceKey), review);
+        assertTrue(review.contains(destinationBucket), review);
+        assertTrue(review.contains(destinationKey), review);
+        post(
+            http,
+            "/operations/" + operationId + "/start",
+            Map.of(
+                "csrf-token", hiddenValue(review, "csrf-token"),
+                "lang", "en",
+                "theme", "dark",
+                "density", "compact"));
+        assertEquals("SUCCEEDED", awaitOperationState(http, operationId, "SUCCEEDED"));
+
+        String completedReview =
+            get(
+                http,
+                "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
+        assertTrue(completedReview.contains(sourceBucket), completedReview);
+        assertTrue(completedReview.contains(sourceKey), completedReview);
+        assertEquals(
+            body,
+            s3.getObjectAsBytes(
+                    request -> request.bucket(destinationBucket).key(destinationKey))
+                .asUtf8String());
+      } finally {
+        if (sourceCreated) cleanupBucket(s3, sourceBucket);
+        if (destinationCreated) cleanupBucket(s3, destinationBucket);
+      }
     }
   }
 
@@ -239,6 +342,82 @@ final class SandboxAwsContract {
         .apiCallTimeout(Duration.ofSeconds(10))
         .apiCallAttemptTimeout(Duration.ofSeconds(5))
         .build();
+  }
+
+  private static String get(HttpClient client, String path) throws Exception {
+    HttpResponse<String> response =
+        client.send(
+            HttpRequest.newBuilder(CONSOLE.resolve(path))
+                .timeout(Duration.ofSeconds(15))
+                .GET()
+                .build(),
+            HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    assertEquals(200, response.statusCode(), response.body());
+    return response.body();
+  }
+
+  private static String post(HttpClient client, String path, Map<String, String> fields)
+      throws Exception {
+    HttpResponse<String> response =
+        client.send(
+            HttpRequest.newBuilder(CONSOLE.resolve(path))
+                .timeout(Duration.ofSeconds(15))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(query(fields), StandardCharsets.UTF_8))
+                .build(),
+            HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    assertEquals(200, response.statusCode(), response.body());
+    return response.body();
+  }
+
+  private static String query(Map<String, String> fields) {
+    return fields.entrySet().stream()
+        .map(entry -> encode(entry.getKey()) + "=" + encode(entry.getValue()))
+        .collect(java.util.stream.Collectors.joining("&"));
+  }
+
+  private static String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
+  private static String hiddenValue(String html, String name) {
+    Matcher matcher =
+        Pattern.compile("name=\"" + Pattern.quote(name) + "\"\\s+value=\"([^\"]+)\"")
+            .matcher(html);
+    if (!matcher.find()) return fail("Could not find form field " + name + " in console response");
+    return matcher.group(1);
+  }
+
+  private static String attribute(String html, String name) {
+    Matcher matcher =
+        Pattern.compile(Pattern.quote(name) + "=\"([a-f0-9-]{36})\"").matcher(html);
+    if (!matcher.find()) return fail("Could not find attribute " + name + " in console response");
+    return matcher.group(1);
+  }
+
+  private static String awaitOperationState(HttpClient http, String id, String expected)
+      throws Exception {
+    long deadline = System.nanoTime() + Duration.ofSeconds(30).toNanos();
+    String state = "UNKNOWN";
+    while (System.nanoTime() < deadline) {
+      String json = get(http, "/operations/" + id + "/state");
+      Matcher matcher = Pattern.compile("\"state\":\"([A-Z_]+)\"").matcher(json);
+      if (!matcher.find()) return fail("Console operation state was not JSON: " + json);
+      state = matcher.group(1);
+      if (state.equals(expected) || state.equals("FAILED") || state.equals("PARTIAL")) return state;
+      Thread.sleep(100);
+    }
+    return fail("Console operation did not reach " + expected + " (last state: " + state + ")");
+  }
+
+  private static void cleanupBucket(S3Client s3, String bucket) {
+    ignoreFailure(
+        () -> {
+          for (var object : s3.listObjectsV2(request -> request.bucket(bucket)).contents()) {
+            s3.deleteObject(request -> request.bucket(bucket).key(object.key()));
+          }
+          s3.deleteBucket(request -> request.bucket(bucket));
+        });
   }
 
   private static void cleanupSubscription(SnsClient sns, String subscriptionArn) {

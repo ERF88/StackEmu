@@ -63,6 +63,7 @@ class SandboxLifecycleIntegrationTest {
       Map<?, ?> firstStatus = awaitReady(userHome, config);
       assertStatus(firstStatus, projectId);
       SandboxAwsContract.verifySdk(suffix);
+      SandboxAwsContract.verifyConsoleCopy(suffix);
       if ("true".equalsIgnoreCase(System.getenv("STACKEMU_AWS_CLI_INTEGRATION"))) {
         SandboxAwsContract.verifyAwsCli(suffix, temporaryDirectory);
       }
