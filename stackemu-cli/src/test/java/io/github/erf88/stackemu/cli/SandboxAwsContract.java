@@ -129,10 +129,14 @@ final class SandboxAwsContract {
                 "density", "compact"));
         assertEquals("SUCCEEDED", awaitOperationState(http, operationId, "SUCCEEDED"));
 
-        String operations = get(http, "/operations?lang=en&theme=dark&density=compact");
-        assertTrue(operations.contains(sourceBucket + "/" + sourceKey), operations);
-        assertTrue(operations.contains(destinationBucket + "/" + destinationKey), operations);
-        assertTrue(operations.contains("1 / 1"), operations);
+        String completedReview =
+            get(
+                http,
+                "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
+        assertTrue(completedReview.contains(sourceBucket), completedReview);
+        assertTrue(completedReview.contains(sourceKey), completedReview);
+        assertTrue(completedReview.contains(destinationBucket), completedReview);
+        assertTrue(completedReview.contains(destinationKey), completedReview);
         assertEquals(
             body,
             s3.getObjectAsBytes(
