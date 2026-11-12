@@ -45,6 +45,7 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 /** Direct AWS API contract coverage against the public sandbox endpoint. */
 final class SandboxAwsContract {
   private static final URI ENDPOINT = URI.create("http://127.0.0.1:4566");
+  private static final URI CONSOLE = URI.create("http://127.0.0.1:8080");
   private static final Region REGION = Region.US_EAST_1;
   private static final Duration MESSAGE_TIMEOUT = Duration.ofSeconds(10);
 
@@ -340,7 +341,7 @@ final class SandboxAwsContract {
   private static String get(HttpClient client, String path) throws Exception {
     HttpResponse<String> response =
         client.send(
-            HttpRequest.newBuilder(ENDPOINT.resolve(path))
+            HttpRequest.newBuilder(CONSOLE.resolve(path))
                 .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build(),
@@ -353,7 +354,7 @@ final class SandboxAwsContract {
       throws Exception {
     HttpResponse<String> response =
         client.send(
-            HttpRequest.newBuilder(ENDPOINT.resolve(path))
+            HttpRequest.newBuilder(CONSOLE.resolve(path))
                 .timeout(Duration.ofSeconds(15))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(query(fields), StandardCharsets.UTF_8))
