@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntPredicate;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 
@@ -13,12 +14,24 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 final class SandboxDiagnostics {
   private static final String MARKER_PATH = "/data/stackemu/.stackemu/marker.json";
   private final CommandRunner docker;
+  private final IntPredicate portAvailable;
 
   SandboxDiagnostics(CommandRunner docker) {
-    this.docker = docker;
+    this(docker, port -> true);
   }
 
-  Report inspect(String projectId, String configurationHash, boolean detailed) {
+  SandboxDiagnostics(CommandRunner docker, IntPredicate portAvailable) {
+    this.docker = docker;
+    this.portAvailable = portAvailable;
+  }
+
+  Report inspect(
+      String projectId,
+      String configurationHash,
+      String stateHash,
+      int awsPort,
+      int consolePort,
+      boolean detailed) {
     String container = "stackemu-" + projectId;
     String volume = container;
     var fields = new LinkedHashMap<String, Object>();
@@ -30,6 +43,11 @@ final class SandboxDiagnostics {
     fields.put("imageDigest", null);
     fields.put("dockerVersion", null);
     fields.put("configurationHash", configurationHash);
+    fields.put(
+        "endpoints",
+        Map.of(
+            "aws", "http://127.0.0.1:" + awsPort,
+            "console", "http://127.0.0.1:" + consolePort));
     fields.put("marker", unavailable("not-inspected"));
     fields.put("health", health("unknown", "unavailable", "unavailable", "unavailable"));
     fields.put("volumeUsageBytes", null);
@@ -47,7 +65,7 @@ final class SandboxDiagnostics {
     Result inspect = execute("inspect", "--format", "{{json .}}", container);
     if (!inspect.succeeded()) {
       if (isNotFound(inspect.output())) {
-        return missingContainer(fields, checks, detailed, projectId, volume);
+        return missingContainer(fields, checks, detailed, projectId, volume, awsPort, consolePort);
       } else {
         fail(fields, "unknown", "docker-inspection-failed", "Docker could not inspect the sandbox", "Check Docker permissions and retry", 3);
         checks.add(check("docker", "error", fields.get("cause")));
@@ -70,6 +88,13 @@ final class SandboxDiagnostics {
     String logPath = string(containerInfo.get("LogPath"));
     fields.put("logs", logs(logPath.isBlank() ? null : logPath, container));
     Map<?, ?> state = map(containerInfo.get("State"));
+    Map<?, ?> hostConfig = map(containerInfo.get("HostConfig"));
+    Map<?, ?> bindings = map(hostConfig.get("PortBindings"));
+    boolean portMappingMatches = portMappingMatches(bindings, awsPort, consolePort);
+    boolean hostPortConflict =
+        !portMappingMatches
+            && ((!ownedByContainer(bindings, awsPort) && !portAvailable.test(awsPort))
+                || (!ownedByContainer(bindings, consolePort) && !portAvailable.test(consolePort)));
     String containerState = string(state.get("Status"));
     Map<?, ?> dockerHealth = map(state.get("Health"));
     String dockerHealthState = string(dockerHealth.get("Status"));
@@ -103,7 +128,7 @@ final class SandboxDiagnostics {
       if (markerResult.succeeded()) {
         try {
           Map<?, ?> markerValues = mapping(markerResult.output(), "marker");
-          marker = marker(markerValues, projectId, configurationHash);
+          marker = marker(markerValues, projectId, configurationHash, stateHash);
         } catch (RuntimeException failure) {
           marker = invalidMarker("marker-invalid");
         }
@@ -140,6 +165,8 @@ final class SandboxDiagnostics {
         fail(fields, "unhealthy", "emulator-unhealthy", "MiniStack health check failed", "Inspect container logs and verify the emulator process", 6);
       } else if (!"healthy".equals(consoleHealth)) {
         fail(fields, "unhealthy", "console-unready", "The StackEmu console is not ready", "Inspect container logs and verify bootstrap completion", 6);
+      } else if (hostPortConflict) {
+        fail(fields, "unhealthy", "host-port-in-use", "A configured host port is occupied by another process", "Choose free ports.aws and ports.console values, then run stackemu restart", 3);
       } else if ("invalid".equals(marker.get("status"))) {
         fail(fields, "unhealthy", "marker-invalid", "The sandbox marker is unreadable", "Run reset to recreate project state", 4);
       } else if (!"available".equals(marker.get("status"))) {
@@ -150,8 +177,12 @@ final class SandboxDiagnostics {
         fail(fields, "unhealthy", "marker-schema-incompatible", "The marker schema is incompatible", "Use a compatible StackEmu image or reset this project", 4);
       } else if (!">=0.1.0 <1.0.0".equals(marker.get("imageCompatibility"))) {
         fail(fields, "unhealthy", "marker-image-incompatible", "The marker is incompatible with this image", "Use a compatible StackEmu image or reset this project", 4);
+      } else if (!Boolean.TRUE.equals(marker.get("matchesStateConfiguration"))) {
+        fail(fields, "unhealthy", "configuration-drift", "The marker does not match project resources in the current configuration", "Run reset to apply the current configuration", 4);
       } else if (!Boolean.TRUE.equals(marker.get("matchesConfiguration"))) {
-        fail(fields, "unhealthy", "configuration-drift", "The marker does not match the current configuration", "Run reset to apply the current configuration", 4);
+        fail(fields, "unhealthy", "port-configuration-pending", "Only the host port settings changed", "Run stackemu restart to apply the port settings without resetting project data", 6);
+      } else if (!portMappingMatches) {
+        fail(fields, "unhealthy", "port-mapping-mismatch", "The container is using different host ports than stackemu.yaml", "Run stackemu restart to apply the configured ports; the project volume is preserved", 6);
       } else {
         fields.put("status", "ready");
         fields.put("exitCode", 0);
@@ -167,6 +198,11 @@ final class SandboxDiagnostics {
             dockerHealthState.isBlank() || "healthy".equals(dockerHealthState) ? null : cause));
     checks.add(check("emulator", emulatorHealth, "healthy".equals(emulatorHealth) ? null : cause));
     checks.add(check("console", consoleHealth, "healthy".equals(consoleHealth) ? null : cause));
+    checks.add(
+        check(
+            "hostPorts",
+            portMappingMatches ? "matching" : (hostPortConflict ? "in-use" : "mismatch"),
+            portMappingMatches ? null : (hostPortConflict ? "host-port-in-use" : "port-mapping-mismatch")));
     checks.add(
         check(
             "marker",
@@ -185,7 +221,9 @@ final class SandboxDiagnostics {
       List<Map<String, Object>> checks,
       boolean detailed,
       String projectId,
-      String volume) {
+      String volume,
+      int awsPort,
+      int consolePort) {
     Result image = execute("image", "inspect", "--format", "{{.Id}}", "stackemu:local");
     String imageDigest = image.succeeded() ? image.output().trim() : "";
     fields.put("imageDigest", imageDigest.isBlank() ? null : imageDigest);
@@ -216,6 +254,10 @@ final class SandboxDiagnostics {
     if (imageDigest.isBlank()) {
       fail(fields, "missing", "image-missing", "The local StackEmu image is unavailable", "Build or load stackemu:local", 3);
       checks.add(check("image", "missing", fields.get("cause")));
+    } else if (!portAvailable.test(awsPort) || !portAvailable.test(consolePort)) {
+      fail(fields, "missing", "host-port-in-use", "A configured host port is occupied by another process", "Choose free ports.aws and ports.console values before running stackemu start", 3);
+      checks.add(check("image", "available", null));
+      checks.add(check("hostPorts", "in-use", fields.get("cause")));
     } else {
       fail(fields, "missing", "container-not-found", "Sandbox container does not exist", "Run stackemu start", 6);
       checks.add(check("image", "available", null));
@@ -255,16 +297,52 @@ final class SandboxDiagnostics {
     return report(fields, checks, detailed);
   }
 
-  private static Map<String, Object> marker(Map<?, ?> values, String projectId, String configurationHash) {
+  private static Map<String, Object> marker(
+      Map<?, ?> values, String projectId, String configurationHash, String stateHash) {
     var result = new LinkedHashMap<String, Object>();
     result.put("status", "available");
     result.put("projectId", values.get("projectId"));
     result.put("schemaVersion", values.get("schemaVersion"));
     result.put("imageCompatibility", values.get("imageCompatibility"));
     result.put("configHash", values.get("configHash"));
+    result.put("stateHash", values.get("stateHash"));
     result.put("matchesConfiguration", configurationHash.equals(values.get("configHash")));
+    Object savedStateHash = values.get("stateHash");
+    if (!(savedStateHash instanceof String)) savedStateHash = values.get("configHash");
+    result.put("matchesStateConfiguration", stateHash.equals(savedStateHash));
     result.put("matchesProject", projectId.equals(values.get("projectId")));
     return result;
+  }
+
+  private static boolean portMappingMatches(Map<?, ?> bindings, int awsPort, int consolePort) {
+    return hostPort(bindings, "4566/tcp") == awsPort
+        && hostPort(bindings, "8080/tcp") == consolePort
+        && loopback(bindings, "4566/tcp")
+        && loopback(bindings, "8080/tcp");
+  }
+
+  private static int hostPort(Map<?, ?> bindings, String containerPort) {
+    Object value = bindings.get(containerPort);
+    if (!(value instanceof List<?> entries)
+        || entries.isEmpty()
+        || !(entries.get(0) instanceof Map<?, ?> entry)) return -1;
+    try {
+      return Integer.parseInt(string(entry.get("HostPort")));
+    } catch (NumberFormatException invalid) {
+      return -1;
+    }
+  }
+
+  private static boolean loopback(Map<?, ?> bindings, String containerPort) {
+    Object value = bindings.get(containerPort);
+    if (!(value instanceof List<?> entries)
+        || entries.isEmpty()
+        || !(entries.get(0) instanceof Map<?, ?> entry)) return false;
+    return "127.0.0.1".equals(entry.get("HostIp"));
+  }
+
+  private static boolean ownedByContainer(Map<?, ?> bindings, int hostPort) {
+    return hostPort(bindings, "4566/tcp") == hostPort || hostPort(bindings, "8080/tcp") == hostPort;
   }
 
   private static Map<String, Object> unavailable(String reason) {

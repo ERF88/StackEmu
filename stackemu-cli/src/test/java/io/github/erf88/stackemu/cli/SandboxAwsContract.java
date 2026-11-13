@@ -52,18 +52,62 @@ final class SandboxAwsContract {
   private SandboxAwsContract() {}
 
   static void verifySdk(String suffix) {
-    try (S3Client s3 = s3(); SqsClient sqs = sqs(); SnsClient sns = sns()) {
+    verifySdk(suffix, ENDPOINT);
+  }
+
+  static void verifySdk(String suffix, URI endpoint) {
+    try (S3Client s3 = s3(endpoint); SqsClient sqs = sqs(endpoint); SnsClient sns = sns(endpoint)) {
       verifyS3(s3, suffix);
       verifySnsAndSqs(sns, sqs, suffix);
     }
   }
 
+  static void verifyProjectIsolation(URI firstEndpoint, URI secondEndpoint, String suffix) {
+    String bucket = "isolation-" + suffix;
+    String queue = "isolation-" + suffix;
+    String topic = "isolation-" + suffix;
+    try (S3Client firstS3 = s3(firstEndpoint);
+        S3Client secondS3 = s3(secondEndpoint);
+        SqsClient firstSqs = sqs(firstEndpoint);
+        SqsClient secondSqs = sqs(secondEndpoint);
+        SnsClient firstSns = sns(firstEndpoint);
+        SnsClient secondSns = sns(secondEndpoint)) {
+      try {
+        firstS3.createBucket(request -> request.bucket(bucket));
+        assertTrue(firstS3.listBuckets().buckets().stream().anyMatch(item -> bucket.equals(item.name())));
+        assertTrue(secondS3.listBuckets().buckets().stream().noneMatch(item -> bucket.equals(item.name())));
+
+        String queueUrl = firstSqs.createQueue(request -> request.queueName(queue)).queueUrl();
+        assertTrue(firstSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls().contains(queueUrl));
+        assertTrue(secondSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls().isEmpty());
+
+        String topicArn = firstSns.createTopic(request -> request.name(topic)).topicArn();
+        assertTrue(firstSns.listTopics().topics().stream().anyMatch(item -> topicArn.equals(item.topicArn())));
+        assertTrue(secondSns.listTopics().topics().stream().noneMatch(item -> topicArn.equals(item.topicArn())));
+        firstSns.deleteTopic(request -> request.topicArn(topicArn));
+        firstSqs.deleteQueue(request -> request.queueUrl(queueUrl));
+        cleanupBucket(firstS3, bucket);
+      } finally {
+        cleanupBucket(firstS3, bucket);
+        ignoreFailure(() -> firstSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls()
+            .forEach(url -> firstSqs.deleteQueue(request -> request.queueUrl(url))));
+        ignoreFailure(() -> firstSns.listTopics().topics().stream()
+            .filter(item -> item.topicArn().endsWith(":" + topic))
+            .forEach(item -> firstSns.deleteTopic(request -> request.topicArn(item.topicArn()))));
+      }
+    }
+  }
+
   static void verifyConsoleCopy(String suffix) throws Exception {
+    verifyConsoleCopy(suffix, ENDPOINT, CONSOLE);
+  }
+
+  static void verifyConsoleCopy(String suffix, URI endpoint, URI console) throws Exception {
     String sourceBucket = "console-src-" + suffix;
     String destinationBucket = "console-dst-" + suffix;
     String sourceKey = "contract-" + suffix + ".txt";
     String destinationKey = "copy-" + suffix + ".txt";
-    try (S3Client s3 = s3()) {
+    try (S3Client s3 = s3(endpoint)) {
       boolean sourceCreated = false;
       boolean destinationCreated = false;
       try {
@@ -85,6 +129,7 @@ final class SandboxAwsContract {
         String form =
             get(
                 http,
+                console,
                 "/s3/transfer?"
                     + query(
                         Map.of(
@@ -100,6 +145,7 @@ final class SandboxAwsContract {
         String prepared =
             post(
                 http,
+                console,
                 "/s3/transfer",
                 Map.of(
                     "csrf-token", csrf,
@@ -113,11 +159,12 @@ final class SandboxAwsContract {
                     "theme", "dark",
                     "density", "compact"));
         String operationId = attribute(prepared, "data-operation-id");
-        assertEquals("READY", awaitOperationState(http, operationId, "READY"));
+        assertEquals("READY", awaitOperationState(http, console, operationId, "READY"));
 
         String review =
             get(
                 http,
+                console,
                 "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
         assertTrue(review.contains(sourceBucket), review);
         assertTrue(review.contains(sourceKey), review);
@@ -125,17 +172,19 @@ final class SandboxAwsContract {
         assertTrue(review.contains(destinationKey), review);
         post(
             http,
+            console,
             "/operations/" + operationId + "/start",
             Map.of(
                 "csrf-token", hiddenValue(review, "csrf-token"),
                 "lang", "en",
                 "theme", "dark",
                 "density", "compact"));
-        assertEquals("SUCCEEDED", awaitOperationState(http, operationId, "SUCCEEDED"));
+        assertEquals("SUCCEEDED", awaitOperationState(http, console, operationId, "SUCCEEDED"));
 
         String completedReview =
             get(
                 http,
+                console,
                 "/operations/" + operationId + "/review?lang=en&theme=dark&density=compact");
         assertTrue(completedReview.contains(sourceBucket), completedReview);
         assertTrue(completedReview.contains(sourceKey), completedReview);
@@ -152,6 +201,10 @@ final class SandboxAwsContract {
   }
 
   static void verifyAwsCli(String suffix, Path temporaryDirectory) throws Exception {
+    verifyAwsCli(suffix, temporaryDirectory, ENDPOINT);
+  }
+
+  static void verifyAwsCli(String suffix, Path temporaryDirectory, URI endpoint) throws Exception {
     Path script = Path.of("..", "scripts", "aws-contract.sh").toAbsolutePath().normalize();
     assertTrue(Files.isRegularFile(script), "AWS CLI contract script is missing: " + script);
 
@@ -159,7 +212,7 @@ final class SandboxAwsContract {
     try {
       ProcessBuilder builder =
           new ProcessBuilder("bash", script.toString()).redirectErrorStream(true).redirectOutput(output.toFile());
-      builder.environment().put("STACKEMU_ENDPOINT", ENDPOINT.toString());
+      builder.environment().put("STACKEMU_ENDPOINT", endpoint.toString());
       builder.environment().put("STACKEMU_AWS_TEST_ID", suffix);
       builder.environment().put("AWS_ACCESS_KEY_ID", "test");
       builder.environment().put("AWS_SECRET_ACCESS_KEY", "test");
@@ -303,8 +356,12 @@ final class SandboxAwsContract {
   }
 
   private static S3Client s3() {
+    return s3(ENDPOINT);
+  }
+
+  private static S3Client s3(URI endpoint) {
     return S3Client.builder()
-        .endpointOverride(ENDPOINT)
+        .endpointOverride(endpoint)
         .region(REGION)
         .credentialsProvider(credentials())
         .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
@@ -314,8 +371,12 @@ final class SandboxAwsContract {
   }
 
   private static SqsClient sqs() {
+    return sqs(ENDPOINT);
+  }
+
+  private static SqsClient sqs(URI endpoint) {
     return SqsClient.builder()
-        .endpointOverride(ENDPOINT)
+        .endpointOverride(endpoint)
         .region(REGION)
         .credentialsProvider(credentials())
         .httpClientBuilder(UrlConnectionHttpClient.builder())
@@ -324,8 +385,12 @@ final class SandboxAwsContract {
   }
 
   private static SnsClient sns() {
+    return sns(ENDPOINT);
+  }
+
+  private static SnsClient sns(URI endpoint) {
     return SnsClient.builder()
-        .endpointOverride(ENDPOINT)
+        .endpointOverride(endpoint)
         .region(REGION)
         .credentialsProvider(credentials())
         .httpClientBuilder(UrlConnectionHttpClient.builder())
@@ -345,9 +410,13 @@ final class SandboxAwsContract {
   }
 
   private static String get(HttpClient client, String path) throws Exception {
+    return get(client, CONSOLE, path);
+  }
+
+  private static String get(HttpClient client, URI console, String path) throws Exception {
     HttpResponse<String> response =
         client.send(
-            HttpRequest.newBuilder(CONSOLE.resolve(path))
+            HttpRequest.newBuilder(console.resolve(path))
                 .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build(),
@@ -358,9 +427,14 @@ final class SandboxAwsContract {
 
   private static String post(HttpClient client, String path, Map<String, String> fields)
       throws Exception {
+    return post(client, CONSOLE, path, fields);
+  }
+
+  private static String post(HttpClient client, URI console, String path, Map<String, String> fields)
+      throws Exception {
     HttpResponse<String> response =
         client.send(
-            HttpRequest.newBuilder(CONSOLE.resolve(path))
+            HttpRequest.newBuilder(console.resolve(path))
                 .timeout(Duration.ofSeconds(15))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(query(fields), StandardCharsets.UTF_8))
@@ -395,12 +469,12 @@ final class SandboxAwsContract {
     return matcher.group(1);
   }
 
-  private static String awaitOperationState(HttpClient http, String id, String expected)
+  private static String awaitOperationState(HttpClient http, URI console, String id, String expected)
       throws Exception {
     long deadline = System.nanoTime() + Duration.ofSeconds(30).toNanos();
     String state = "UNKNOWN";
     while (System.nanoTime() < deadline) {
-      String json = get(http, "/operations/" + id + "/state");
+      String json = get(http, console, "/operations/" + id + "/state");
       Matcher matcher = Pattern.compile("\"state\":\"([A-Z_]+)\"").matcher(json);
       if (!matcher.find()) return fail("Console operation state was not JSON: " + json);
       state = matcher.group(1);

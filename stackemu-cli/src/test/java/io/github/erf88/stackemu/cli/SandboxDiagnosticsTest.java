@@ -3,6 +3,7 @@ package io.github.erf88.stackemu.cli;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -33,7 +34,8 @@ class SandboxDiagnosticsTest {
         StackEmuCli.run(
             new String[] {"status", "--json", "--config", config.toString()},
             docker,
-            new PrintStream(stdout, true, StandardCharsets.UTF_8));
+            new PrintStream(stdout, true, StandardCharsets.UTF_8),
+            port -> true);
 
     String output = stdout.toString(StandardCharsets.UTF_8);
     assertEquals(6, exitCode);
@@ -50,6 +52,8 @@ class SandboxDiagnosticsTest {
     assertEquals(0, report.exitCode(), report.json());
     assertEquals("ready", report.fields().get("status"));
     assertEquals("sha256:image-id", report.fields().get("imageDigest"));
+    assertEquals("http://127.0.0.1:4566", map(report.fields().get("endpoints")).get("aws"));
+    assertEquals("http://127.0.0.1:8080", map(report.fields().get("endpoints")).get("console"));
     assertEquals(12 * 1024L, report.fields().get("volumeUsageBytes"));
     assertEquals("available", map(report.fields().get("marker")).get("status"));
     assertEquals("ready", map(report.fields().get("health")).get("readiness"));
@@ -184,8 +188,123 @@ class SandboxDiagnosticsTest {
     assertTrue(diagnose.json().contains("\"action\""));
   }
 
+  @Test
+  void customPortsAreReportedAndAFreeUnappliedMappingCanBeDiagnosed() {
+    var docker = FakeDocker.ready();
+    var report = diagnose(docker, true, "new-config-hash", HASH, 14566, 18080, port -> true);
+
+    assertEquals("http://127.0.0.1:14566", map(report.fields().get("endpoints")).get("aws"));
+    assertEquals("http://127.0.0.1:18080", map(report.fields().get("endpoints")).get("console"));
+    assertEquals("port-configuration-pending", cause(report).get("code"));
+    assertEquals(6, report.exitCode());
+  }
+
+  @Test
+  void reportsUnexpectedDockerPortMappingWhenConfigurationHashMatches() {
+    var docker = FakeDocker.ready();
+    docker.actualAwsPort = 14566;
+    var report = diagnose(docker, true, HASH, HASH, 4566, 8080, port -> true);
+    assertEquals("port-mapping-mismatch", cause(report).get("code"));
+    assertEquals(6, report.exitCode());
+  }
+
+  @Test
+  void anOccupiedRequestedPortIsNotConfusedWithPortsOwnedByThisContainer() {
+    var occupied = FakeDocker.ready();
+    var conflict = diagnose(occupied, true, HASH, HASH, 14566, 18080, port -> port != 14566);
+    assertEquals("host-port-in-use", cause(conflict).get("code"));
+    assertEquals(3, conflict.exitCode());
+
+    var owned = FakeDocker.ready();
+    var partialOverlap = diagnose(owned, false, HASH, HASH, 8080, 18080, port -> port != 8080);
+    assertEquals("port-mapping-mismatch", cause(partialOverlap).get("code"));
+  }
+
+  @Test
+  void configurationOnlyPortChangesCanBeAppliedWithoutReset() throws Exception {
+    Path config = temporaryDirectory.resolve("stackemu.yaml");
+    Files.writeString(config, "version: 1\nproject:\n  id: demo\nports:\n  aws: 14566\n  console: 18080\n");
+    var docker = FakeDocker.ready();
+    docker.markerHash = "old-full-hash";
+    docker.markerStateHash =
+        StackEmuCli.stateConfigurationHash(java.util.Map.of("version", 1, "project", java.util.Map.of("id", "demo")));
+    var stdout = new ByteArrayOutputStream();
+    int code = StackEmuCli.run(
+        new String[] {"status", "--json", "--config", config.toString()},
+        docker,
+        new PrintStream(stdout, true, StandardCharsets.UTF_8),
+        port -> true);
+
+    assertEquals(6, code);
+    assertTrue(stdout.toString(StandardCharsets.UTF_8).contains("port-configuration-pending"));
+    assertFalse(stdout.toString(StandardCharsets.UTF_8).contains("configuration-drift"));
+  }
+
+  @Test
+  void invalidPortsFailBeforeAnyDockerCommand() throws Exception {
+    List<String> invalid = List.of(
+        "ports: []", "ports:\n  aws: 80", "ports:\n  aws: 65536",
+        "ports:\n  aws: 4566.5", "ports:\n  aws: 4566\n  console: 4566",
+        "ports:\n  http: 1234", "ports: null", "ports:\n  aws: 4566",
+        "ports:\n  aws: '14566'\n  console: 18080", "ports:\n  aws: true\n  console: 18080");
+    for (String ports : invalid) {
+      Path config = temporaryDirectory.resolve("invalid-" + invalid.indexOf(ports) + ".yaml");
+      Files.writeString(config, "version: 1\nproject:\n  id: demo\n" + ports + "\n");
+      var docker = new FakeDocker();
+      assertThrows(
+          RuntimeException.class,
+          () -> StackEmuCli.run(
+              new String[] {"status", "--json", "--config", config.toString()},
+              docker,
+              new PrintStream(new ByteArrayOutputStream())));
+      assertTrue(docker.calls().isEmpty(), ports);
+    }
+  }
+
+  @Test
+  void defaultsAndCustomPortsMapToFixedInternalContainerPorts() {
+    assertEquals(new StackEmuCli.Ports(4566, 8080), StackEmuCli.ports(java.util.Map.of()));
+    assertEquals(
+        new StackEmuCli.Ports(1024, 65535),
+        StackEmuCli.ports(java.util.Map.of("ports", java.util.Map.of("aws", 1024, "console", 65535))));
+    var configured = StackEmuCli.ports(
+        java.util.Map.of("ports", java.util.Map.of("aws", 14566, "console", 18080)));
+    assertEquals(new StackEmuCli.Ports(14566, 18080), configured);
+    var arguments = StackEmuCli.containerArguments(
+        PROJECT, temporaryDirectory.resolve("stackemu.yaml"), configured);
+    assertTrue(arguments.contains("127.0.0.1:14566:4566"));
+    assertTrue(arguments.contains("127.0.0.1:18080:8080"));
+    assertTrue(arguments.contains("STACKEMU_PUBLIC_ENDPOINT=http://127.0.0.1:14566"));
+    assertTrue(arguments.contains("stackemu-demo:/data/stackemu"));
+  }
+
+  @Test
+  void portConflictHasExitCodeThreeAndExistingOwnedPortsAreAllowedOnRebind() {
+    var failure = assertThrows(
+        StackEmuCli.StackEmuFailure.class,
+        () -> StackEmuCli.assertPortsAvailable(
+            new StackEmuCli.Ports(14566, 18080), null, port -> port != 14566));
+    assertEquals(3, failure.code());
+    assertTrue(failure.getMessage().contains("host-port-in-use"));
+
+    StackEmuCli.assertPortsAvailable(
+        new StackEmuCli.Ports(8080, 18080), new StackEmuCli.Ports(4566, 8080), port -> port != 8080);
+  }
+
   private static SandboxDiagnostics.Report diagnose(FakeDocker docker, boolean detailed) {
-    return new SandboxDiagnostics(docker).inspect(PROJECT, HASH, detailed);
+    return diagnose(docker, detailed, HASH, HASH, 4566, 8080, port -> true);
+  }
+
+  private static SandboxDiagnostics.Report diagnose(
+      FakeDocker docker,
+      boolean detailed,
+      String configHash,
+      String stateHash,
+      int awsPort,
+      int consolePort,
+      java.util.function.IntPredicate portAvailable) {
+    return new SandboxDiagnostics(docker, portAvailable)
+        .inspect(PROJECT, configHash, stateHash, awsPort, consolePort, detailed);
   }
 
   private static boolean isReadOnlyCommand(List<String> args) {
@@ -213,6 +332,9 @@ class SandboxDiagnosticsTest {
     private int markerSchema = 1;
     private String markerCompatibility = ">=0.1.0 <1.0.0";
     private String markerHash = HASH;
+    private String markerStateHash;
+    private int actualAwsPort = 4566;
+    private int actualConsolePort = 8080;
     private boolean markerUnavailable;
     private boolean markerMalformed;
     private boolean emulatorReady = true;
@@ -254,7 +376,11 @@ class SandboxDiagnosticsTest {
       String health =
           dockerHealthState == null ? (containerState.equals("running") ? "healthy" : "starting") : dockerHealthState;
       String json =
-          "{\"Image\":\"sha256:image-id\",\"LogPath\":\"C:\\\\docker\\\\container.log\",\"State\":{\"Status\":\""
+          "{\"Image\":\"sha256:image-id\",\"LogPath\":\"C:\\\\docker\\\\container.log\",\"HostConfig\":{\"PortBindings\":{\"4566/tcp\":[{\"HostIp\":\"127.0.0.1\",\"HostPort\":\""
+              + actualAwsPort
+              + "\"}],\"8080/tcp\":[{\"HostIp\":\"127.0.0.1\",\"HostPort\":\""
+              + actualConsolePort
+              + "\"}]}},\"State\":{\"Status\":\""
               + containerState
               + "\",\"ExitCode\":0,\"OOMKilled\":false,\"Error\":\"\",\"Health\":{\"Status\":\""
               + health
@@ -276,7 +402,9 @@ class SandboxDiagnosticsTest {
                 + markerCompatibility
                 + "\",\"configHash\":\""
                 + markerHash
-                + "\"}");
+                + "\""
+                + (markerStateHash == null ? "" : ",\"stateHash\":\"" + markerStateHash + "\"")
+                + "}");
       }
       if (args.contains("du")) return new SandboxDiagnostics.Result(0, "12\t/data/stackemu");
       if (args.stream().anyMatch(value -> value.contains("4566")))
