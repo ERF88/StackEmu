@@ -6,3 +6,12 @@ node_modules/
 .stackemu/
 .hallmark/
 .impeccable/
+.tmp-border-validation/
+.tmp-sns-layout-validation/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+**/surefire-reports/*.dump
+**/surefire-reports/*.dumpstream

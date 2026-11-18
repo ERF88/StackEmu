@@ -223,17 +223,20 @@ class SandboxDiagnosticsTest {
   @Test
   void configurationOnlyPortChangesCanBeAppliedWithoutReset() throws Exception {
     Path config = temporaryDirectory.resolve("stackemu.yaml");
-    Files.writeString(config, "version: 1\nproject:\n  id: demo\nports:\n  aws: 14566\n  console: 18080\n");
+    Files.writeString(
+        config, "version: 1\nproject:\n  id: demo\nports:\n  aws: 14566\n  console: 18080\n");
     var docker = FakeDocker.ready();
     docker.markerHash = "old-full-hash";
     docker.markerStateHash =
-        StackEmuCli.stateConfigurationHash(java.util.Map.of("version", 1, "project", java.util.Map.of("id", "demo")));
+        StackEmuCli.stateConfigurationHash(
+            java.util.Map.of("version", 1, "project", java.util.Map.of("id", "demo")));
     var stdout = new ByteArrayOutputStream();
-    int code = StackEmuCli.run(
-        new String[] {"status", "--json", "--config", config.toString()},
-        docker,
-        new PrintStream(stdout, true, StandardCharsets.UTF_8),
-        port -> true);
+    int code =
+        StackEmuCli.run(
+            new String[] {"status", "--json", "--config", config.toString()},
+            docker,
+            new PrintStream(stdout, true, StandardCharsets.UTF_8),
+            port -> true);
 
     assertEquals(6, code);
     assertTrue(stdout.toString(StandardCharsets.UTF_8).contains("port-configuration-pending"));
@@ -242,21 +245,29 @@ class SandboxDiagnosticsTest {
 
   @Test
   void invalidPortsFailBeforeAnyDockerCommand() throws Exception {
-    List<String> invalid = List.of(
-        "ports: []", "ports:\n  aws: 80", "ports:\n  aws: 65536",
-        "ports:\n  aws: 4566.5", "ports:\n  aws: 4566\n  console: 4566",
-        "ports:\n  http: 1234", "ports: null", "ports:\n  aws: 4566",
-        "ports:\n  aws: '14566'\n  console: 18080", "ports:\n  aws: true\n  console: 18080");
+    List<String> invalid =
+        List.of(
+            "ports: []",
+            "ports:\n  aws: 80",
+            "ports:\n  aws: 65536",
+            "ports:\n  aws: 4566.5",
+            "ports:\n  aws: 4566\n  console: 4566",
+            "ports:\n  http: 1234",
+            "ports: null",
+            "ports:\n  aws: 4566",
+            "ports:\n  aws: '14566'\n  console: 18080",
+            "ports:\n  aws: true\n  console: 18080");
     for (String ports : invalid) {
       Path config = temporaryDirectory.resolve("invalid-" + invalid.indexOf(ports) + ".yaml");
       Files.writeString(config, "version: 1\nproject:\n  id: demo\n" + ports + "\n");
       var docker = new FakeDocker();
       assertThrows(
           RuntimeException.class,
-          () -> StackEmuCli.run(
-              new String[] {"status", "--json", "--config", config.toString()},
-              docker,
-              new PrintStream(new ByteArrayOutputStream())));
+          () ->
+              StackEmuCli.run(
+                  new String[] {"status", "--json", "--config", config.toString()},
+                  docker,
+                  new PrintStream(new ByteArrayOutputStream())));
       assertTrue(docker.calls().isEmpty(), ports);
     }
   }
@@ -266,12 +277,15 @@ class SandboxDiagnosticsTest {
     assertEquals(new StackEmuCli.Ports(4566, 8080), StackEmuCli.ports(java.util.Map.of()));
     assertEquals(
         new StackEmuCli.Ports(1024, 65535),
-        StackEmuCli.ports(java.util.Map.of("ports", java.util.Map.of("aws", 1024, "console", 65535))));
-    var configured = StackEmuCli.ports(
-        java.util.Map.of("ports", java.util.Map.of("aws", 14566, "console", 18080)));
+        StackEmuCli.ports(
+            java.util.Map.of("ports", java.util.Map.of("aws", 1024, "console", 65535))));
+    var configured =
+        StackEmuCli.ports(
+            java.util.Map.of("ports", java.util.Map.of("aws", 14566, "console", 18080)));
     assertEquals(new StackEmuCli.Ports(14566, 18080), configured);
-    var arguments = StackEmuCli.containerArguments(
-        PROJECT, temporaryDirectory.resolve("stackemu.yaml"), configured);
+    var arguments =
+        StackEmuCli.containerArguments(
+            PROJECT, temporaryDirectory.resolve("stackemu.yaml"), configured);
     assertTrue(arguments.contains("127.0.0.1:14566:4566"));
     assertTrue(arguments.contains("127.0.0.1:18080:8080"));
     assertTrue(arguments.contains("STACKEMU_PUBLIC_ENDPOINT=http://127.0.0.1:14566"));
@@ -280,15 +294,19 @@ class SandboxDiagnosticsTest {
 
   @Test
   void portConflictHasExitCodeThreeAndExistingOwnedPortsAreAllowedOnRebind() {
-    var failure = assertThrows(
-        StackEmuCli.StackEmuFailure.class,
-        () -> StackEmuCli.assertPortsAvailable(
-            new StackEmuCli.Ports(14566, 18080), null, port -> port != 14566));
+    var failure =
+        assertThrows(
+            StackEmuCli.StackEmuFailure.class,
+            () ->
+                StackEmuCli.assertPortsAvailable(
+                    new StackEmuCli.Ports(14566, 18080), null, port -> port != 14566));
     assertEquals(3, failure.code());
     assertTrue(failure.getMessage().contains("host-port-in-use"));
 
     StackEmuCli.assertPortsAvailable(
-        new StackEmuCli.Ports(8080, 18080), new StackEmuCli.Ports(4566, 8080), port -> port != 8080);
+        new StackEmuCli.Ports(8080, 18080),
+        new StackEmuCli.Ports(4566, 8080),
+        port -> port != 8080);
   }
 
   private static SandboxDiagnostics.Report diagnose(FakeDocker docker, boolean detailed) {
@@ -365,7 +383,8 @@ class SandboxDiagnosticsTest {
         case "volume" ->
             volumeMissing
                 ? new SandboxDiagnostics.Result(1, "Error: no such volume")
-                : new SandboxDiagnostics.Result(0, "{\"io.stackemu.project\":\"" + volumeOwner + "\"}");
+                : new SandboxDiagnostics.Result(
+                    0, "{\"io.stackemu.project\":\"" + volumeOwner + "\"}");
         case "exec" -> exec(args);
         default -> new SandboxDiagnostics.Result(1, "unexpected command");
       };
@@ -374,7 +393,9 @@ class SandboxDiagnosticsTest {
     private SandboxDiagnostics.Result inspect() {
       if (containerMissing) return new SandboxDiagnostics.Result(1, "Error: no such container");
       String health =
-          dockerHealthState == null ? (containerState.equals("running") ? "healthy" : "starting") : dockerHealthState;
+          dockerHealthState == null
+              ? (containerState.equals("running") ? "healthy" : "starting")
+              : dockerHealthState;
       String json =
           "{\"Image\":\"sha256:image-id\",\"LogPath\":\"C:\\\\docker\\\\container.log\",\"HostConfig\":{\"PortBindings\":{\"4566/tcp\":[{\"HostIp\":\"127.0.0.1\",\"HostPort\":\""
               + actualAwsPort

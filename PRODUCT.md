@@ -34,8 +34,8 @@ Developers use the console on the same workstation as the sandbox, through loopb
 
 ## Evidence on Hand
 
-- Existing S3 and SQS console routes and templates under `src/main/resources/templates/`.
-- Existing S3/SQS operation adapters and service contracts under `src/main/java/io/github/erf88/stackemu/`.
+- Existing S3, SQS, and SNS console routes and templates under `stackemu-console/src/main/resources/templates/`.
+- Existing AWS adapters and service contracts under `stackemu-console/src/main/java/io/github/erf88/stackemu/`.
 - SNS-to-SQS integration coverage is present, but the current console has no SNS service page.
 - Product scope and local sandbox constraints are recorded in `concepts_brief.md` and `docs/designs/stackemu-local-aws-sandbox-v1.md`.
 

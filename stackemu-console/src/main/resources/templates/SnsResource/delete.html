@@ -1,0 +1,38 @@
+{#include layout}
+  {#title}{ui.text('snsDeleteTopic')} · {topic.name}{/title}
+  {#content}
+    <div class="service-page sns-page sns-delete-page">
+      <header class="page-heading bucket-workspace-heading">
+        <div><h1 id="sns-delete-title">{ui.text('snsDeleteTopic')}</h1><p>{ui.text('snsDeleteTopicHelp')}</p></div>
+        <div class="page-actions"><a class="button" href="{returnHref}">{#include icons/back /}{returnLabel}</a></div>
+      </header>
+      {#if actionError != ''}<p class="error" role="alert">{#include icons/error /}{actionError}</p>{/if}
+      <section id="action-workspace" class="summary-card sns-panel action-workspace" data-action-surface="confirmation" aria-labelledby="sns-delete-title">
+        <div class="clipboard-panel sns-topic-copy" data-copied-label="{ui.text('copied')}" data-copy-failed-label="{ui.text('copyFailed')}">
+          <div class="copy-field">
+            <label for="sns-topic-name-copy">{ui.text('snsTopicName')}</label>
+            <textarea id="sns-topic-name-copy" rows="1" readonly spellcheck="false" aria-describedby="sns-topic-copy-help">{topic.name}</textarea>
+            <button class="button icon-action" type="button" data-copy-field aria-label="{ui.text('snsCopyTopicName')}" title="{ui.text('snsCopyTopicName')}">{#include icons/copy /}</button>
+          </div>
+          <p id="sns-topic-copy-help" class="visually-hidden">{ui.text('manualCopyNote')}</p>
+          <p class="copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
+        <form class="mutation-form sns-form" method="post" action="/sns/actions/delete" data-submitting-label="{ui.text('submitting')}">
+          <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+          <input type="hidden" name="topic" value="{topic.name}">
+          <input type="hidden" name="returnTo" value="{returnTo}">
+          <input type="hidden" name="lang" value="{ui.language}">
+          <input type="hidden" name="theme" value="{ui.theme}">
+          <input type="hidden" name="density" value="{ui.density}">
+          <label for="sns-delete-confirm">{ui.text('snsConfirmTopicName')}</label>
+          <input id="sns-delete-confirm" name="confirmation" type="text" required maxlength="256" autocomplete="off" spellcheck="false" value="{confirmationDraft}" aria-describedby="sns-delete-confirm-help">
+          <small id="sns-delete-confirm-help">{ui.text('snsConfirmTopicNameHelp')}</small>
+          <div class="form-actions">
+            <a class="button" href="{returnHref}">{ui.text('cancelAction')}</a>
+            <button class="button danger" type="submit">{#include icons/delete /}{ui.text('snsDeleteTopic')}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  {/content}
+{/include}

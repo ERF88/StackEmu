@@ -1,0 +1,28 @@
+<section id="sns-subscriptions-panel" class="summary-card sns-panel" aria-labelledby="sns-subscriptions-title">
+  <header class="section-heading"><h2 id="sns-subscriptions-title">{#include icons/queue /}{ui.text('snsSubscriptions')} <small>({subscriptions.size})</small></h2></header>
+  {#if subscriptions.isEmpty}
+    <div class="resource-state sns-empty-state"><h3>{ui.text('snsNoSubscriptions')}</h3><p>{ui.text('snsNoSubscriptionsHelp')}</p></div>
+  {#else}
+    <ul class="sns-subscription-list">
+      {#for subscription in subscriptions}
+        <li>
+          <div class="sns-subscription-heading"><strong>{subscription.protocol}</strong><span>{ui.text('snsEndpointLabel')}</span></div>
+          <code class="sns-subscription-endpoint">{subscription.endpoint}</code>
+          <details class="sns-unsubscribe-details">
+            <summary>{ui.text('snsUnsubscribe')}</summary>
+            <form class="mutation-form sns-form sns-unsubscribe-form" method="post" action="/sns/actions/unsubscribe">
+              <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+              <input type="hidden" name="topic" value="{topic.name}">
+              <input type="hidden" name="subscriptionArn" value="{subscription.arn}">
+              <input type="hidden" name="lang" value="{ui.language}">
+              <input type="hidden" name="theme" value="{ui.theme}">
+              <input type="hidden" name="density" value="{ui.density}">
+              <label><input type="checkbox" name="confirm" value="yes" required {#if unsubscribeConfirmed && subscription.arn == failedSubscriptionArn}checked{/if}> {ui.text('snsConfirmUnsubscribe')}</label>
+              <button class="button danger" type="submit">{ui.text('snsUnsubscribe')}</button>
+            </form>
+          </details>
+        </li>
+      {/for}
+    </ul>
+  {/if}
+</section>

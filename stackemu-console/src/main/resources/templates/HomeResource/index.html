@@ -1,0 +1,115 @@
+{#include layout}
+  {#title}{ui.text('home')}{/title}
+  {#content}
+    <div class="home-dashboard">
+      <header class="dashboard-heading">
+        <div class="dashboard-title">
+          <span class="dashboard-mark" aria-hidden="true">{#include icons/dashboard /}</span>
+          <div>
+            <p class="eyebrow">{ui.text('home')}</p>
+            <h1 id="dashboard-title">{#if overview.projectId}{overview.projectId}{#else}{ui.text('projectUnavailable')}{/if}</h1>
+          </div>
+        </div>
+        <p class="dashboard-summary">{ui.text('homeOrientation')}</p>
+      </header>
+
+      <div class="home-workbench">
+        <section class="health-board" aria-labelledby="health-board-title">
+          <header class="section-heading dashboard-section-heading">
+            <div>
+              <p class="eyebrow">{ui.text('localEnvironment')}</p>
+              <h2 id="health-board-title">{ui.text('sandboxStatus')}</h2>
+            </div>
+            <span class="endpoint-chip"><span aria-hidden="true"></span>{overview.endpoint}</span>
+          </header>
+
+          <ul class="health-list">
+            <li class="health-row" data-state="{overview.configuration.cssState}">
+              <span class="health-item-icon" aria-hidden="true">{#include icons/file /}</span>
+              <div class="health-item-copy">
+                <strong>{ui.text('healthConfiguration')}</strong>
+                <small>{#if overview.configurationAvailable}stackemu.yaml{#else}{ui.text('configurationUnavailable')}{/if}</small>
+                <p class="health-detail">{#if overview.configurationAvailable}{ui.text('healthConfigurationDetail')}{#else}{ui.text('healthConfigurationMissingDetail')}{/if}</p>
+              </div>
+              <span class="health-state"><span class="state-mark" aria-hidden="true">{#if overview.configuration.cssState == 'ready'}{#include icons/success /}{#else}{#include icons/warning /}{/if}</span>{ui.text(overview.configuration.messageKey)}</span>
+            </li>
+            <li class="health-row" data-state="{overview.container.cssState}">
+              <span class="health-item-icon" aria-hidden="true">{#include icons/container /}</span>
+              <div class="health-item-copy">
+                <strong>{ui.text('healthContainer')}</strong>
+                <small>StackEmu · {ui.text('localEnvironment')}</small>
+                <p class="health-detail">{ui.text('healthContainerDetail')}</p>
+              </div>
+              <span class="health-state"><span class="state-mark" aria-hidden="true">{#include icons/success /}</span>{ui.text(overview.container.messageKey)}</span>
+            </li>
+            <li class="health-row" data-state="{overview.emulator.cssState}">
+              <span class="health-item-icon" aria-hidden="true">{#include icons/layers /}</span>
+              <div class="health-item-copy">
+                <strong>MiniStack</strong>
+                <small>{ui.text('awsCompatibleServices')}</small>
+                <p class="health-detail">{ui.text('healthEmulatorDetail')}</p>
+              </div>
+              <span class="health-state"><span class="state-mark" aria-hidden="true">{#if overview.emulator.cssState == 'ready'}{#include icons/success /}{#else}{#include icons/warning /}{/if}</span>{ui.text(overview.emulator.messageKey)}</span>
+            </li>
+            <li class="health-row" data-state="{overview.console.cssState}">
+              <span class="health-item-icon" aria-hidden="true">{#include icons/terminal /}</span>
+              <div class="health-item-copy">
+                <strong>{ui.text('healthConsole')}</strong>
+                <small>{ui.text('homeDescription')}</small>
+                <p class="health-detail">{ui.text('healthConsoleDetail')}</p>
+              </div>
+              <span class="health-state"><span class="state-mark" aria-hidden="true">{#include icons/success /}</span>{ui.text(overview.console.messageKey)}</span>
+            </li>
+          </ul>
+        </section>
+
+        <aside class="next-step-card" aria-labelledby="next-step-title">
+          <div class="next-step-topline">
+            <span class="next-step-icon" aria-hidden="true">{#include icons/terminal /}</span>
+            <p class="eyebrow">{ui.text('nextActionLabel')}</p>
+          </div>
+          <h2 id="next-step-title">{ui.text(overview.nextActionKey)}</h2>
+          <p class="next-step-description">{#if overview.readyForUse}{ui.text('nextActionStatusDescription')}{#else}{ui.text('nextActionDiagnoseDescription')}{/if}</p>
+
+          <section class="quick-copy" aria-labelledby="endpoint-label">
+            <div class="quick-copy-heading"><span aria-hidden="true">{#include icons/connection /}</span><h3 id="endpoint-label">{ui.text('endpointLabel')}</h3></div>
+            <div class="clipboard-panel" data-copied-label="{ui.text('copied')}" data-copy-failed-label="{ui.text('copyFailed')}">
+              <div class="copy-field"><textarea rows="1" readonly aria-label="{ui.text('endpointLabel')}">{overview.endpoint}</textarea><button class="copy-icon-button" type="button" data-copy-field aria-label="{ui.text('copyEndpoint')}" title="{ui.text('copyEndpoint')}">{#include icons/copy /}</button></div>
+              <p class="copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            </div>
+          </section>
+
+          <section class="quick-copy" aria-labelledby="command-label">
+            <div class="quick-copy-heading"><span aria-hidden="true">{#include icons/terminal /}</span><h3 id="command-label">{ui.text('recommendedCommand')}</h3></div>
+            <div class="clipboard-panel" data-copied-label="{ui.text('copied')}" data-copy-failed-label="{ui.text('copyFailed')}">
+              <div class="copy-field"><textarea rows="1" readonly spellcheck="false" aria-label="{ui.text('recommendedCommand')}">{overview.nextCommand}</textarea><button class="copy-icon-button" type="button" data-copy-field aria-label="{ui.text('copyCommand')}" title="{ui.text('copyCommand')}">{#include icons/copy /}</button></div>
+              <p class="copy-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="service-inventory" aria-labelledby="inventory-title">
+        <header class="inventory-heading">
+          <div><p class="eyebrow">{ui.text('localEnvironment')}</p><h2 id="inventory-title">{ui.text('serviceInventory')}</h2></div>
+          <p>{ui.text('inventoryConfiguredFrom')}</p>
+        </header>
+        <a class="inventory-destination" href="/s3?{ui.query}">
+          <span class="inventory-icon" aria-hidden="true">{#include icons/buckets /}</span>
+          <span class="inventory-copy"><strong>S3 {ui.text('resourceBuckets')}</strong><small>{#if overview.configurationAvailable}{overview.buckets.size} {ui.text('declaredResources')}{#else}— {ui.text('resourcesUnavailable')}{/if}</small></span>
+          {#include icons/chevron /}
+        </a>
+        <a class="inventory-destination" href="/sqs?{ui.query}">
+          <span class="inventory-icon" aria-hidden="true">{#include icons/queue /}</span>
+          <span class="inventory-copy"><strong>SQS {ui.text('resourceQueues')}</strong><small>{#if overview.configurationAvailable}{overview.queues.size} {ui.text('declaredResources')}{#else}— {ui.text('resourcesUnavailable')}{/if}</small></span>
+          {#include icons/chevron /}
+        </a>
+        <a class="inventory-destination" href="/sns?{ui.query}">
+          <span class="inventory-icon" aria-hidden="true">{#include icons/sns /}</span>
+          <span class="inventory-copy"><strong>SNS {ui.text('resourceTopics')}</strong><small>{#if overview.configurationAvailable}{overview.topics.size} {ui.text('declaredResources')}{#else}— {ui.text('resourcesUnavailable')}{/if}</small></span>
+          {#include icons/chevron /}
+        </a>
+      </section>
+    </div>
+  {/content}
+{/include}

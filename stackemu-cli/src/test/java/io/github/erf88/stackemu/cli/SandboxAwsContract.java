@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.URI;
@@ -56,7 +55,9 @@ final class SandboxAwsContract {
   }
 
   static void verifySdk(String suffix, URI endpoint) {
-    try (S3Client s3 = s3(endpoint); SqsClient sqs = sqs(endpoint); SnsClient sns = sns(endpoint)) {
+    try (S3Client s3 = s3(endpoint);
+        SqsClient sqs = sqs(endpoint);
+        SnsClient sns = sns(endpoint)) {
       verifyS3(s3, suffix);
       verifySnsAndSqs(sns, sqs, suffix);
     }
@@ -74,26 +75,46 @@ final class SandboxAwsContract {
         SnsClient secondSns = sns(secondEndpoint)) {
       try {
         firstS3.createBucket(request -> request.bucket(bucket));
-        assertTrue(firstS3.listBuckets().buckets().stream().anyMatch(item -> bucket.equals(item.name())));
-        assertTrue(secondS3.listBuckets().buckets().stream().noneMatch(item -> bucket.equals(item.name())));
+        assertTrue(
+            firstS3.listBuckets().buckets().stream().anyMatch(item -> bucket.equals(item.name())));
+        assertTrue(
+            secondS3.listBuckets().buckets().stream()
+                .noneMatch(item -> bucket.equals(item.name())));
 
         String queueUrl = firstSqs.createQueue(request -> request.queueName(queue)).queueUrl();
-        assertTrue(firstSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls().contains(queueUrl));
-        assertTrue(secondSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls().isEmpty());
+        assertTrue(
+            firstSqs
+                .listQueues(request -> request.queueNamePrefix(queue))
+                .queueUrls()
+                .contains(queueUrl));
+        assertTrue(
+            secondSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls().isEmpty());
 
         String topicArn = firstSns.createTopic(request -> request.name(topic)).topicArn();
-        assertTrue(firstSns.listTopics().topics().stream().anyMatch(item -> topicArn.equals(item.topicArn())));
-        assertTrue(secondSns.listTopics().topics().stream().noneMatch(item -> topicArn.equals(item.topicArn())));
+        assertTrue(
+            firstSns.listTopics().topics().stream()
+                .anyMatch(item -> topicArn.equals(item.topicArn())));
+        assertTrue(
+            secondSns.listTopics().topics().stream()
+                .noneMatch(item -> topicArn.equals(item.topicArn())));
         firstSns.deleteTopic(request -> request.topicArn(topicArn));
         firstSqs.deleteQueue(request -> request.queueUrl(queueUrl));
         cleanupBucket(firstS3, bucket);
       } finally {
         cleanupBucket(firstS3, bucket);
-        ignoreFailure(() -> firstSqs.listQueues(request -> request.queueNamePrefix(queue)).queueUrls()
-            .forEach(url -> firstSqs.deleteQueue(request -> request.queueUrl(url))));
-        ignoreFailure(() -> firstSns.listTopics().topics().stream()
-            .filter(item -> item.topicArn().endsWith(":" + topic))
-            .forEach(item -> firstSns.deleteTopic(request -> request.topicArn(item.topicArn()))));
+        ignoreFailure(
+            () ->
+                firstSqs
+                    .listQueues(request -> request.queueNamePrefix(queue))
+                    .queueUrls()
+                    .forEach(url -> firstSqs.deleteQueue(request -> request.queueUrl(url))));
+        ignoreFailure(
+            () ->
+                firstSns.listTopics().topics().stream()
+                    .filter(item -> item.topicArn().endsWith(":" + topic))
+                    .forEach(
+                        item ->
+                            firstSns.deleteTopic(request -> request.topicArn(item.topicArn()))));
       }
     }
   }
@@ -133,14 +154,22 @@ final class SandboxAwsContract {
                 "/s3/transfer?"
                     + query(
                         Map.of(
-                            "bucket", sourceBucket,
-                            "key", sourceKey,
-                            "move", "false",
-                            "destinationBucket", destinationBucket,
-                            "destinationKey", destinationKey,
-                            "lang", "en",
-                            "theme", "dark",
-                            "density", "compact")));
+                            "bucket",
+                            sourceBucket,
+                            "key",
+                            sourceKey,
+                            "move",
+                            "false",
+                            "destinationBucket",
+                            destinationBucket,
+                            "destinationKey",
+                            destinationKey,
+                            "lang",
+                            "en",
+                            "theme",
+                            "dark",
+                            "density",
+                            "compact")));
         String csrf = hiddenValue(form, "csrf-token");
         String prepared =
             post(
@@ -148,16 +177,26 @@ final class SandboxAwsContract {
                 console,
                 "/s3/transfer",
                 Map.of(
-                    "csrf-token", csrf,
-                    "bucket", sourceBucket,
-                    "key", sourceKey,
-                    "move", "false",
-                    "destinationBucket", destinationBucket,
-                    "destinationKey", destinationKey,
-                    "decision", "keep",
-                    "lang", "en",
-                    "theme", "dark",
-                    "density", "compact"));
+                    "csrf-token",
+                    csrf,
+                    "bucket",
+                    sourceBucket,
+                    "key",
+                    sourceKey,
+                    "move",
+                    "false",
+                    "destinationBucket",
+                    destinationBucket,
+                    "destinationKey",
+                    destinationKey,
+                    "decision",
+                    "keep",
+                    "lang",
+                    "en",
+                    "theme",
+                    "dark",
+                    "density",
+                    "compact"));
         String operationId = attribute(prepared, "data-operation-id");
         assertEquals("READY", awaitOperationState(http, console, operationId, "READY"));
 
@@ -190,8 +229,7 @@ final class SandboxAwsContract {
         assertTrue(completedReview.contains(sourceKey), completedReview);
         assertEquals(
             body,
-            s3.getObjectAsBytes(
-                    request -> request.bucket(destinationBucket).key(destinationKey))
+            s3.getObjectAsBytes(request -> request.bucket(destinationBucket).key(destinationKey))
                 .asUtf8String());
       } finally {
         if (sourceCreated) cleanupBucket(s3, sourceBucket);
@@ -211,7 +249,9 @@ final class SandboxAwsContract {
     Path output = Files.createTempFile(temporaryDirectory, "aws-contract-", ".log");
     try {
       ProcessBuilder builder =
-          new ProcessBuilder("bash", script.toString()).redirectErrorStream(true).redirectOutput(output.toFile());
+          new ProcessBuilder("bash", script.toString())
+              .redirectErrorStream(true)
+              .redirectOutput(output.toFile());
       builder.environment().put("STACKEMU_ENDPOINT", endpoint.toString());
       builder.environment().put("STACKEMU_AWS_TEST_ID", suffix);
       builder.environment().put("AWS_ACCESS_KEY_ID", "test");
@@ -221,7 +261,9 @@ final class SandboxAwsContract {
       Process process = builder.start();
       if (!process.waitFor(120, TimeUnit.SECONDS)) {
         process.destroyForcibly();
-        fail("AWS CLI contract script timed out: " + Files.readString(output, StandardCharsets.UTF_8));
+        fail(
+            "AWS CLI contract script timed out: "
+                + Files.readString(output, StandardCharsets.UTF_8));
       }
       assertEquals(0, process.exitValue(), Files.readString(output, StandardCharsets.UTF_8));
     } finally {
@@ -242,13 +284,18 @@ final class SandboxAwsContract {
           PutObjectRequest.builder().bucket(bucket).key(key).build(),
           RequestBody.fromString("stackemu-contract-" + suffix));
       assertTrue(
-          s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build()).contents().stream()
+          s3
+              .listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build())
+              .contents()
+              .stream()
               .anyMatch(item -> key.equals(item.key())),
           "S3 object list omitted the created object");
 
       s3.deleteObject(request -> request.bucket(bucket).key(key));
       assertTrue(
-          s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build()).contents().isEmpty(),
+          s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).build())
+              .contents()
+              .isEmpty(),
           "S3 object delete left the object visible");
       s3.deleteBucket(request -> request.bucket(bucket));
       assertTrue(
@@ -290,7 +337,8 @@ final class SandboxAwsContract {
       topicArn = sns.createTopic(request -> request.name(topicName)).topicArn();
       String createdTopicArn = topicArn;
       assertTrue(
-          sns.listTopics().topics().stream().anyMatch(item -> createdTopicArn.equals(item.topicArn())),
+          sns.listTopics().topics().stream()
+              .anyMatch(item -> createdTopicArn.equals(item.topicArn())),
           "SNS topic list omitted the created topic");
 
       subscriptionArn =
@@ -311,7 +359,8 @@ final class SandboxAwsContract {
       sns.deleteTopic(DeleteTopicRequest.builder().topicArn(createdTopicArn).build());
       topicArn = null;
       assertTrue(
-          sns.listTopics().topics().stream().noneMatch(item -> createdTopicArn.equals(item.topicArn())),
+          sns.listTopics().topics().stream()
+              .noneMatch(item -> createdTopicArn.equals(item.topicArn())),
           "SNS topic delete left the topic visible");
 
       sqs.deleteQueue(DeleteQueueRequest.builder().queueUrl(createdQueueUrl).build());
@@ -430,8 +479,8 @@ final class SandboxAwsContract {
     return post(client, CONSOLE, path, fields);
   }
 
-  private static String post(HttpClient client, URI console, String path, Map<String, String> fields)
-      throws Exception {
+  private static String post(
+      HttpClient client, URI console, String path, Map<String, String> fields) throws Exception {
     HttpResponse<String> response =
         client.send(
             HttpRequest.newBuilder(console.resolve(path))
@@ -456,21 +505,19 @@ final class SandboxAwsContract {
 
   private static String hiddenValue(String html, String name) {
     Matcher matcher =
-        Pattern.compile("name=\"" + Pattern.quote(name) + "\"\\s+value=\"([^\"]+)\"")
-            .matcher(html);
+        Pattern.compile("name=\"" + Pattern.quote(name) + "\"\\s+value=\"([^\"]+)\"").matcher(html);
     if (!matcher.find()) return fail("Could not find form field " + name + " in console response");
     return matcher.group(1);
   }
 
   private static String attribute(String html, String name) {
-    Matcher matcher =
-        Pattern.compile(Pattern.quote(name) + "=\"([a-f0-9-]{36})\"").matcher(html);
+    Matcher matcher = Pattern.compile(Pattern.quote(name) + "=\"([a-f0-9-]{36})\"").matcher(html);
     if (!matcher.find()) return fail("Could not find attribute " + name + " in console response");
     return matcher.group(1);
   }
 
-  private static String awaitOperationState(HttpClient http, URI console, String id, String expected)
-      throws Exception {
+  private static String awaitOperationState(
+      HttpClient http, URI console, String id, String expected) throws Exception {
     long deadline = System.nanoTime() + Duration.ofSeconds(30).toNanos();
     String state = "UNKNOWN";
     while (System.nanoTime() < deadline) {
@@ -501,11 +548,13 @@ final class SandboxAwsContract {
   }
 
   private static void cleanupTopic(SnsClient sns, String topicArn) {
-    if (topicArn != null) ignoreFailure(() -> sns.deleteTopic(request -> request.topicArn(topicArn)));
+    if (topicArn != null)
+      ignoreFailure(() -> sns.deleteTopic(request -> request.topicArn(topicArn)));
   }
 
   private static void cleanupQueue(SqsClient sqs, String queueUrl) {
-    if (queueUrl != null) ignoreFailure(() -> sqs.deleteQueue(request -> request.queueUrl(queueUrl)));
+    if (queueUrl != null)
+      ignoreFailure(() -> sqs.deleteQueue(request -> request.queueUrl(queueUrl)));
   }
 
   private static void ignoreFailure(Runnable cleanup) {

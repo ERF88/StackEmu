@@ -1,8 +1,8 @@
 # StackEmu CLI
 
-Build the self-contained launcher with Maven:
+From the repository root, build the self-contained launcher with Maven:
 
-    mvn -B -ntp -f stackemu-cli/pom.xml package
+    mvn -B -ntp -pl stackemu-cli -am package
 
 Run it from a project directory containing stackemu.yaml. The command uses the
 Docker CLI, creates a labelled stackemu-project-id volume when persistence is
@@ -33,9 +33,9 @@ Install GraalVM 25 and the native compiler toolchain for your operating
 system, then build the launcher with:
 
 ```sh
-mvn -Pnative -DskipTests package
+mvn -B -ntp -pl stackemu-cli -am -Pnative -DskipTests package
 ```
 
-The executable is written to `target/stackemu` (`target/stackemu.exe` on
+The executable is written to `stackemu-cli/target/stackemu` (`stackemu-cli/target/stackemu.exe` on
 Windows). The `native-cli` GitHub Actions workflow smoke-tests Linux x64/arm64,
 Windows x64, and macOS x64/arm64 builds.

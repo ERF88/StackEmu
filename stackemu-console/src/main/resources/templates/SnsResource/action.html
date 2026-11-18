@@ -1,0 +1,48 @@
+{#include layout}
+  {#title}{#if action == 'publish'}{ui.text('snsPublishTitle')}{#else}{ui.text('snsSubscribeTitle')}{/if} · {topic.name}{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form">
+      <nav class="back-navigation" aria-label="{ui.text('breadcrumb')}"><a href="{returnHref}">{#include icons/back /}{returnLabel}</a></nav>
+      <h1>{#if action == 'publish'}{ui.text('snsPublishTitle')}{#else}{ui.text('snsSubscribeTitle')}{/if}</h1>
+      {#if actionError != ''}<p class="error" role="alert">{#include icons/error /}{actionError}</p>{/if}
+      <form class="mutation-form sns-form" method="post" action="/sns/actions/{action}" data-submitting-label="{ui.text('submitting')}">
+        <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+        <input type="hidden" name="topic" value="{topic.name}">
+        <input type="hidden" name="returnTo" value="{returnTo}">
+        <input type="hidden" name="lang" value="{ui.language}">
+        <input type="hidden" name="theme" value="{ui.theme}">
+        <input type="hidden" name="density" value="{ui.density}">
+        {#if action == 'publish'}
+          <p>{#if topic.fifo}{ui.text('snsFifoPublishHelp')}{#else}{ui.text('snsPublishHelp')}{/if}</p>
+          <label for="sns-message">{ui.text('snsMessageLabel')}</label>
+          <textarea id="sns-message" name="message" required maxlength="262144" rows="5" aria-describedby="sns-message-help">{messageDraft}</textarea>
+          <small id="sns-message-help">{ui.text('snsMessageHelp')}</small>
+          {#if topic.fifo}
+            <label for="sns-message-group-id">{ui.text('snsMessageGroupId')}</label>
+            <input id="sns-message-group-id" name="messageGroupId" type="text" required maxlength="128" autocomplete="off" value="{messageGroupIdDraft}" aria-describedby="sns-message-group-id-help">
+            <small id="sns-message-group-id-help">{ui.text('snsMessageGroupIdHelp')}</small>
+            <label for="sns-message-deduplication-id">{ui.text('snsMessageDeduplicationId')}</label>
+            <input id="sns-message-deduplication-id" name="messageDeduplicationId" type="text" required maxlength="128" autocomplete="off" value="{messageDeduplicationIdDraft}" aria-describedby="sns-message-deduplication-id-help">
+            <small id="sns-message-deduplication-id-help">{ui.text('snsMessageDeduplicationIdHelp')}</small>
+          {/if}
+          <button class="button primary" type="submit">{#include icons/send /}{ui.text('snsPublishButton')}</button>
+        {#else}
+          <p>{ui.text('snsSubscribeHelp')}</p>
+          {#if queueMessage}
+            <p class="sns-inline-message" role="status">{queueMessage}</p>
+          {#else if queues.isEmpty}
+            <p class="sns-inline-message">{ui.text('snsNoCompatibleQueues')}</p>
+            <a class="text-link" href="/sqs/actions?action=create&amp;{ui.query}">{ui.text('snsCreateQueue')}</a>
+          {#else}
+            <label for="sns-queue">{ui.text('snsQueueLabel')}</label>
+            <select id="sns-queue" name="queue" required>
+              <option value="">{ui.text('snsSelectQueue')}</option>
+              {#for queue in queues}<option value="{queue.name}" {#if selectedQueue == queue.name}selected{/if}>{queue.name}</option>{/for}
+            </select>
+            <button class="button primary" type="submit">{#include icons/queue /}{ui.text('snsSubscribeButton')}</button>
+          {/if}
+        {/if}
+      </form>
+    </div>
+  {/content}
+{/include}
