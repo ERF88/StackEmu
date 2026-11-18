@@ -37,8 +37,7 @@ jobs:
           DOCKERFILE
           docker build --network=none --tag stackemu:offline-unhealthy-test "$context"
 
-      - name: Run CLI unit tests and cache dependencies
-        working-directory: stackemu-cli
+      - name: Run Maven reactor unit tests
         env:
           STACKEMU_DOCKER_INTEGRATION: 'false'
           STACKEMU_AWS_CLI_INTEGRATION: 'false'

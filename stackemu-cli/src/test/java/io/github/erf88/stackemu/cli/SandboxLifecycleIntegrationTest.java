@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -61,7 +61,8 @@ class SandboxLifecycleIntegrationTest {
             ports:
               aws: %d
               console: %d
-            """.formatted(projectId, bucket, queue, topic, awsPort, consolePort),
+            """
+            .formatted(projectId, bucket, queue, topic, awsPort, consolePort),
         StandardCharsets.UTF_8);
 
     try {
@@ -71,7 +72,8 @@ class SandboxLifecycleIntegrationTest {
       assertStatus(firstStatus, projectId);
       URI awsEndpoint = URI.create("http://127.0.0.1:" + awsPort);
       SandboxAwsContract.verifySdk(suffix, awsEndpoint);
-      SandboxAwsContract.verifyConsoleCopy(suffix, awsEndpoint, URI.create("http://127.0.0.1:" + consolePort));
+      SandboxAwsContract.verifyConsoleCopy(
+          suffix, awsEndpoint, URI.create("http://127.0.0.1:" + consolePort));
       if ("true".equalsIgnoreCase(System.getenv("STACKEMU_AWS_CLI_INTEGRATION"))) {
         SandboxAwsContract.verifyAwsCli(suffix, temporaryDirectory, awsEndpoint);
       }
@@ -86,10 +88,17 @@ class SandboxLifecycleIntegrationTest {
       assertTrue(parse(status.output()).containsKey("health"));
       assertTrue(parse(diagnose.output()).containsKey("checks"));
       assertEquals(awsEndpoint.toString(), map(parse(status.output()).get("endpoints")).get("aws"));
-      assertEquals("http://127.0.0.1:" + consolePort, map(parse(status.output()).get("endpoints")).get("console"));
+      assertEquals(
+          "http://127.0.0.1:" + consolePort,
+          map(parse(status.output()).get("endpoints")).get("console"));
       assertEquals(containersBeforeDiagnostics, dockerLines("ps", "--all", "--quiet"));
 
-      docker("exec", container, "sh", "-c", "printf persisted > /data/stackemu/.stackemu/integration-sentinel");
+      docker(
+          "exec",
+          container,
+          "sh",
+          "-c",
+          "printf persisted > /data/stackemu/.stackemu/integration-sentinel");
       CommandResult restart = cli(userHome, config, "restart");
       assertEquals(0, restart.exitCode(), restart.output());
       Map<?, ?> afterRestart = awaitReady(userHome, config);
@@ -101,7 +110,8 @@ class SandboxLifecycleIntegrationTest {
       assertEquals(0, reset.exitCode(), reset.output());
       Map<?, ?> afterReset = awaitReady(userHome, config);
       assertStatus(afterReset, projectId);
-      docker("exec", container, "sh", "-c", "test ! -e /data/stackemu/.stackemu/integration-sentinel");
+      docker(
+          "exec", container, "sh", "-c", "test ! -e /data/stackemu/.stackemu/integration-sentinel");
       assertConsoleContains(consolePort, "/s3", bucket);
 
       Path audit = userHome.resolve(".stackemu").resolve("audit");
@@ -160,8 +170,12 @@ class SandboxLifecycleIntegrationTest {
       CommandResult secondDiagnose = cli(userHome, secondConfig, "diagnose", "--json");
       assertEquals(0, firstDiagnose.exitCode(), firstDiagnose.output());
       assertEquals(0, secondDiagnose.exitCode(), secondDiagnose.output());
-      assertEquals("http://127.0.0.1:" + firstConsole, map(parse(firstDiagnose.output()).get("endpoints")).get("console"));
-      assertEquals("http://127.0.0.1:" + secondConsole, map(parse(secondDiagnose.output()).get("endpoints")).get("console"));
+      assertEquals(
+          "http://127.0.0.1:" + firstConsole,
+          map(parse(firstDiagnose.output()).get("endpoints")).get("console"));
+      assertEquals(
+          "http://127.0.0.1:" + secondConsole,
+          map(parse(secondDiagnose.output()).get("endpoints")).get("console"));
 
       URI firstEndpoint = URI.create("http://127.0.0.1:" + firstAws);
       URI secondEndpoint = URI.create("http://127.0.0.1:" + secondAws);
@@ -169,27 +183,45 @@ class SandboxLifecycleIntegrationTest {
       SandboxAwsContract.verifySdk(suffix + "a", firstEndpoint);
       SandboxAwsContract.verifySdk(suffix + "b", secondEndpoint);
 
-      docker("exec", firstContainer, "sh", "-c", "printf sentinel > /data/stackemu/.stackemu/port-rebind-sentinel");
+      docker(
+          "exec",
+          firstContainer,
+          "sh",
+          "-c",
+          "printf sentinel > /data/stackemu/.stackemu/port-rebind-sentinel");
       int blockedAws = availablePortExcept(firstAws, firstConsole, secondAws, secondConsole);
-      int nextConsole = availablePortExcept(firstAws, firstConsole, secondAws, secondConsole, blockedAws);
+      int nextConsole =
+          availablePortExcept(firstAws, firstConsole, secondAws, secondConsole, blockedAws);
       try (var occupied = new ServerSocket()) {
         occupied.bind(new InetSocketAddress("127.0.0.1", blockedAws));
         writePortConfig(firstConfig, firstId, blockedAws, nextConsole);
         CommandResult conflict = cli(userHome, firstConfig, "restart");
         assertEquals(3, conflict.exitCode(), conflict.output());
         assertTrue(conflict.output().contains("host-port-in-use"), conflict.output());
-        docker("exec", firstContainer, "test", "-f", "/data/stackemu/.stackemu/port-rebind-sentinel");
+        docker(
+            "exec", firstContainer, "test", "-f", "/data/stackemu/.stackemu/port-rebind-sentinel");
         assertConsoleReady(firstConsole);
       }
 
-      int reboundAws = availablePortExcept(firstAws, firstConsole, secondAws, secondConsole, blockedAws, nextConsole);
-      int reboundConsole = availablePortExcept(firstAws, firstConsole, secondAws, secondConsole, blockedAws, nextConsole, reboundAws);
+      int reboundAws =
+          availablePortExcept(
+              firstAws, firstConsole, secondAws, secondConsole, blockedAws, nextConsole);
+      int reboundConsole =
+          availablePortExcept(
+              firstAws,
+              firstConsole,
+              secondAws,
+              secondConsole,
+              blockedAws,
+              nextConsole,
+              reboundAws);
       writePortConfig(firstConfig, firstId, reboundAws, reboundConsole);
       CommandResult rebound = cli(userHome, firstConfig, "restart");
       assertEquals(0, rebound.exitCode(), rebound.output());
       Map<?, ?> reboundStatus = awaitReady(userHome, firstConfig);
       assertStatus(reboundStatus, firstId);
-      assertEquals("http://127.0.0.1:" + reboundAws, map(reboundStatus.get("endpoints")).get("aws"));
+      assertEquals(
+          "http://127.0.0.1:" + reboundAws, map(reboundStatus.get("endpoints")).get("aws"));
       docker("exec", firstContainer, "test", "-f", "/data/stackemu/.stackemu/port-rebind-sentinel");
       assertConsoleReady(reboundConsole);
       assertStatus(awaitReady(userHome, secondConfig), secondId);
@@ -217,7 +249,8 @@ class SandboxLifecycleIntegrationTest {
     int replacementConsole = availablePortExcept(originalAws, originalConsole, replacementAws);
     String badImageTag = "stackemu:rollback-test-" + suffix;
     String prebuiltUnhealthyImage = System.getenv("STACKEMU_UNHEALTHY_TEST_IMAGE");
-    String originalImageId = dockerText("image", "inspect", "--format", "{{.Id}}", "stackemu:local").trim();
+    String originalImageId =
+        dockerText("image", "inspect", "--format", "{{.Id}}", "stackemu:local").trim();
     Files.writeString(
         badImageContext.resolve("Dockerfile"),
         "FROM stackemu:local\nHEALTHCHECK --interval=1s --timeout=1s --retries=1 CMD exit 1\n",
@@ -233,17 +266,26 @@ class SandboxLifecycleIntegrationTest {
       CommandResult start = cli(userHome, config, "start");
       assertEquals(0, start.exitCode(), start.output());
       assertStatus(awaitReady(userHome, config), projectId);
-      docker("exec", container, "sh", "-c", "printf rollback-sentinel > /data/stackemu/.stackemu/rollback-sentinel");
+      docker(
+          "exec",
+          container,
+          "sh",
+          "-c",
+          "printf rollback-sentinel > /data/stackemu/.stackemu/rollback-sentinel");
 
       docker("tag", badImageTag, "stackemu:local");
       writePortConfig(config, projectId, replacementAws, replacementConsole);
       CommandResult failedRebind = cli(userHome, config, "restart");
       assertEquals(3, failedRebind.exitCode(), failedRebind.output());
       assertTrue(failedRebind.output().contains("health check failed"), failedRebind.output());
-      assertEquals(originalImageId, dockerText("inspect", "--format", "{{.Image}}", container).trim());
-      assertEquals("healthy", dockerText("inspect", "--format", "{{.State.Health.Status}}", container).trim());
+      assertEquals(
+          originalImageId, dockerText("inspect", "--format", "{{.Image}}", container).trim());
+      assertEquals(
+          "healthy",
+          dockerText("inspect", "--format", "{{.State.Health.Status}}", container).trim());
       docker("exec", container, "test", "-f", "/data/stackemu/.stackemu/rollback-sentinel");
-      String bindings = dockerText("inspect", "--format", "{{json .HostConfig.PortBindings}}", container);
+      String bindings =
+          dockerText("inspect", "--format", "{{json .HostConfig.PortBindings}}", container);
       assertTrue(bindings.contains("\"HostPort\":\"" + originalAws + "\""), bindings);
       assertTrue(bindings.contains("\"HostPort\":\"" + originalConsole + "\""), bindings);
 
@@ -264,7 +306,8 @@ class SandboxLifecycleIntegrationTest {
       CommandResult result = cli(userHome, config, "status", "--json");
       lastReport = parse(result.output());
       if (result.exitCode() == 0) return lastReport;
-      if (result.exitCode() != 6) fail("status failed with exit code " + result.exitCode() + ": " + result.output());
+      if (result.exitCode() != 6)
+        fail("status failed with exit code " + result.exitCode() + ": " + result.output());
       Thread.sleep(500);
     }
     fail("sandbox did not become ready: " + lastReport);
@@ -304,7 +347,8 @@ class SandboxLifecycleIntegrationTest {
     assertTrue(response.body().contains(expected), response.body());
   }
 
-  private void writePortConfig(Path config, String projectId, int awsPort, int consolePort) throws Exception {
+  private void writePortConfig(Path config, String projectId, int awsPort, int consolePort)
+      throws Exception {
     Files.writeString(
         config,
         """
@@ -321,7 +365,8 @@ class SandboxLifecycleIntegrationTest {
             ports:
               aws: %d
               console: %d
-            """.formatted(projectId, projectId, projectId, projectId, awsPort, consolePort),
+            """
+            .formatted(projectId, projectId, projectId, projectId, awsPort, consolePort),
         StandardCharsets.UTF_8);
   }
 
@@ -348,8 +393,14 @@ class SandboxLifecycleIntegrationTest {
     String classpath =
         String.join(
             System.getProperty("path.separator"),
-            Path.of(StackEmuCli.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString(),
-            Path.of(org.snakeyaml.engine.v2.api.Load.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+            Path.of(StackEmuCli.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                .toString(),
+            Path.of(
+                    org.snakeyaml.engine.v2.api.Load.class
+                        .getProtectionDomain()
+                        .getCodeSource()
+                        .getLocation()
+                        .toURI())
                 .toString());
     var command = new java.util.ArrayList<String>();
     command.add(javaExecutable.toString());
@@ -366,13 +417,16 @@ class SandboxLifecycleIntegrationTest {
       throw new AssertionError("StackEmu CLI command timed out: " + args[0]);
     }
     return new CommandResult(
-        process.exitValue(), new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
+        process.exitValue(),
+        new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
   }
 
   private static Map<?, ?> parse(String json) {
     Object value =
-        new Load(LoadSettings.builder().setLabel("CLI JSON report").build()).loadFromString(json.trim());
-    if (!(value instanceof Map<?, ?> report)) throw new AssertionError("CLI did not return a JSON mapping: " + json);
+        new Load(LoadSettings.builder().setLabel("CLI JSON report").build())
+            .loadFromString(json.trim());
+    if (!(value instanceof Map<?, ?> report))
+      throw new AssertionError("CLI did not return a JSON mapping: " + json);
     return report;
   }
 
@@ -401,7 +455,8 @@ class SandboxLifecycleIntegrationTest {
     return process.exitValue();
   }
 
-  private static java.util.List<String> dockerLines(String... args) throws IOException, InterruptedException {
+  private static java.util.List<String> dockerLines(String... args)
+      throws IOException, InterruptedException {
     var command = new java.util.ArrayList<String>();
     command.add("docker");
     command.addAll(Arrays.asList(args));
@@ -410,7 +465,8 @@ class SandboxLifecycleIntegrationTest {
       process.destroyForcibly();
       throw new AssertionError("Docker query timed out: " + String.join(" ", args));
     }
-    if (process.exitValue() != 0) throw new AssertionError("Docker query failed: " + String.join(" ", args));
+    if (process.exitValue() != 0)
+      throw new AssertionError("Docker query failed: " + String.join(" ", args));
     return new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
         .lines()
         .sorted()

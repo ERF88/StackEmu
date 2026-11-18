@@ -1,0 +1,48 @@
+{#include layout}
+  {#title}{topic.name}{/title}
+  {#content}
+    <div class="service-page sns-page sns-topic-page">
+      <header class="page-heading sns-topic-heading">
+        <div><h1>{topic.name}</h1><p>{ui.text('snsTopicDescription')}</p></div>
+        <div class="page-actions"><a class="button" href="/sns?{ui.query}">{#include icons/back /}{ui.text('snsBackToTopics')}</a></div>
+      </header>
+      {#if notice}<p class="operation-feedback sns-notice" role="status" data-operation-success-message>{notice}</p>{/if}
+      {#if actionError != ''}<p class="error" role="alert">{#include icons/error /}{actionError}</p>{/if}
+      <dl class="sns-topic-arn"><dt>{ui.text('snsTopicArn')}</dt><dd><code>{topic.arn}</code></dd></dl>
+
+      <div class="sns-topic-grid">
+        <div class="sns-topic-primary">
+          <section class="summary-card sns-panel" aria-labelledby="sns-publish-title">
+            <header class="section-heading"><h2 id="sns-publish-title">{#include icons/send /}{ui.text('snsPublishTitle')}</h2></header>
+            <p>{#if topic.fifo}{ui.text('snsFifoPublishHelp')}{#else}{ui.text('snsPublishHelp')}{/if}</p>
+            <a class="button primary" href="/sns/actions?action=publish&amp;topic={topic.name}&amp;returnTo=topic&amp;{ui.query}">{#include icons/sns /}{ui.text('snsPublishButton')}</a>
+          </section>
+
+          <section class="summary-card sns-panel sns-subscribe-panel" aria-labelledby="sns-subscribe-title">
+            <header class="section-heading"><h2 id="sns-subscribe-title">{#include icons/queue /}{ui.text('snsSubscribeTitle')}</h2></header>
+            <p>{ui.text('snsSubscribeHelp')}</p>
+            {#if queueMessage}
+              <p class="sns-inline-message" role="status">{queueMessage}</p>
+              {#if queues.isEmpty}<a class="text-link" href="/sqs/actions?action=create&amp;{ui.query}">{ui.text('snsCreateQueue')}</a>{/if}
+            {#else if queues.isEmpty}
+              <p class="sns-inline-message">{ui.text('snsNoCompatibleQueues')}</p>
+              <a class="text-link" href="/sqs/actions?action=create&amp;{ui.query}">{ui.text('snsCreateQueue')}</a>
+            {#else}
+              <a class="button primary" href="/sns/actions?action=subscribe&amp;topic={topic.name}&amp;returnTo=topic&amp;{ui.query}">{#include icons/queue /}{ui.text('snsSubscribeButton')}</a>
+            {/if}
+          </section>
+        </div>
+
+        <div class="sns-topic-secondary">
+          {#include SnsResource/subscriptions topic=topic subscriptions=subscriptions confirmationDraft=confirmationDraft failedSubscriptionArn=failedSubscriptionArn unsubscribeConfirmed=unsubscribeConfirmed ui=ui /}
+
+          <details class="summary-card sns-danger-zone">
+            <summary>{ui.text('snsDeleteTopic')}</summary>
+            <p>{ui.text('snsDeleteTopicHelp')}</p>
+            <a class="button danger" href="/sns/actions?action=delete&amp;topic={topic.name}&amp;returnTo=topic&amp;{ui.query}">{#include icons/delete /}{ui.text('snsReviewDeleteTopic')}</a>
+          </details>
+        </div>
+      </div>
+    </div>
+  {/content}
+{/include}

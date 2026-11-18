@@ -23,7 +23,8 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 /** Host-side lifecycle launcher. It deliberately invokes the Docker CLI, never its socket. */
 public final class StackEmuCli {
   private static final Pattern PROJECT_ID = Pattern.compile("[a-z][a-z0-9-]*");
-  private static final Pattern SECRET_FIELD = Pattern.compile("(?i).*(secret|password|token|credential).*" );
+  private static final Pattern SECRET_FIELD =
+      Pattern.compile("(?i).*(secret|password|token|credential).*");
   private static final String IMAGE_COMPATIBILITY = ">=0.1.0 <1.0.0";
   static final int DEFAULT_AWS_PORT = 4566;
   static final int DEFAULT_CONSOLE_PORT = 8080;
@@ -64,7 +65,8 @@ public final class StackEmuCli {
     Ports ports = ports(document);
     String configurationHash = configurationHash(document);
     String stateHash = stateConfigurationHash(document);
-    if ("reset".equals(command) && !confirmed(args, projectId)) fail(2, "reset requires project id or --yes");
+    if ("reset".equals(command) && !confirmed(args, projectId))
+      fail(2, "reset requires project id or --yes");
     if ("status".equals(command) || "diagnose".equals(command)) {
       SandboxDiagnostics.Report report =
           new SandboxDiagnostics(diagnosticsDocker, portProbe)
@@ -80,8 +82,10 @@ public final class StackEmuCli {
     }
     try (var lock = acquire(projectId)) {
       docker("version", "--format", "{{.Server.Version}}");
-      if ("restart".equals(command)) restart(projectId, config, configurationHash, stateHash, ports, output);
-      else if ("reset".equals(command)) reset(projectId, config, configurationHash, stateHash, ports, output);
+      if ("restart".equals(command))
+        restart(projectId, config, configurationHash, stateHash, ports, output);
+      else if ("reset".equals(command))
+        reset(projectId, config, configurationHash, stateHash, ports, output);
       else start(projectId, config, configurationHash, stateHash, ports, output);
     }
     return 0;
@@ -167,13 +171,17 @@ public final class StackEmuCli {
     if (!stateHash.equals(previousStateHash))
       fail(4, "configuration drift affects project state; run reset to apply it");
 
-    String currentState = dockerOutput("inspect", "--format", "{{.State.Status}}", container(projectId)).trim();
+    String currentState =
+        dockerOutput("inspect", "--format", "{{.State.Status}}", container(projectId)).trim();
     assertPortsAvailable(ports, "running".equals(currentState) ? currentPorts : null);
     if (ports.equals(currentPorts)) {
       docker("restart", container(projectId));
       waitUntilHealthy(projectId);
     } else {
-      String previous = container(projectId) + "-previous-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+      String previous =
+          container(projectId)
+              + "-previous-"
+              + java.util.UUID.randomUUID().toString().substring(0, 8);
       String previousMarker = readMarker(projectId);
       boolean renamed = false;
       boolean replacementCreated = false;
@@ -194,7 +202,9 @@ public final class StackEmuCli {
           waitUntilHealthy(projectId);
           if (renamed) restoreMarker(projectId, previousMarker);
         } catch (Exception restoreFailure) {
-          fail(7, "port rebind failed; project volume is preserved but the previous container could not be restored");
+          fail(
+              7,
+              "port rebind failed; project volume is preserved but the previous container could not be restored");
         }
         throw rebindFailure;
       }
@@ -241,16 +251,20 @@ public final class StackEmuCli {
   }
 
   private static Ports currentPorts(String projectId) throws Exception {
-    String bindings = dockerOutput("inspect", "--format", "{{json .HostConfig.PortBindings}}", container(projectId));
+    String bindings =
+        dockerOutput(
+            "inspect", "--format", "{{json .HostConfig.PortBindings}}", container(projectId));
     Map<?, ?> values = mapping(bindings, "container port bindings");
     return new Ports(hostPort(values, "4566/tcp"), hostPort(values, "8080/tcp"));
   }
 
   private static Ports tryCurrentPorts(String projectId) throws Exception {
-    SandboxDiagnostics.Result state = dockerResult("inspect", "--format", "{{.State.Status}}", container(projectId));
+    SandboxDiagnostics.Result state =
+        dockerResult("inspect", "--format", "{{.State.Status}}", container(projectId));
     if (!state.succeeded() || !"running".equals(state.output().trim())) return null;
     SandboxDiagnostics.Result result =
-        dockerResult("inspect", "--format", "{{json .HostConfig.PortBindings}}", container(projectId));
+        dockerResult(
+            "inspect", "--format", "{{json .HostConfig.PortBindings}}", container(projectId));
     if (!result.succeeded()) return null;
     Map<?, ?> values = mapping(result.output(), "container port bindings");
     return new Ports(hostPort(values, "4566/tcp"), hostPort(values, "8080/tcp"));
@@ -258,12 +272,15 @@ public final class StackEmuCli {
 
   private static int hostPort(Map<?, ?> bindings, String containerPort) {
     Object binding = bindings.get(containerPort);
-    if (!(binding instanceof List<?> values) || values.isEmpty() || !(values.get(0) instanceof Map<?, ?>)) {
+    if (!(binding instanceof List<?> values)
+        || values.isEmpty()
+        || !(values.get(0) instanceof Map<?, ?>)) {
       fail(4, "container port mapping is incomplete: " + containerPort);
       return 0;
     }
     Map<?, ?> item = (Map<?, ?>) values.get(0);
-    if (!"127.0.0.1".equals(item.get("HostIp"))) fail(4, "sandbox ports must be bound to 127.0.0.1");
+    if (!"127.0.0.1".equals(item.get("HostIp")))
+      fail(4, "sandbox ports must be bound to 127.0.0.1");
     try {
       int value = Integer.parseInt(String.valueOf(item.get("HostPort")));
       if (value < 1024 || value > 65535) throw new NumberFormatException();
@@ -294,28 +311,63 @@ public final class StackEmuCli {
     Files.createDirectories(directory);
     java.time.Instant cutoff = java.time.Instant.now().minus(java.time.Duration.ofDays(30));
     try (var entries = Files.list(directory)) {
-      entries.filter(path -> {
-        try { return Files.getLastModifiedTime(path).toInstant().isBefore(cutoff); } catch (IOException ignored) { return false; }
-      }).forEach(path -> { try { Files.deleteIfExists(path); } catch (IOException ignored) { } });
+      entries
+          .filter(
+              path -> {
+                try {
+                  return Files.getLastModifiedTime(path).toInstant().isBefore(cutoff);
+                } catch (IOException ignored) {
+                  return false;
+                }
+              })
+          .forEach(
+              path -> {
+                try {
+                  Files.deleteIfExists(path);
+                } catch (IOException ignored) {
+                }
+              });
     }
     try (var entries = Files.list(directory)) {
-      entries.sorted(java.util.Comparator.comparing(Path::toString).reversed()).skip(100).forEach(path -> {
-        try { Files.deleteIfExists(path); } catch (IOException ignored) { }
-      });
+      entries
+          .sorted(java.util.Comparator.comparing(Path::toString).reversed())
+          .skip(100)
+          .forEach(
+              path -> {
+                try {
+                  Files.deleteIfExists(path);
+                } catch (IOException ignored) {
+                }
+              });
     }
-    String event = "{\"timestamp\":\"" + java.time.Instant.now() + "\",\"action\":\"" + action + "\",\"projectId\":\"" + projectId + "\"}";
-    if (event.getBytes(StandardCharsets.UTF_8).length > 1024 * 1024) fail(3, "audit record exceeds 1 MiB");
-    Files.writeString(directory.resolve(java.time.Instant.now().toEpochMilli() + "-" + action + ".json"), event, StandardCharsets.UTF_8);
+    String event =
+        "{\"timestamp\":\""
+            + java.time.Instant.now()
+            + "\",\"action\":\""
+            + action
+            + "\",\"projectId\":\""
+            + projectId
+            + "\"}";
+    if (event.getBytes(StandardCharsets.UTF_8).length > 1024 * 1024)
+      fail(3, "audit record exceeds 1 MiB");
+    Files.writeString(
+        directory.resolve(java.time.Instant.now().toEpochMilli() + "-" + action + ".json"),
+        event,
+        StandardCharsets.UTF_8);
   }
 
   private static void waitUntilHealthy(String projectId) throws Exception {
     long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(45);
     while (System.nanoTime() < deadline) {
-      String status = dockerOutput("inspect", "--format", "{{.State.Health.Status}}", container(projectId));
+      String status =
+          dockerOutput("inspect", "--format", "{{.State.Health.Status}}", container(projectId));
       if ("healthy".equals(status.trim())) return;
-      if ("unhealthy".equals(status.trim())) fail(3, "sandbox health check failed before startup completed");
-      if ("exited".equals(dockerOutput("inspect", "--format", "{{.State.Status}}", container(projectId)).trim()))
-        fail(3, "sandbox exited before bootstrap completed");
+      if ("unhealthy".equals(status.trim()))
+        fail(3, "sandbox health check failed before startup completed");
+      if ("exited"
+          .equals(
+              dockerOutput("inspect", "--format", "{{.State.Status}}", container(projectId))
+                  .trim())) fail(3, "sandbox exited before bootstrap completed");
       Thread.sleep(500);
     }
     fail(3, "sandbox did not become healthy after bootstrap");
@@ -330,7 +382,8 @@ public final class StackEmuCli {
   }
 
   private static Path config(String[] args) {
-    for (int i = 0; i + 1 < args.length; i++) if ("--config".equals(args[i])) return Path.of(args[i + 1]);
+    for (int i = 0; i + 1 < args.length; i++)
+      if ("--config".equals(args[i])) return Path.of(args[i + 1]);
     return Path.of("stackemu.yaml");
   }
 
@@ -343,8 +396,8 @@ public final class StackEmuCli {
     if (!(result instanceof Map<?, ?>)) fail(2, "configuration must be a mapping");
     Map<?, ?> map = (Map<?, ?>) result;
     for (Object key : map.keySet())
-      if (!List.of("version", "project", "services", "resources", "persistence", "limits", "ports").contains(key))
-        fail(2, "unknown configuration field: " + key);
+      if (!List.of("version", "project", "services", "resources", "persistence", "limits", "ports")
+          .contains(key)) fail(2, "unknown configuration field: " + key);
     return map;
   }
 
@@ -391,9 +444,17 @@ public final class StackEmuCli {
   static void assertPortsAvailable(
       Ports requested, Ports ownedPorts, java.util.function.IntPredicate portProbe) {
     if (!owns(ownedPorts, requested.aws()) && !portProbe.test(requested.aws()))
-      fail(3, "host-port-in-use: AWS port " + requested.aws() + " is occupied; choose a free port in stackemu.yaml");
+      fail(
+          3,
+          "host-port-in-use: AWS port "
+              + requested.aws()
+              + " is occupied; choose a free port in stackemu.yaml");
     if (!owns(ownedPorts, requested.console()) && !portProbe.test(requested.console()))
-      fail(3, "host-port-in-use: console port " + requested.console() + " is occupied; choose a free port in stackemu.yaml");
+      fail(
+          3,
+          "host-port-in-use: console port "
+              + requested.console()
+              + " is occupied; choose a free port in stackemu.yaml");
   }
 
   private static boolean owns(Ports ports, int candidate) {
@@ -431,7 +492,8 @@ public final class StackEmuCli {
   record Ports(int aws, int console) {}
 
   private static String canonical(Object value, String field) {
-    if (SECRET_FIELD.matcher(field).matches()) fail(2, "configuration must not contain secrets: " + field);
+    if (SECRET_FIELD.matcher(field).matches())
+      fail(2, "configuration must not contain secrets: " + field);
     if (value instanceof Map<?, ?> map) {
       var entries = new ArrayList<>(map.entrySet());
       entries.sort(Comparator.comparing(entry -> String.valueOf(entry.getKey())));
@@ -454,7 +516,8 @@ public final class StackEmuCli {
 
   private static String sha256(String input) {
     try {
-      byte[] hash = MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8));
+      byte[] hash =
+          MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8));
       var encoded = new StringBuilder();
       for (byte value : hash) encoded.append(String.format("%02x", value));
       return encoded.toString();
@@ -463,7 +526,8 @@ public final class StackEmuCli {
     }
   }
 
-  private static void writeMarker(String projectId, String configurationHash, String stateHash) throws Exception {
+  private static void writeMarker(String projectId, String configurationHash, String stateHash)
+      throws Exception {
     String marker =
         "{\"projectId\":\""
             + projectId
@@ -474,7 +538,8 @@ public final class StackEmuCli {
             + "\",\"stateHash\":\""
             + stateHash
             + "\"}";
-    String encodedMarker = Base64.getEncoder().encodeToString(marker.getBytes(StandardCharsets.UTF_8));
+    String encodedMarker =
+        Base64.getEncoder().encodeToString(marker.getBytes(StandardCharsets.UTF_8));
     docker(
         "run",
         "--rm",
@@ -497,7 +562,11 @@ public final class StackEmuCli {
     try {
       Files.writeString(
           lock,
-          "{\"pid\":" + ProcessHandle.current().pid() + ",\"container\":\"" + container(projectId) + "\"}",
+          "{\"pid\":"
+              + ProcessHandle.current().pid()
+              + ",\"container\":\""
+              + container(projectId)
+              + "\"}",
           StandardCharsets.UTF_8,
           java.nio.file.StandardOpenOption.CREATE_NEW);
     } catch (java.nio.file.FileAlreadyExistsException exception) {
@@ -509,7 +578,10 @@ public final class StackEmuCli {
   private static boolean lockOwnerIsAlive(Path lock) throws IOException {
     String content = Files.readString(lock, StandardCharsets.UTF_8);
     var matcher = Pattern.compile("\\\"pid\\\":(\\d+)").matcher(content);
-    return matcher.find() && ProcessHandle.of(Long.parseLong(matcher.group(1))).map(ProcessHandle::isAlive).orElse(false);
+    return matcher.find()
+        && ProcessHandle.of(Long.parseLong(matcher.group(1)))
+            .map(ProcessHandle::isAlive)
+            .orElse(false);
   }
 
   private record LifecycleLock(Path path) implements AutoCloseable {
@@ -532,19 +604,29 @@ public final class StackEmuCli {
     return false;
   }
 
-  private static String volume(String projectId) { return "stackemu-" + projectId; }
-  private static String container(String projectId) { return "stackemu-" + projectId; }
+  private static String volume(String projectId) {
+    return "stackemu-" + projectId;
+  }
+
+  private static String container(String projectId) {
+    return "stackemu-" + projectId;
+  }
 
   private static void docker(String... args) throws Exception {
     if (dockerExit(args) != 0) fail(3, "docker command failed");
   }
-  private static void dockerIgnoreFailure(String... args) throws Exception { dockerExit(args); }
+
+  private static void dockerIgnoreFailure(String... args) throws Exception {
+    dockerExit(args);
+  }
+
   private static int dockerExit(String... args) throws IOException, InterruptedException {
     String[] command = new String[args.length + 1];
     command[0] = "docker";
     System.arraycopy(args, 0, command, 1, args.length);
     return new ProcessBuilder(command).inheritIO().start().waitFor();
   }
+
   private static String dockerOutput(String... args) throws IOException, InterruptedException {
     SandboxDiagnostics.Result result = dockerResult(args);
     if (!result.succeeded()) {
@@ -572,6 +654,7 @@ public final class StackEmuCli {
         || lower.contains("address already in use")
         || lower.contains("bind: cannot assign requested address");
   }
+
   private static void fail(int code, String message) {
     throw new StackEmuFailure(code, message);
   }
@@ -591,7 +674,8 @@ public final class StackEmuCli {
 
   private static final class ProcessDockerCommands implements SandboxDiagnostics.CommandRunner {
     @Override
-    public SandboxDiagnostics.Result execute(String... args) throws IOException, InterruptedException {
+    public SandboxDiagnostics.Result execute(String... args)
+        throws IOException, InterruptedException {
       String[] command = new String[args.length + 1];
       command[0] = "docker";
       System.arraycopy(args, 0, command, 1, args.length);

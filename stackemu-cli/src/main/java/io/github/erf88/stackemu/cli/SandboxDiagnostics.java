@@ -1,7 +1,6 @@
 package io.github.erf88.stackemu.cli;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,7 +55,13 @@ final class SandboxDiagnostics {
 
     Result version = execute("version", "--format", "{{.Server.Version}}");
     if (!version.succeeded()) {
-      fail(fields, "unknown", "docker-unavailable", "Docker daemon is unavailable", "Start Docker Desktop and retry", 3);
+      fail(
+          fields,
+          "unknown",
+          "docker-unavailable",
+          "Docker daemon is unavailable",
+          "Start Docker Desktop and retry",
+          3);
       checks.add(check("docker", "unavailable", fields.get("cause")));
       return report(fields, checks, detailed);
     }
@@ -67,7 +72,13 @@ final class SandboxDiagnostics {
       if (isNotFound(inspect.output())) {
         return missingContainer(fields, checks, detailed, projectId, volume, awsPort, consolePort);
       } else {
-        fail(fields, "unknown", "docker-inspection-failed", "Docker could not inspect the sandbox", "Check Docker permissions and retry", 3);
+        fail(
+            fields,
+            "unknown",
+            "docker-inspection-failed",
+            "Docker could not inspect the sandbox",
+            "Check Docker permissions and retry",
+            3);
         checks.add(check("docker", "error", fields.get("cause")));
       }
       checks.add(check("container", "missing", fields.get("cause")));
@@ -78,7 +89,13 @@ final class SandboxDiagnostics {
     try {
       containerInfo = mapping(inspect.output(), "container inspection");
     } catch (RuntimeException failure) {
-      fail(fields, "unknown", "docker-response-invalid", "Docker returned an unreadable inspection result", "Check the Docker CLI version", 3);
+      fail(
+          fields,
+          "unknown",
+          "docker-response-invalid",
+          "Docker returned an unreadable inspection result",
+          "Check the Docker CLI version",
+          3);
       checks.add(check("container", "invalid", fields.get("cause")));
       return report(fields, checks, detailed);
     }
@@ -105,22 +122,58 @@ final class SandboxDiagnostics {
 
     Result volumeResult = execute("volume", "inspect", "--format", "{{json .Labels}}", volume);
     if (!volumeResult.succeeded()) {
-      fail(fields, "unhealthy", "volume-missing", "The project volume is missing", "Inspect project state before starting or resetting it", 4);
+      fail(
+          fields,
+          "unhealthy",
+          "volume-missing",
+          "The project volume is missing",
+          "Inspect project state before starting or resetting it",
+          4);
       checks.add(check("volume", "missing", fields.get("cause")));
-      return finish(fields, checks, detailed, health(containerState, dockerHealthState, emulatorHealth, consoleHealth), marker, volumeUsage);
+      return finish(
+          fields,
+          checks,
+          detailed,
+          health(containerState, dockerHealthState, emulatorHealth, consoleHealth),
+          marker,
+          volumeUsage);
     }
     Map<?, ?> labels;
     try {
       labels = mapping(volumeResult.output(), "volume labels");
     } catch (RuntimeException failure) {
-      fail(fields, "unhealthy", "volume-labels-invalid", "The project volume labels could not be read", "Inspect the volume before reusing it", 4);
+      fail(
+          fields,
+          "unhealthy",
+          "volume-labels-invalid",
+          "The project volume labels could not be read",
+          "Inspect the volume before reusing it",
+          4);
       checks.add(check("volume", "invalid", fields.get("cause")));
-      return finish(fields, checks, detailed, health(containerState, dockerHealthState, emulatorHealth, consoleHealth), marker, volumeUsage);
+      return finish(
+          fields,
+          checks,
+          detailed,
+          health(containerState, dockerHealthState, emulatorHealth, consoleHealth),
+          marker,
+          volumeUsage);
     }
     if (!projectId.equals(string(labels.get("io.stackemu.project")))) {
-      fail(fields, "unhealthy", "volume-owner-mismatch", "The volume is not labelled for this project", "Do not reuse it; inspect the volume ownership", 4);
+      fail(
+          fields,
+          "unhealthy",
+          "volume-owner-mismatch",
+          "The volume is not labelled for this project",
+          "Do not reuse it; inspect the volume ownership",
+          4);
       checks.add(check("volume", "mismatch", fields.get("cause")));
-      return finish(fields, checks, detailed, health(containerState, dockerHealthState, emulatorHealth, consoleHealth), marker, volumeUsage);
+      return finish(
+          fields,
+          checks,
+          detailed,
+          health(containerState, dockerHealthState, emulatorHealth, consoleHealth),
+          marker,
+          volumeUsage);
     }
 
     if ("running".equals(containerState)) {
@@ -147,10 +200,22 @@ final class SandboxDiagnostics {
         }
       }
     } else if ("created".equals(containerState) || "restarting".equals(containerState)) {
-      fail(fields, "starting", "container-starting", "The sandbox container is still starting", "Wait briefly and run status again", 6);
+      fail(
+          fields,
+          "starting",
+          "container-starting",
+          "The sandbox container is still starting",
+          "Wait briefly and run status again",
+          6);
       marker = unavailable("container-not-running");
     } else {
-      fail(fields, "stopped", "container-stopped", "The sandbox container is not running", "Run stackemu start", 6);
+      fail(
+          fields,
+          "stopped",
+          "container-stopped",
+          "The sandbox container is not running",
+          "Run stackemu start",
+          6);
       marker = unavailable("container-not-running");
     }
 
@@ -160,29 +225,101 @@ final class SandboxDiagnostics {
 
     if (fields.get("cause") == null) {
       if ("starting".equals(dockerHealthState)) {
-        fail(fields, "starting", "emulator-starting", "MiniStack is still starting", "Wait briefly and run status again", 6);
+        fail(
+            fields,
+            "starting",
+            "emulator-starting",
+            "MiniStack is still starting",
+            "Wait briefly and run status again",
+            6);
       } else if ("unhealthy".equals(dockerHealthState) || !"healthy".equals(emulatorHealth)) {
-        fail(fields, "unhealthy", "emulator-unhealthy", "MiniStack health check failed", "Inspect container logs and verify the emulator process", 6);
+        fail(
+            fields,
+            "unhealthy",
+            "emulator-unhealthy",
+            "MiniStack health check failed",
+            "Inspect container logs and verify the emulator process",
+            6);
       } else if (!"healthy".equals(consoleHealth)) {
-        fail(fields, "unhealthy", "console-unready", "The StackEmu console is not ready", "Inspect container logs and verify bootstrap completion", 6);
+        fail(
+            fields,
+            "unhealthy",
+            "console-unready",
+            "The StackEmu console is not ready",
+            "Inspect container logs and verify bootstrap completion",
+            6);
       } else if (hostPortConflict) {
-        fail(fields, "unhealthy", "host-port-in-use", "A configured host port is occupied by another process", "Choose free ports.aws and ports.console values, then run stackemu restart", 3);
+        fail(
+            fields,
+            "unhealthy",
+            "host-port-in-use",
+            "A configured host port is occupied by another process",
+            "Choose free ports.aws and ports.console values, then run stackemu restart",
+            3);
       } else if ("invalid".equals(marker.get("status"))) {
-        fail(fields, "unhealthy", "marker-invalid", "The sandbox marker is unreadable", "Run reset to recreate project state", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "marker-invalid",
+            "The sandbox marker is unreadable",
+            "Run reset to recreate project state",
+            4);
       } else if (!"available".equals(marker.get("status"))) {
-        fail(fields, "unhealthy", "marker-unavailable", "The sandbox marker is not available", "Run reset to recreate and bootstrap project state", 6);
+        fail(
+            fields,
+            "unhealthy",
+            "marker-unavailable",
+            "The sandbox marker is not available",
+            "Run reset to recreate and bootstrap project state",
+            6);
       } else if (!Boolean.TRUE.equals(marker.get("matchesProject"))) {
-        fail(fields, "unhealthy", "marker-owner-mismatch", "The marker belongs to another project", "Do not reuse this volume; inspect project ownership", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "marker-owner-mismatch",
+            "The marker belongs to another project",
+            "Do not reuse this volume; inspect project ownership",
+            4);
       } else if (!Integer.valueOf(1).equals(marker.get("schemaVersion"))) {
-        fail(fields, "unhealthy", "marker-schema-incompatible", "The marker schema is incompatible", "Use a compatible StackEmu image or reset this project", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "marker-schema-incompatible",
+            "The marker schema is incompatible",
+            "Use a compatible StackEmu image or reset this project",
+            4);
       } else if (!">=0.1.0 <1.0.0".equals(marker.get("imageCompatibility"))) {
-        fail(fields, "unhealthy", "marker-image-incompatible", "The marker is incompatible with this image", "Use a compatible StackEmu image or reset this project", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "marker-image-incompatible",
+            "The marker is incompatible with this image",
+            "Use a compatible StackEmu image or reset this project",
+            4);
       } else if (!Boolean.TRUE.equals(marker.get("matchesStateConfiguration"))) {
-        fail(fields, "unhealthy", "configuration-drift", "The marker does not match project resources in the current configuration", "Run reset to apply the current configuration", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "configuration-drift",
+            "The marker does not match project resources in the current configuration",
+            "Run reset to apply the current configuration",
+            4);
       } else if (!Boolean.TRUE.equals(marker.get("matchesConfiguration"))) {
-        fail(fields, "unhealthy", "port-configuration-pending", "Only the host port settings changed", "Run stackemu restart to apply the port settings without resetting project data", 6);
+        fail(
+            fields,
+            "unhealthy",
+            "port-configuration-pending",
+            "Only the host port settings changed",
+            "Run stackemu restart to apply the port settings without resetting project data",
+            6);
       } else if (!portMappingMatches) {
-        fail(fields, "unhealthy", "port-mapping-mismatch", "The container is using different host ports than stackemu.yaml", "Run stackemu restart to apply the configured ports; the project volume is preserved", 6);
+        fail(
+            fields,
+            "unhealthy",
+            "port-mapping-mismatch",
+            "The container is using different host ports than stackemu.yaml",
+            "Run stackemu restart to apply the configured ports; the project volume is preserved",
+            6);
       } else {
         fields.put("status", "ready");
         fields.put("exitCode", 0);
@@ -202,7 +339,9 @@ final class SandboxDiagnostics {
         check(
             "hostPorts",
             portMappingMatches ? "matching" : (hostPortConflict ? "in-use" : "mismatch"),
-            portMappingMatches ? null : (hostPortConflict ? "host-port-in-use" : "port-mapping-mismatch")));
+            portMappingMatches
+                ? null
+                : (hostPortConflict ? "host-port-in-use" : "port-mapping-mismatch")));
     checks.add(
         check(
             "marker",
@@ -233,14 +372,26 @@ final class SandboxDiagnostics {
       try {
         labels = mapping(volumeResult.output(), "volume labels");
       } catch (RuntimeException failure) {
-        fail(fields, "unhealthy", "volume-labels-invalid", "The project volume labels could not be read", "Inspect the volume before reusing it", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "volume-labels-invalid",
+            "The project volume labels could not be read",
+            "Inspect the volume before reusing it",
+            4);
         checks.add(check("volume", "invalid", fields.get("cause")));
         checks.add(check("container", "missing", fields.get("cause")));
         fields.put("marker", unavailable("container-not-running"));
         return report(fields, checks, detailed);
       }
       if (!projectId.equals(string(labels.get("io.stackemu.project")))) {
-        fail(fields, "unhealthy", "volume-owner-mismatch", "The volume is not labelled for this project", "Do not reuse it; inspect the volume ownership", 4);
+        fail(
+            fields,
+            "unhealthy",
+            "volume-owner-mismatch",
+            "The volume is not labelled for this project",
+            "Do not reuse it; inspect the volume ownership",
+            4);
         checks.add(check("volume", "mismatch", fields.get("cause")));
         checks.add(check("container", "missing", fields.get("cause")));
         fields.put("marker", unavailable("container-not-running"));
@@ -252,14 +403,32 @@ final class SandboxDiagnostics {
     }
     fields.put("marker", unavailable("container-not-running"));
     if (imageDigest.isBlank()) {
-      fail(fields, "missing", "image-missing", "The local StackEmu image is unavailable", "Build or load stackemu:local", 3);
+      fail(
+          fields,
+          "missing",
+          "image-missing",
+          "The local StackEmu image is unavailable",
+          "Build or load stackemu:local",
+          3);
       checks.add(check("image", "missing", fields.get("cause")));
     } else if (!portAvailable.test(awsPort) || !portAvailable.test(consolePort)) {
-      fail(fields, "missing", "host-port-in-use", "A configured host port is occupied by another process", "Choose free ports.aws and ports.console values before running stackemu start", 3);
+      fail(
+          fields,
+          "missing",
+          "host-port-in-use",
+          "A configured host port is occupied by another process",
+          "Choose free ports.aws and ports.console values before running stackemu start",
+          3);
       checks.add(check("image", "available", null));
       checks.add(check("hostPorts", "in-use", fields.get("cause")));
     } else {
-      fail(fields, "missing", "container-not-found", "Sandbox container does not exist", "Run stackemu start", 6);
+      fail(
+          fields,
+          "missing",
+          "container-not-found",
+          "Sandbox container does not exist",
+          "Run stackemu start",
+          6);
       checks.add(check("image", "available", null));
     }
     checks.add(check("container", "missing", fields.get("cause")));
@@ -279,7 +448,8 @@ final class SandboxDiagnostics {
     return result.succeeded() ? "healthy" : "unhealthy";
   }
 
-  private static Report report(Map<String, Object> fields, List<Map<String, Object>> checks, boolean detailed) {
+  private static Report report(
+      Map<String, Object> fields, List<Map<String, Object>> checks, boolean detailed) {
     if (detailed) fields.put("checks", checks);
     return new Report(fields, (Integer) fields.get("exitCode"));
   }
@@ -359,7 +529,8 @@ final class SandboxDiagnostics {
     return marker;
   }
 
-  private static Map<String, Object> health(String container, String docker, String emulator, String console) {
+  private static Map<String, Object> health(
+      String container, String docker, String emulator, String console) {
     var health = new LinkedHashMap<String, Object>();
     health.put("container", container);
     health.put("docker", docker);
@@ -385,7 +556,12 @@ final class SandboxDiagnostics {
   }
 
   private static void fail(
-      Map<String, Object> fields, String status, String code, String message, String action, int exitCode) {
+      Map<String, Object> fields,
+      String status,
+      String code,
+      String message,
+      String action,
+      int exitCode) {
     fields.put("status", status);
     var cause = new LinkedHashMap<String, Object>();
     cause.put("code", code);
@@ -406,13 +582,16 @@ final class SandboxDiagnostics {
 
   private static boolean isNotFound(String message) {
     String lower = message.toLowerCase(java.util.Locale.ROOT);
-    return lower.contains("no such object") || lower.contains("no such container") || lower.contains("not found");
+    return lower.contains("no such object")
+        || lower.contains("no such container")
+        || lower.contains("not found");
   }
 
   private static Map<?, ?> mapping(String value, String label) {
     Object parsed =
         new Load(LoadSettings.builder().setLabel(label).build()).loadFromString(value.trim());
-    if (!(parsed instanceof Map<?, ?> map)) throw new IllegalArgumentException(label + " is not a mapping");
+    if (!(parsed instanceof Map<?, ?> map))
+      throw new IllegalArgumentException(label + " is not a mapping");
     return map;
   }
 

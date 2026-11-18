@@ -1,0 +1,10 @@
+{#include layout}
+  {#title}SNS{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form">
+      <h1>{ui.text('snsErrorTitle')}</h1>
+      <p class="error" role="alert">{message}</p>
+      <a class="button primary" href="{returnHref}">{ui.text('retry')}</a>
+    </div>
+  {/content}
+{/include}

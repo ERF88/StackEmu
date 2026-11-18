@@ -1,38 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.github.erf88</groupId>
+  <parent>
+    <groupId>io.github.erf88</groupId>
+    <artifactId>stackemu-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
   <artifactId>stackemu-cli</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
   <name>StackEmu CLI</name>
-  <properties>
-    <maven.compiler.release>25</maven.compiler.release>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <quarkus.version>3.40.1</quarkus.version>
-    <native.maven.plugin.version>1.1.18</native.maven.plugin.version>
-  </properties>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.quarkus.platform</groupId>
-        <artifactId>quarkus-amazon-services-bom</artifactId>
-        <version>${quarkus.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.12.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.snakeyaml</groupId>
       <artifactId>snakeyaml-engine</artifactId>
-      <version>2.10</version>
     </dependency>
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
@@ -63,8 +48,10 @@
         <version>3.6.0</version>
         <executions>
           <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
             <phase>package</phase>
-            <goals><goal>shade</goal></goals>
             <configuration>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
@@ -105,20 +92,20 @@
             <artifactId>native-maven-plugin</artifactId>
             <version>${native.maven.plugin.version}</version>
             <extensions>true</extensions>
-            <executions>
-              <execution>
-                <id>build-native</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>compile-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <mainClass>io.github.erf88.stackemu.cli.StackEmuCli</mainClass>
               <imageName>stackemu</imageName>
               <fallback>false</fallback>
             </configuration>
+            <executions>
+              <execution>
+                <id>build-native</id>
+                <goals>
+                  <goal>compile-no-fork</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

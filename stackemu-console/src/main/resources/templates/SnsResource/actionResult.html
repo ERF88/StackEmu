@@ -1,0 +1,10 @@
+{#include layout}
+  {#title}{title} · SNS{/title}
+  {#content}
+    <div id="action-workspace" class="action-workspace" data-action-surface="form" data-action-completed data-result-return="{returnHref}" data-refresh-target="{refreshTarget}" data-notice="{message}">
+      <h1>{#include icons/success /}{title}</h1>
+      <p>{message}</p>
+      <a class="button primary" data-result-return href="{returnHref}">{returnLabel}</a>
+    </div>
+  {/content}
+{/include}

@@ -1,0 +1,49 @@
+{#include layout}
+  {#title}{ui.text('operations')}{/title}
+  {#content}
+    <section class="operations-page" aria-labelledby="operations-title">
+      <header class="page-heading">
+        <div>
+          <h1 id="operations-title">{ui.text('operations')}</h1>
+          <p>{ui.text('operationsDescription')}</p>
+        </div>
+      </header>
+      {#if view.empty}
+        <div class="resource-state sns-empty-state operations-empty-state" role="status">
+          <h2>{ui.text('operationsEmpty')}</h2>
+          <p>{ui.text('operationsEmptyHelp')}</p>
+          <a class="button" href="/s3?{ui.query}">{ui.text('goToS3')}</a>
+        </div>
+      {#else}
+        <section aria-labelledby="operations-recent-title">
+          <div class="page-heading"><div><h2 id="operations-recent-title">{ui.text('operationsRecent')}</h2></div></div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="{ui.text('operationsRecent')}">
+            <table class="resource-table operations-table">
+              <colgroup><col class="operation-kind-column"><col class="operation-resource-column"><col class="operation-state-column"><col class="operation-progress-column"><col class="operation-actions-column"></colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">{ui.text('action')}</th>
+                  <th scope="col">{ui.text('operationsResource')}</th>
+                  <th scope="col">{ui.text('operationStatus')}</th>
+                  <th scope="col">{ui.text('operationProgress')}</th>
+                  <th scope="col">{ui.text('action')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#for row in view.operations}
+                  <tr>
+                    <th scope="row"><a href="{row.reviewHref}">{ui.text(row.titleKey)}</a></th>
+                    <td><code title="{row.target}">{row.target}</code></td>
+                    <td>{ui.text(row.stateKey)}</td>
+                    <td>{row.progress}</td>
+                    <td><a href="{row.reviewHref}">{ui.text('viewOperation')}</a></td>
+                  </tr>
+                {/for}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      {/if}
+    </section>
+  {/content}
+{/include}

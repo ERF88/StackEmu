@@ -1,0 +1,27 @@
+{#include layout}
+  {#title}{ui.text('snsCreateTopic')}{/title}
+  {#content}
+    <div class="service-page sns-page sns-create-page">
+      <header class="page-heading bucket-workspace-heading">
+        <div><h1>{ui.text('snsCreateTopic')}</h1><p>{ui.text('snsCreateTopicHelp')}</p></div>
+        <div class="page-actions"><a class="button" href="/sns?{ui.query}">{#include icons/back /}{ui.text('snsBackToTopics')}</a></div>
+      </header>
+      {#if actionError != ''}<p class="error" role="alert">{#include icons/error /}{actionError}</p>{/if}
+      <form class="mutation-form sns-form sns-create-form" method="post" action="/sns/actions/create" data-submitting-label="{ui.text('submitting')}">
+        <input type="hidden" name="csrf-token" value="{inject:csrf.token}">
+        <input type="hidden" name="lang" value="{ui.language}">
+        <input type="hidden" name="theme" value="{ui.theme}">
+        <input type="hidden" name="density" value="{ui.density}">
+        <label for="sns-topic-name">{ui.text('snsTopicName')}</label>
+        <input id="sns-topic-name" name="name" type="text" required maxlength="{#if fifo}251{#else}256{/if}" pattern="[A-Za-z0-9_-]&#123;1,256&#125;" autocomplete="off" spellcheck="false" value="{name}" aria-describedby="sns-topic-name-help">
+        <small id="sns-topic-name-help">{ui.text('snsTopicNameHelp')}</small>
+        <label class="sns-fifo-option"><input type="checkbox" name="fifo" value="true" {#if fifo}checked{/if}> {ui.text('snsFifoTopic')}</label>
+        <small>{ui.text('snsFifoTopicHelp')}</small>
+        <div class="form-actions">
+          <a class="button" href="/sns?{ui.query}">{ui.text('cancelAction')}</a>
+          <button class="button primary" type="submit">{#include icons/add /}{ui.text('snsCreateTopic')}</button>
+        </div>
+      </form>
+    </div>
+  {/content}
+{/include}
