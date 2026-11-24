@@ -40,7 +40,7 @@ public class SqsActionsResource {
   @CheckedTemplate
   public static class Templates {
     public static native TemplateInstance form(
-        String action, String queue, String message, UiContext ui);
+        String action, String queue, boolean fifo, String message, UiContext ui);
 
     public static native TemplateInstance received(
         String queue, List<SqsMessagePort.ReceivedMessage> messages, UiContext ui);
@@ -99,6 +99,7 @@ public class SqsActionsResource {
         Templates.form(
             normalize(action),
             safe(queue),
+            fifoQueue(queue),
             "",
             UiContext.resolve(language, null, theme, density, "/sqs/actions")));
   }
@@ -372,6 +373,10 @@ public class SqsActionsResource {
     return value == null ? "" : value;
   }
 
+  private static boolean fifoQueue(String queue) {
+    return queue != null && queue.endsWith(".fifo");
+  }
+
   private static Map<String, String> tags(String source) {
     if (source == null || source.isBlank()) return Map.of();
     Map<String, String> tags = new java.util.LinkedHashMap<>();
@@ -449,6 +454,7 @@ public class SqsActionsResource {
     }
     return SqsWebSupport.workspace(
         SqsWebSupport.status(failure),
-        Templates.form(action, queue, ui.text(SqsWebSupport.messageKey(failure)), ui));
+        Templates.form(
+            action, queue, fifoQueue(queue), ui.text(SqsWebSupport.messageKey(failure)), ui));
   }
 }

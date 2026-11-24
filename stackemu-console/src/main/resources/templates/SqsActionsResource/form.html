@@ -18,7 +18,41 @@
           <label for="queue-name">{ui.text('sqsQueueName')}</label><input id="queue-name" name="name" required maxlength="80"><label><input type="checkbox" name="fifo" value="true"> {ui.text('sqsFifoQueue')}</label><label><input type="checkbox" name="createDlq" value="true"> {ui.text('sqsCreateDlq')}</label><label for="max-receive-count">{ui.text('sqsMaximumReceives')}</label><input id="max-receive-count" name="maxReceiveCount" type="number" min="1" max="1000" value="5"><p>{ui.text('sqsDlqAutoHelp')}</p><button class="button primary" type="submit">{#include icons/add /}{ui.text('sqsCreateQueue')}</button>
         {#else}
           <input type="hidden" name="queue" value="{queue}"><p>{ui.text('sqsQueue')}: <code>{queue}</code></p>
-          {#if action == 'send'}<label for="message-body">{ui.text('sqsMessageBody')}</label><textarea id="message-body" name="body" required></textarea><label for="group-id">{ui.text('sqsMessageGroupId')}</label><input id="group-id" name="groupId"><label for="deduplication-id">{ui.text('sqsDeduplicationId')}</label><input id="deduplication-id" name="deduplicationId"><button class="button primary" type="submit">{#include icons/send /}{ui.text('sqsSendMessage')}</button>{#else}{#if action == 'send-batch'}<label for="batch-bodies">{ui.text('sqsBatchBodies')}</label><textarea id="batch-bodies" name="bodies" required></textarea><label for="batch-group-id">{ui.text('sqsMessageGroupId')}</label><input id="batch-group-id" name="groupId"><button class="button primary" type="submit">{#include icons/send /}{ui.text('sqsSendBatch')}</button>{#else}{#if action == 'receive'}<p>{ui.text('sqsReceiveChangesVisibility')}</p><label for="maximum-messages">{ui.text('sqsMaximumMessages')}</label><input id="maximum-messages" name="maximumMessages" type="number" min="1" max="10" value="1" required><label for="visibility-timeout">{ui.text('sqsVisibilityTimeout')}</label><input id="visibility-timeout" name="visibilityTimeout" type="number" min="0" max="43200" value="0" required><button class="button primary" type="submit">{#include icons/receive /}{ui.text('sqsReceiveMessages')}</button>{#else}<p>{#if action == 'purge'}{ui.text('sqsDestructiveConfirmation')}{#else}{ui.text('sqsDestructiveConfirmation')}{/if}</p><label for="confirm-name">{ui.text('sqsQueueName')}</label><input id="confirm-name" name="confirmName" required><button class="button danger" type="submit">{#if action == 'purge'}{#include icons/refresh /}{ui.text('sqsPurgeQueue')}{#else}{#include icons/delete /}{ui.text('sqsDeleteQueue')}{/if}</button>{/if}{/if}{/if}
+          {#if action == 'send'}
+            <label for="message-body">{ui.text('sqsMessageBody')}</label>
+            <textarea id="message-body" name="body" required></textarea>
+            {#if fifo}
+              <label for="group-id">{ui.text('sqsMessageGroupId')}</label>
+              <input id="group-id" name="groupId">
+              <label for="deduplication-id">{ui.text('sqsDeduplicationId')}</label>
+              <input id="deduplication-id" name="deduplicationId">
+            {/if}
+            <button class="button primary" type="submit">{#include icons/send /}{ui.text('sqsSendMessage')}</button>
+          {#else}
+            {#if action == 'send-batch'}
+              <label for="batch-bodies">{ui.text('sqsBatchBodies')}</label>
+              <textarea id="batch-bodies" name="bodies" required></textarea>
+              {#if fifo}
+                <label for="batch-group-id">{ui.text('sqsMessageGroupId')}</label>
+                <input id="batch-group-id" name="groupId">
+              {/if}
+              <button class="button primary" type="submit">{#include icons/send /}{ui.text('sqsSendBatch')}</button>
+            {#else}
+              {#if action == 'receive'}
+                <p>{ui.text('sqsReceiveChangesVisibility')}</p>
+                <label for="maximum-messages">{ui.text('sqsMaximumMessages')}</label>
+                <input id="maximum-messages" name="maximumMessages" type="number" min="1" max="10" value="1" required>
+                <label for="visibility-timeout">{ui.text('sqsVisibilityTimeout')}</label>
+                <input id="visibility-timeout" name="visibilityTimeout" type="number" min="0" max="43200" value="0" required>
+                <button class="button primary" type="submit">{#include icons/receive /}{ui.text('sqsReceiveMessages')}</button>
+              {#else}
+                <p>{ui.text('sqsDestructiveConfirmation')}</p>
+                <label for="confirm-name">{ui.text('sqsQueueName')}</label>
+                <input id="confirm-name" name="confirmName" required>
+                <button class="button danger" type="submit">{#if action == 'purge'}{#include icons/refresh /}{ui.text('sqsPurgeQueue')}{#else}{#include icons/delete /}{ui.text('sqsDeleteQueue')}{/if}</button>
+              {/if}
+            {/if}
+          {/if}
         {/if}
       </form>
     </div>
