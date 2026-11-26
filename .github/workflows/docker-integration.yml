@@ -1,8 +1,6 @@
 name: StackEmu Docker integration
 
 on:
-  pull_request:
-  push:
   workflow_dispatch:
 
 permissions:
