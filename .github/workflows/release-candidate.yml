@@ -88,7 +88,7 @@ jobs:
       - name: Build native executable
         env:
           RELEASE_VERSION: ${{ needs.validate.outputs.version }}
-        run: mvn -B -ntp -pl stackemu-cli -am -Pnative -DskipTests -Drevision=${{ needs.validate.outputs.version }} package
+        run: mvn -B -ntp -pl stackemu-cli -am -Pnative -DskipTests "-Drevision=${{ needs.validate.outputs.version }}" package
 
       - name: Smoke-test native executable
         if: runner.os != 'Windows'
