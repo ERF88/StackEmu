@@ -1,0 +1,286 @@
+name: Release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "SemVer release candidate without the v prefix (for example 0.1.0-rc.1)"
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release-candidate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate release request
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+    steps:
+      - name: Validate branch and version
+        id: version
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Release candidates must be built from main."
+            exit 1
+          fi
+          if [[ ! "$VERSION_INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
+            echo "::error::Version must look like 0.1.0-rc.1 and omit the leading v."
+            exit 1
+          fi
+          refs="$(git ls-remote --tags "https://github.com/$GITHUB_REPOSITORY.git" "refs/tags/v$VERSION_INPUT" "refs/tags/v$VERSION_INPUT^{}")"
+          if [[ -n "$refs" ]]; then
+            echo "::error::Tag v$VERSION_INPUT already exists."
+            exit 1
+          fi
+          echo "value=$VERSION_INPUT" >> "$GITHUB_OUTPUT"
+
+  native-cli:
+    name: Native CLI (${{ matrix.target }})
+    needs: validate
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: linux-x64
+            binary: linux-x64
+          - runner: ubuntu-24.04-arm
+            target: linux-arm64
+            binary: linux-arm64
+          - runner: windows-latest
+            target: windows-x64
+            binary: windows-x64
+          - runner: macos-15-intel
+            target: darwin-x64
+            binary: darwin-x64
+          - runner: macos-latest
+            target: darwin-arm64
+            binary: darwin-arm64
+    permissions:
+      contents: read
+    steps:
+      - name: Check out release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up GraalVM 25
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '25.0'
+          distribution: graalvm
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: maven
+          native-image-job-reports: 'true'
+
+      - name: Build native executable
+        env:
+          RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+        run: mvn -B -ntp -pl stackemu-cli -am -Pnative -DskipTests -Drevision=${{ needs.validate.outputs.version }} package
+
+      - name: Smoke-test native executable
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          config="$RUNNER_TEMP/stackemu-native-smoke.yaml"
+          printf 'version: 1\nproject: {}\n' > "$config"
+          set +e
+          output="$(./stackemu-cli/target/stackemu start --config "$config" 2>&1)"
+          exit_code=$?
+          set -e
+          if [[ "$exit_code" -ne 2 ]] || ! grep -Fq 'project.id must be lowercase letters, digits, and hyphens' <<< "$output"; then
+            printf '%s\n' "$output"
+            exit 1
+          fi
+
+      - name: Smoke-test native executable on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $config = Join-Path $env:RUNNER_TEMP 'stackemu-native-smoke.yaml'
+          "version: 1`nproject: {}" | Set-Content -Path $config -Encoding ascii
+          $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+          $startInfo.FileName = (Resolve-Path '.\stackemu-cli\target\stackemu.exe').Path
+          $startInfo.ArgumentList.Add('start')
+          $startInfo.ArgumentList.Add('--config')
+          $startInfo.ArgumentList.Add($config)
+          $startInfo.RedirectStandardOutput = $true
+          $startInfo.RedirectStandardError = $true
+          $startInfo.UseShellExecute = $false
+          $process = [System.Diagnostics.Process]::Start($startInfo)
+          $stdout = $process.StandardOutput.ReadToEnd()
+          $stderr = $process.StandardError.ReadToEnd()
+          $process.WaitForExit()
+          $cliOutput = $stdout + $stderr
+          if ($process.ExitCode -ne 2 -or $cliOutput -notmatch [regex]::Escape('project.id must be lowercase letters, digits, and hyphens')) {
+            Write-Host $cliOutput
+            throw "Native CLI smoke test failed with exit code $($process.ExitCode)"
+          }
+
+      - name: Name versioned binary
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+          TARGET: ${{ matrix.binary }}
+        run: |
+          mkdir -p release-assets
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cp stackemu-cli/target/stackemu.exe "release-assets/stackemu-$RELEASE_VERSION-$TARGET.exe"
+          else
+            cp stackemu-cli/target/stackemu "release-assets/stackemu-$RELEASE_VERSION-$TARGET"
+          fi
+
+      - name: Upload versioned binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: stackemu-${{ matrix.target }}
+          path: release-assets/*
+          if-no-files-found: error
+          retention-days: 14
+
+  container-image:
+    name: Build and publish multi-platform image
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.name }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Check out release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Prepare lower-case image name
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push versioned image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            STACKEMU_VERSION=${{ needs.validate.outputs.version }}
+          tags: ${{ steps.image.outputs.name }}:v${{ needs.validate.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.validate.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          provenance: true
+          sbom: true
+
+  draft-release:
+    name: Assemble reviewable release candidate
+    needs: [validate, native-cli, container-image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download native binaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: stackemu-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Write image digest manifest and checksums
+        env:
+          RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+          IMAGE_NAME: ${{ needs.container-image.outputs.image }}
+          IMAGE_DIGEST: ${{ needs.container-image.outputs.digest }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          output = Path("release-assets")
+          version = os.environ["RELEASE_VERSION"]
+          image = {
+              "name": os.environ["IMAGE_NAME"],
+              "tag": f"v{version}",
+              "digest": os.environ["IMAGE_DIGEST"],
+              "platforms": ["linux/amd64", "linux/arm64"],
+          }
+          manifest = {
+              "schemaVersion": 1,
+              "version": version,
+              "source": {
+                  "repository": os.environ["SOURCE_REPOSITORY"],
+                  "commit": os.environ["SOURCE_COMMIT"],
+              },
+              "image": image,
+              "baseImage": "ministackorg/ministack:1.5.25@sha256:1754efa38cac6fbaa696d9ce0fe30cd28f74e67e4ba60167a8a96bd167dfd9b1",
+          }
+          (output / "image-digests.json").write_text(
+              json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+          )
+          files = sorted(
+              path for path in output.iterdir()
+              if path.is_file() and path.name != "SHA256SUMS"
+          )
+          lines = []
+          for path in files:
+              digest = hashlib.file_digest(path.open("rb"), "sha256").hexdigest()
+              lines.append(f"{digest}  {path.name}")
+          (output / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+
+      - name: Create draft pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: v${{ needs.validate.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: StackEmu v${{ needs.validate.outputs.version }}
+          draft: true
+          prerelease: true
+          make_latest: false
+          generate_release_notes: true
+          body: |
+            Release candidate for review. This draft is not the stable release.
+
+            The GHCR image is published as `${{ needs.container-image.outputs.image }}:v${{ needs.validate.outputs.version }}`.
+            Its immutable digest and platform list are in `image-digests.json`.
+            Verify assets with `SHA256SUMS` before testing.
+
+            The launcher currently expects the Docker image tag `stackemu:local`. Pull the versioned image and add that local tag before running the CLI.
+          files: release-assets/*
+          fail_on_unmatched_files: true

@@ -38,6 +38,10 @@ docker compose up --build
 
 The default local endpoints are `http://127.0.0.1:4566` for AWS APIs and `http://127.0.0.1:8080` for the console. The supported user-facing lifecycle interface is the `stackemu` executable; Compose is for repository development and integration tests.
 
+## Release candidates
+
+A manual GitHub Actions workflow builds versioned native launchers and a multi-platform container image, then creates a draft pre-release with an image digest manifest and SHA-256 checksums. See [docs/releasing.md](docs/releasing.md) for the pilot and review steps.
+
 ## AWS API contract checks
 
 The Bash and PowerShell scripts exercise S3 bucket/object operations, SQS queue/message operations, SNS topic/subscription operations, and SNS-to-SQS delivery. They create uniquely named resources and remove only those resources during cleanup.
