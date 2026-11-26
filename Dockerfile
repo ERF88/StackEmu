@@ -15,6 +15,6 @@ COPY --from=build /workspace/stackemu-console/target/quarkus-app /opt/stackemu
 COPY docker/s6 /etc/s6
 COPY docker/entrypoint.sh /usr/local/bin/stackemu-entrypoint
 RUN chmod +x /usr/local/bin/stackemu-entrypoint /etc/s6/*/run
-ENV STACKEMU_ENDPOINT=http://127.0.0.1:4566 STACKEMU_OPERATIONS_PATH=/data/stackemu/operations SERVICES=s3,sqs,sns PERSIST_STATE=1 S3_PERSIST=1 QUARKUS_HTTP_HOST=0.0.0.0
+ENV STACKEMU_ENDPOINT=http://127.0.0.1:4566 STACKEMU_OPERATIONS_PATH=/data/stackemu/operations STATE_DIR=/data/stackemu/ministack-state S3_DATA_DIR=/data/stackemu/s3 SERVICES=s3,sqs,sns PERSIST_STATE=1 S3_PERSIST=1 QUARKUS_HTTP_HOST=0.0.0.0
 EXPOSE 4566 8080
 ENTRYPOINT ["/usr/local/bin/stackemu-entrypoint"]
